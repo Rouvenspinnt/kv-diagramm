@@ -412,6 +412,8 @@
   .note { font-size:.84rem; color:var(--ink-2); margin:var(--s3) 0 0; }
   .note.bad { color:var(--dc); }
   .formula { font-family:var(--mono); font-size:.78rem; color:var(--ink-3); white-space:pre-wrap; }
+  /* Stehen mehrere Formeln in einer Zeile, bricht sie zwischen ihnen um, nie mittendrin. */
+  .formula span { white-space:nowrap; }
   .rowline { display:flex; flex-wrap:wrap; gap:var(--s3); align-items:flex-end; }
   table.vals { border-collapse:collapse; width:100%; font-family:var(--mono); font-size:.86rem; }
   table.vals th { text-align:left; font-size:.72rem; color:var(--ink-3); letter-spacing:.07em;
