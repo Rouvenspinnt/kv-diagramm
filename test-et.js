@@ -87,5 +87,25 @@ near(et.resonance(0.1, 1e-6), 503.2921, 'Resonanz 100 mH / 1 µF', 1e-5);
 var f0 = et.resonance(0.01, 1e-7);
 near(et.xl(f0, 0.01) - et.xc(f0, 1e-7), 0, 'bei f0 ist XL = XC', 1e-6);
 
+// Verzeichnis und Suche
+var T = require('./tools.js');
+function erster(frage) { var r = T.suche(frage); return r.length ? r[0].id : null; }
+ok(erster('resonanz') === 'wechselstrom', 'Suche: Resonanz -> Wechselstrom');
+ok(erster('vorwiderstand') === 'led', 'Suche: Vorwiderstand -> LED');
+ok(erster('farbringe') === 'farbcode', 'Suche: Farbringe -> Farbcode');
+ok(erster('dnf') === 'kv', 'Suche: DNF -> KV-Diagramm');
+ok(erster('ohm') === 'ohm', 'Suche: Titeltreffer schlaegt Stichworttreffer');
+ok(T.suche('blumentopf').length === 0, 'Suche: nichts Passendes ergibt nichts');
+ok(T.suche('cos phi').length > 0, 'Suche: zwei Woerter finden den Eintrag');
+ok(T.suche('resonanz blumentopf').length === 0, 'Suche: jedes Wort muss vorkommen');
+ok(T.ausDatei('ohm.html').id === 'ohm', 'Datei -> Werkzeug');
+ok(T.ausDatei('gibtesnicht.html') === null, 'unbekannte Datei ergibt nichts');
+ok(T.imGebiet('elektro').length === 4, 'vier Werkzeuge in der Elektrotechnik');
+T.TOOLS.forEach(function (t) {
+  ok(/^[a-z0-9-]+\.html(#[a-z0-9-]+)?$/.test(t.datei), 'Dateiname sauber: ' + t.id);
+  ok(T.GEBIETE.some(function (g) { return g[0] === t.gebiet; }), 'Gebiet bekannt: ' + t.id);
+  ok(t.w.length > 0 && t.kurz.length > 0, 'Stichworte und Kurztext da: ' + t.id);
+});
+
 console.log(fails ? fails + ' Fehler' : 'alle Tests bestanden');
 process.exit(fails ? 1 : 0);

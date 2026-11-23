@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KV-Diagramm</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>KV-Diagramm</h1>
+    <p>Wertetabelle eintragen — Blöcke, minimale Gleichung und Abhängigkeiten entstehen mit.</p>
+    <nav class="nav" id="nav" aria-label="Werkzeuge"></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="panel controls">
+    <div class="field" data-help="Wie viele Eingänge deine Funktion hat, benannt A bis F. Die Wertetabelle bekommt dadurch 2^n Zeilen: 4 Variablen ergeben 16 Zeilen, 6 Variablen schon 64.">
+      <span class="lbl">Variablen</span>
+      <div class="seg" id="nvars" role="group" aria-label="Anzahl der Variablen">
+        <button data-n="2">2</button><button data-n="3">3</button><button data-n="4">4</button><button data-n="5">5</button><button data-n="6">6</button>
+      </div>
+      <span class="hint" id="varnames"></span>
+    </div>
+    <div class="field" data-help="DNF fasst die Einsen zu UND-Termen zusammen, die mit ODER verbunden werden. KNF fasst die Nullen zu ODER-Termen zusammen, verbunden mit UND. Nimm das, wovon es weniger gibt — das ergibt meist die kürzere Gleichung.">
+      <span class="lbl">Blöcke</span>
+      <div class="seg" id="mode" role="group" aria-label="Welche Blöcke das Diagramm zeigt">
+        <button data-mode="1">DNF · Einsen</button><button data-mode="0">KNF · Nullen</button>
+      </div>
+    </div>
+    <div class="field">
+      <button class="btn" id="clear">Zurücksetzen</button>
+      <button class="btn" id="rand">Zufallswerte</button>
+      <button class="btn" id="print">Als PDF / drucken</button>
+    </div>
+  </div>
+
+  <div class="cols">
+    <section class="panel">
+      <h2>Wertetabelle <span class="tag" id="rowcount"></span></h2>
+      <div class="body">
+        <label class="hint" for="col" data-help="Die Ausgangsspalte am Stück, von der obersten Zeile abwärts — z. B. 0110 1001. Leerzeichen darfst du setzen, wie du magst. X steht für don't care: Eingangskombinationen, die nie vorkommen und deshalb frei belegt werden dürfen.">Y-Spalte von oben nach unten</label>
+        <input id="col" spellcheck="false" autocomplete="off" aria-describedby="colmsg">
+        <p class="hint" id="colmsg" style="margin:6px 0 0"></p>
+        <div id="tt"></div>
+      </div>
+    </section>
+
+    <div class="stack">
+      <section class="panel">
+        <h2>Diagramm <span class="tag" id="axes"></span></h2>
+        <div class="body"><div id="map"></div></div>
+      </section>
+
+      <section class="panel">
+        <h2>Blöcke</h2>
+        <div class="body"><ul class="terms" id="groups"></ul></div>
+      </section>
+
+      <section class="panel">
+        <h2>Minimale Gleichung</h2>
+        <div class="body">
+          <div class="expr" id="dnf"></div>
+          <div class="expr" id="knf"></div>
+          <p id="plain"></p>
+          <p id="warn"></p>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Logikplan <span class="tag" id="plankind"></span></h2>
+        <div class="body"><div id="plan"></div></div>
+      </section>
+
+      <section class="panel">
+        <h2>Impulsdiagramm <span class="tag" id="pulstag"></span></h2>
+        <div class="body">
+          <p class="caption">Dieselbe Funktion als Signalverlauf: die Eingänge zählen binär hoch,
+            unten steht, was Y dabei macht.
+            Ein X liegt dabei auf halber Höhe.</p>
+          <div id="puls"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Abhängigkeiten</h2>
+        <div class="body deps" id="deps"></div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script src="tools.js"></script>
+<script src="et.js"></script>
+<script src="kv.js"></script>
+<script>
+(function () {
+  'use strict';
+  var GRAY = [0, 1, 3, 2];
+  var COLORS = ['#d8453f', '#3b7dd8', '#2f9e55', '#c07c12', '#8f5cd6', '#128f9c', '#c9418a', '#7b8c2a'];
+  var HINT = 'Klick schaltet 0 → 1 → X. Mit Tab anwählen und 0, 1 oder X tippen, ↑ ↓ wechselt die Zeile.';
+  var kv = window.KV;
+  var n = 4, mode = 1, vals = new Array(16).fill(0);
+  var $ = function (id) { return document.getElementById(id); };
+
+  function bitsOf(m, count) {
+    var s = '';
+    for (var i = count - 1; i >= 0; i--) s += (m >> i) & 1;
+    return s;
+  }
+  function layout() { // ab 5 Variablen: mehrere verkoppelte Tafeln (führende Variablen = Tafel)
+    var colBits = n >= 3 ? 2 : 1;
+    var rowBits = Math.min(n - colBits, 2);
+    var pageBits = n - colBits - rowBits;
+    var axis = function (b) { return b === 1 ? [0, 1] : GRAY; };
+    return { colBits: colBits, rowBits: rowBits, pageBits: pageBits,
+             cols: axis(colBits), rows: axis(rowBits), pages: pageBits ? axis(pageBits) : [0] };
+  }
+  function mintermOf(L, p, r, c) { return (p << (L.rowBits + L.colBits)) | (r << L.colBits) | c; }
+  function cycle(m) { vals[m] = (vals[m] + 1) % 3; render(); }
+  function label(v) { return v === 2 ? 'X' : String(v); }
+
+  function renderTruthTable() {
+    var L = kv.VARS.slice(0, n), h = '<table class="tt"><thead><tr><th></th>';
+    L.forEach(function (v) { h += '<th>' + v + '</th>'; });
+    h += '<th>Y</th></tr></thead><tbody>';
+    for (var m = 0; m < (1 << n); m++) {
+      h += '<tr><td class="idx">' + m + '</td>';
+      for (var i = 0; i < n; i++) h += '<td class="in">' + ((m >> (n - 1 - i)) & 1) + '</td>';
+      h += '<td class="val"><button data-m="' + m + '" class="v' + vals[m] + '" aria-label="Zeile ' +
+           m + ', Wert ' + label(vals[m]) + '">' + label(vals[m]) + '</button></td></tr>';
+    }
+    $('tt').innerHTML = h + '</tbody></table>';
+    $('rowcount').textContent = (1 << n) + ' Zeilen';
+  }
+
+  function runsOf(axis, bit) { // zusammenhaengende Abschnitte, in denen die Variable gleich bleibt
+    var out = [], i = 0;
+    while (i < axis.length) {
+      var pos = !!(axis[i] & bit), j = i;
+      while (j + 1 < axis.length && !!(axis[j + 1] & bit) === pos) j++;
+      out.push({ start: i, len: j - i + 1, pos: pos });
+      i = j + 1;
+    }
+    return out;
+  }
+  function lit(name, pos) { return pos ? name : '<span class="neg">' + name + '</span>'; }
+  function literalOf(m) {
+    var out = '';
+    for (var i = 0; i < n; i++) out += lit(kv.VARS[i], m & (1 << (n - 1 - i)));
+    return out;
+  }
+
+  function renderMap(res) {
+    var L = layout();
+    var pageVars = kv.VARS.slice(0, L.pageBits).join('');
+    var rowVars = kv.VARS.slice(L.pageBits, L.pageBits + L.rowBits);
+    var colVars = kv.VARS.slice(L.pageBits + L.rowBits, n);
+    $('axes').textContent = (L.pageBits ? L.pages.length + ' Tafeln · ' : '') +
+      rowVars.join('') + ' × ' + colVars.join('');
+
+    // Höchstwertige Variable einer Achse klammert die Hälften (links/oben),
+    // die niederwertige die Mitte (rechts/unten) – wie in der Lehrbuchdarstellung.
+    var left = { name: rowVars[0], runs: runsOf(L.rows, 1 << (L.rowBits - 1)) };
+    var right = L.rowBits > 1 ? { name: rowVars[1], runs: runsOf(L.rows, 1) } : null;
+    var top = { name: colVars[0], runs: runsOf(L.cols, 1 << (L.colBits - 1)) };
+    var bottom = L.colBits > 1 ? { name: colVars[1], runs: runsOf(L.cols, 1) } : null;
+    var showLit = n <= 4;
+
+    function hRow(bar, where) {
+      var h = '<tr><td class="brk"></td>';
+      bar.runs.forEach(function (r) {
+        h += '<td class="brk brk-' + where + '" colspan="' + r.len + '">' +
+             '<b>' + lit(bar.name, r.pos) + '</b><i></i></td>';
+      });
+      return h + (right ? '<td class="brk"></td>' : '') + '</tr>';
+    }
+
+    var h = '<div class="pages' + (L.pageBits ? ' small' : '') + '">';
+    L.pages.forEach(function (p) {
+      h += '<div class="page">';
+      if (L.pageBits) h += '<div class="pagecap">' + pageVars + ' = ' + bitsOf(p, L.pageBits) + '</div>';
+      h += '<table class="kv">' + hRow(top, 't');
+      L.rows.forEach(function (r, ri) {
+        h += '<tr>';
+        left.runs.forEach(function (run) {
+          if (run.start === ri) h += '<td class="brk brk-l" rowspan="' + run.len + '">' +
+            '<b>' + lit(left.name, run.pos) + '</b><i></i></td>';
+        });
+        L.cols.forEach(function (c) {
+          var m = mintermOf(L, p, r, c);
+          h += '<td data-m="' + m + '"><span class="mi">' + m + '</span>' +
+               '<button data-m="' + m + '" class="v' + vals[m] + '" aria-label="Feld ' + m +
+               ', Wert ' + label(vals[m]) + '"><b>' + label(vals[m]) + '</b>' +
+               (showLit ? '<i class="lit">' + literalOf(m) + '</i>' : '') + '</button></td>';
+        });
+        if (right) right.runs.forEach(function (run) {
+          if (run.start === ri) h += '<td class="brk brk-r" rowspan="' + run.len + '">' +
+            '<i></i><b>' + lit(right.name, run.pos) + '</b></td>';
+        });
+        h += '</tr>';
+      });
+      if (bottom) h += hRow(bottom, 'b');
+      h += '</table></div>';
+    });
+    $('map').innerHTML = h + '</div>';
+    drawLoops(res, L);
+  }
+
+  // Blockrahmen: pro Zelle nur die Seiten zeichnen, an denen der (ggf. umlaufende) Nachbar fehlt.
+  function drawLoops(res, L) {
+    res.terms.forEach(function (t, gi) {
+      var color = COLORS[gi % COLORS.length], inset = 3 + (gi % 4) * 3;
+      var inGroup = {};
+      t.cells.forEach(function (c) { inGroup[c] = true; });
+      t.cells.forEach(function (m) {
+        var p = m >> (L.rowBits + L.colBits);
+        var r = (m >> L.colBits) & ((1 << L.rowBits) - 1), c = m & ((1 << L.colBits) - 1);
+        var ri = L.rows.indexOf(r), ci = L.cols.indexOf(c);
+        var cell = document.querySelector('td[data-m="' + m + '"]');
+        if (!cell) return;
+        function neighbor(dr, dc) {
+          var nr = L.rows[(ri + dr + L.rows.length) % L.rows.length];
+          var nc = L.cols[(ci + dc + L.cols.length) % L.cols.length];
+          return inGroup[mintermOf(L, p, nr, nc)];
+        }
+        var d = document.createElement('div');
+        d.className = 'loop';
+        d.style.cssText = 'inset:' + inset + 'px;' +
+          ['top:' + (neighbor(-1, 0) ? 0 : 2) + 'px solid ' + color,
+           'bottom:' + (neighbor(1, 0) ? 0 : 2) + 'px solid ' + color,
+           'left:' + (neighbor(0, -1) ? 0 : 2) + 'px solid ' + color,
+           'right:' + (neighbor(0, 1) ? 0 : 2) + 'px solid ' + color]
+          .map(function (s) { return 'border-' + s; }).join(';');
+        cell.appendChild(d);
+      });
+    });
+  }
+
+  function pretty(t, target) {
+    var parts = t.literals.map(function (l) { return l.neg ? '<span class="neg">' + l.name + '</span>' : l.name; });
+    if (!parts.length) return '1';
+    return target === 1 ? parts.join('·') : '(' + parts.join(' + ') + ')';
+  }
+  function prettyResult(res) {
+    if (res.constant !== null) return String(res.constant);
+    return res.terms.map(function (t) { return pretty(t, res.target); }).join(res.target === 1 ? ' + ' : ' · ');
+  }
+
+  function renderGroups(res) {
+    if (!res.terms.length) {
+      $('groups').innerHTML = '<li class="hint" style="border:0;background:none;padding-left:0">Keine Blöcke – die Funktion ist konstant ' +
+        res.constant + '.</li>';
+      return;
+    }
+    $('groups').innerHTML = res.terms.map(function (t, i) {
+      return '<li data-g="' + i + '"><span class="swatch" style="background:' + COLORS[i % COLORS.length] +
+        '"></span><b>' + pretty(t, res.target) + '</b><span class="meta">' + t.cells.length + 'er · ' +
+        t.cells.join(' ') + '</span></li>';
+    }).join('');
+    Array.prototype.forEach.call($('groups').children, function (li) {
+      var g = res.terms[+li.dataset.g];
+      if (!g) return;
+      li.onmouseenter = function () {
+        g.cells.forEach(function (m) {
+          var td = document.querySelector('td[data-m="' + m + '"]');
+          if (td) td.classList.add('hl');
+        });
+      };
+      li.onmouseleave = function () {
+        Array.prototype.forEach.call(document.querySelectorAll('td.hl'), function (td) { td.classList.remove('hl'); });
+      };
+    });
+  }
+
+  // Logikplan: zweistufig. DNF -> & je Term, dann >=1. KNF -> umgekehrt.
+  // Jeder Gattereingang bekommt seinen eigenen beschrifteten Anschluss (Variablen duerfen
+  // mehrfach auftauchen), die Negation sitzt als Punkt direkt am Eingang statt als Inverter.
+  function renderPlan(res) {
+    $('plankind').textContent = res.target === 1 ? 'aus der DNF' : 'aus der KNF';
+    if (res.constant !== null) {
+      $('plan').innerHTML = '<p class="hint">Y ist konstant ' + res.constant +
+        ' \u2013 daf\u00fcr braucht es keine Schaltung.</p>';
+      return;
+    }
+    var symTerm = res.target === 1 ? '&' : '\u22651';
+    var symOut = res.target === 1 ? '\u22651' : '&';
+
+    var o = [];
+    function sline(x1, y1, x2, y2) { o.push('<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '"/>'); }
+    function spoly(pts) { o.push('<polyline points="' + pts.map(function (q) { return q[0] + ',' + q[1]; }).join(' ') + '"/>'); }
+    function srect(x, y, w, h) { o.push('<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="2"/>'); }
+    function stext(x, y, str, cls) { o.push('<text x="' + x + '" y="' + y + '"' + (cls ? ' class="' + cls + '"' : '') + '>' + str + '</text>'); }
+    function input(xEnd, y, name, neg) {          // Buchstabe, Leitung, bei Negation ein Punkt
+      stext(xEnd - 40, y + 4, name);
+      sline(xEnd - 30, y, xEnd - (neg ? 7 : 0), y);
+      if (neg) o.push('<circle class="bubble" cx="' + (xEnd - 3.6) + '" cy="' + y + '" r="3.4"/>');
+    }
+
+    var GX = 48, GW = 46, ROW = 14;
+    var gates = [], direct = [], y = 18;
+    res.terms.forEach(function (t) {
+      if (t.literals.length > 1) {
+        var h = Math.max(30, t.literals.length * ROW + 12);
+        gates.push({ t: t, y: y, h: h });
+        y += h + 16;
+      } else direct.push(t);                       // ein Literal braucht kein Gatter
+    });
+    var bottom = gates.length ? y - 16 : 18;
+    var nIn = gates.length + direct.length, multi = nIn > 1;
+    var OUT_X = gates.length
+      ? GX + GW + 18 + gates.length * 7 + (direct.length ? 42 : 14)
+      : GX;
+    var oh = Math.max(30, nIn * ROW + 12);
+    var oy = Math.max(14, Math.round((18 + bottom) / 2 - oh / 2));
+    var endX = (multi ? OUT_X + GW : (gates.length ? GX + GW : OUT_X)) + 44;
+
+    gates.forEach(function (g) {
+      srect(GX, g.y, GW, g.h);
+      stext(GX + GW / 2, g.y + 15, symTerm, 'sym');
+      var top = g.y + (g.h - (g.t.literals.length - 1) * ROW) / 2;
+      g.t.literals.forEach(function (l, j) { input(GX, top + j * ROW, l.name, l.neg); });
+      g.out = { x: GX + GW, y: g.y + g.h / 2 };
+    });
+
+    if (multi) {
+      srect(OUT_X, oy, GW, oh);
+      stext(OUT_X + GW / 2, oy + 15, symOut, 'sym');
+      var k = 0, top0 = oy + (oh - (nIn - 1) * ROW) / 2;
+      gates.forEach(function (g, i) {              // eigener Kanal je Gatter, damit nichts ueberlappt
+        var iy = top0 + (k++) * ROW, cx = GX + GW + 10 + i * 7;
+        spoly([[g.out.x, g.out.y], [cx, g.out.y], [cx, iy], [OUT_X, iy]]);
+      });
+      direct.forEach(function (t) {
+        var iy = top0 + (k++) * ROW;
+        input(OUT_X, iy, t.literals[0].name, t.literals[0].neg);
+      });
+      sline(OUT_X + GW, oy + oh / 2, endX - 24, oy + oh / 2);
+      stext(endX - 10, oy + oh / 2 + 4, 'Y');
+    } else if (gates.length) {
+      sline(gates[0].out.x, gates[0].out.y, endX - 24, gates[0].out.y);
+      stext(endX - 10, gates[0].out.y + 4, 'Y');
+    } else {                                       // Y = A bzw. Y = /A: nur eine Leitung
+      var only = direct[0].literals[0], sy = 30;
+      input(OUT_X, sy, only.name, only.neg);
+      sline(OUT_X, sy, endX - 24, sy);
+      stext(endX - 10, sy + 4, 'Y');
+    }
+
+    var H = Math.max(bottom, multi ? oy + oh : 46) + 14;
+    $('plan').innerHTML = '<svg viewBox="0 0 ' + endX + ' ' + H + '" width="' + endX + '" height="' + H +
+      '" role="img" aria-label="Logikplan zur minimalen Gleichung">' + o.join('') + '</svg>';
+  }
+
+  function renderDeps(dnf) {
+    var used = {}, L = kv.VARS.slice(0, n);
+    dnf.terms.forEach(function (t) { t.literals.forEach(function (l) { used[l.name] = true; }); });
+    var unused = L.filter(function (v) { return !used[v]; });
+    var lits = dnf.terms.reduce(function (s, t) { return s + t.literals.length; }, 0);
+    if (dnf.constant !== null) {
+      $('deps').innerHTML = '<p>Die Funktion ist konstant <b>' + dnf.constant + '</b> und hängt von keiner Variablen ab.</p>';
+      return;
+    }
+    var h = '<p>Y hängt von <b>' + L.filter(function (v) { return used[v]; }).join(', ') + '</b> ab' +
+      (unused.length ? '. <b>' + unused.join(', ') + '</b> ' + (unused.length > 1 ? 'fallen' : 'fällt') +
+       ' beim Zusammenfassen weg' : '') + '.</p><ul class="dep">';
+    dnf.terms.forEach(function (t) {
+      var frei = L.filter(function (v) { return !t.literals.some(function (l) { return l.name === v; }); });
+      h += '<li><b>' + pretty(t, 1) + '</b> wird 1, wenn ' +
+        t.literals.map(function (l) { return l.name + ' = ' + (l.neg ? 0 : 1); }).join(' und ') +
+        (frei.length ? ' – unabhängig von ' + frei.join(', ') : '') + '.</li>';
+    });
+    h += '</ul><p class="count">' + dnf.terms.length + (dnf.terms.length > 1 ? ' Terme' : ' Term') +
+      ', ' + lits + (lits > 1 ? ' Literale' : ' Literal') +
+      (dnf.terms.length > 1 ? ' · grob ' + dnf.terms.length + ' UND-Gatter und 1 ODER-Gatter' : '') + '.</p>';
+    $('deps').innerHTML = h;
+  }
+
+  function renderCol() {
+    if (document.activeElement === $('col')) return;
+    var out = '';
+    for (var m = 0; m < (1 << n); m++) out += label(vals[m]) + (m % 4 === 3 && m < (1 << n) - 1 ? ' ' : '');
+    $('col').value = out;
+    $('col').classList.remove('bad');
+    $('colmsg').textContent = HINT;
+  }
+
+  function syncControls() {
+    Array.prototype.forEach.call($('nvars').children, function (b) {
+      b.setAttribute('aria-pressed', String(+b.dataset.n === n));
+    });
+    Array.prototype.forEach.call($('mode').children, function (b) {
+      b.setAttribute('aria-pressed', String(+b.dataset.mode === mode));
+    });
+    $('varnames').textContent = kv.VARS[0] + '–' + kv.VARS[n - 1];
+  }
+
+  // Signalverlauf über alle Zeilen der Wertetabelle
+  function renderPuls() {
+    var L = kv.VARS.slice(0, n), rows = 1 << n;
+    var step = Math.max(9, Math.min(26, 640 / rows));
+    var lane = 26, amp = 15, x0 = 26, w = x0 + rows * step + 8, h = (n + 1) * lane + 16;
+    var out = '', i, m, v, y, prev, top, bot;
+
+    function spur(werte, cls, name, reihe) {
+      var yb = reihe * lane + amp + 6, yt = yb - amp, d = '', mid = (yb + yt) / 2, letzte = null;
+      for (i = 0; i < rows; i++) {
+        v = werte(i);
+        y = v === 2 ? mid : (v ? yt : yb);
+        d += (i === 0 ? 'M' + x0 + ' ' + y : (y === letzte ? '' : 'V' + y)) + 'H' + (x0 + (i + 1) * step);
+        letzte = y;
+      }
+      return '<line class="base" x1="' + x0 + '" y1="' + yb + '" x2="' + (x0 + rows * step) +
+             '" y2="' + yb + '"/><path class="sig ' + cls + '" d="' + d + '"/>' +
+             '<text class="name" x="0" y="' + (mid + 4) + '">' + name + '</text>';
+    }
+
+    for (var b = 0; b < n; b++) {
+      (function (bit) {
+        out += spur(function (m) { return (m >> (n - 1 - bit)) & 1; }, '', L[bit], bit);
+      })(b);
+    }
+    out += spur(function (m) { return vals[m]; }, 'y', 'Y', n);
+    out += '<text x="' + x0 + '" y="' + (h - 3) + '">0</text>' +
+           '<text x="' + (x0 + rows * step - 10) + '" y="' + (h - 3) + '">' + (rows - 1) + '</text>';
+    $('pulstag').textContent = rows + ' Takte';
+    $('puls').innerHTML = '<svg class="puls" viewBox="0 0 ' + w + ' ' + h +
+      '" role="img" aria-label="Signalverlauf der Eingänge und des Ausgangs Y">' + out + '</svg>';
+  }
+
+  function render() {
+    var dnf = kv.minimize(n, vals, 1), knf = kv.minimize(n, vals, 0);
+    syncControls();
+    renderTruthTable();
+    renderCol();
+    renderMap(mode === 1 ? dnf : knf);
+    renderGroups(mode === 1 ? dnf : knf);
+    renderPlan(mode === 1 ? dnf : knf);
+    renderDeps(dnf);
+    renderPuls();
+    $('dnf').innerHTML = '<span class="kind">Disjunktive Normalform</span><span class="lhs">Y = </span>' + prettyResult(dnf);
+    $('knf').innerHTML = '<span class="kind">Konjunktive Normalform</span><span class="lhs">Y = </span>' + prettyResult(knf);
+    $('plain').textContent = 'DNF   ' + kv.resultText(dnf) + '\nKNF   ' + kv.resultText(knf);
+    $('warn').textContent = (dnf.exact && knf.exact) ? '' :
+      'Die Suche nach der absolut kürzesten Lösung wurde abgebrochen. Das Ergebnis stimmt mit der ' +
+      'Wertetabelle überein und enthält keinen überflüssigen Term, es könnte aber eine kürzere Form geben.';
+  }
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-m]');
+    if (b) cycle(+b.dataset.m);
+  });
+
+  function focusCell(scope, m) {
+    var b = document.querySelector(scope + ' button[data-m="' + m + '"]');
+    if (b) b.focus();
+  }
+
+  document.addEventListener('keydown', function (e) {
+    var b = e.target.closest ? e.target.closest('button[data-m]') : null;
+    if (!b) return;
+    var m = +b.dataset.m, scope = b.closest('#tt') ? '#tt' : '#map', max = (1 << n) - 1;
+    var moved = m, changed = false;
+    if (e.key === '0' || e.key === '1') { vals[m] = +e.key; changed = true; }
+    else if (e.key === 'x' || e.key === 'X') { vals[m] = 2; changed = true; }
+    else if (e.key === 'ArrowDown' && scope === '#tt') moved = Math.min(m + 1, max);
+    else if (e.key === 'ArrowUp' && scope === '#tt') moved = Math.max(m - 1, 0);
+    else return;
+    e.preventDefault();
+    if (changed && scope === '#tt') moved = Math.min(m + 1, max); // zügig weitertippen
+    if (changed) render();
+    focusCell(scope, moved);
+  });
+
+  $('col').oninput = function () {
+    var cs = this.value.toUpperCase().replace(/[^01X]/g, ''), need = 1 << n;
+    if (cs.length !== need) {
+      this.classList.add('bad');
+      $('colmsg').textContent = cs.length + ' von ' + need + ' Werten – gebraucht werden genau ' + need + ' Zeichen (0, 1, X).';
+      return;
+    }
+    this.classList.remove('bad');
+    $('colmsg').textContent = 'Übernommen.';
+    for (var m = 0; m < need; m++) vals[m] = cs[m] === 'X' ? 2 : +cs[m];
+    render();
+  };
+
+  $('nvars').onclick = function (e) {
+    var b = e.target.closest('button[data-n]');
+    if (!b) return;
+    n = +b.dataset.n;
+    vals = new Array(1 << n).fill(0);
+    render();
+  };
+  $('mode').onclick = function (e) {
+    var b = e.target.closest('button[data-mode]');
+    if (!b) return;
+    mode = +b.dataset.mode;
+    render();
+  };
+  $('print').onclick = function () { window.print(); };
+  $('clear').onclick = function () { vals = new Array(1 << n).fill(0); render(); };
+  $('rand').onclick = function () {
+    vals = new Array(1 << n).fill(0).map(function () { return Math.random() < 0.45 ? 1 : 0; });
+    render();
+  };
+
+  render();
+})();
+</script>
+</body>
+</html>

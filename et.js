@@ -156,17 +156,25 @@
               solveOhm: solveOhm, COLORS: COLORS, bandsToValue: bandsToValue,
               valueToBands: valueToBands, xl: xl, xc: xc, impedance: impedance, resonance: resonance };
 
-  // Navigationsleiste, damit sie nicht in jeder Seite doppelt steht
-  var PAGES = [['index.html', 'KV-Diagramm'], ['ohm.html', 'Ohm &amp; Leistung'],
-               ['farbcode.html', 'Farbcode'], ['led.html', 'LED &amp; Teiler'],
-               ['wechselstrom.html', 'Wechselstrom']];
+  // Navigationsleiste aus dem Verzeichnis: Uebersicht plus die Werkzeuge des
+  // Fachgebiets, in dem man gerade steht. Bei 50 Rechnern bleibt die Leiste so kurz.
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;');
+  }
   api.buildNav = function () {
     var el = document.getElementById('nav');
-    if (!el) return;
+    if (!el || typeof TOOLS === 'undefined') return;
     var here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
-    el.innerHTML = PAGES.map(function (p) {
-      return '<a href="' + p[0] + '"' + (p[0] === here ? ' aria-current="page"' : '') + '>' + p[1] + '</a>';
-    }).join('');
+    var hier = TOOLS.ausDatei(here);
+    var teile = ['<a href="index.html" class="heim">\u2190 \u00dcbersicht</a>'];
+    if (hier) {
+      teile = teile.concat(TOOLS.imGebiet(hier.gebiet).map(function (t) {
+        return '<a href="' + esc(t.datei) + '"' + (t.id === hier.id ? ' aria-current="page"' : '') +
+               '>' + esc(t.titel) + '</a>';
+      }));
+    }
+    el.innerHTML = teile.join('');
   };
 
   // Fragezeichen neben jedem Feld mit data-help. Eine einzige Sprechblase für alle Knöpfe.
@@ -259,6 +267,15 @@
             v.classList.remove('bump'); cell.classList.remove('bump');
             void v.offsetWidth;                      // erzwingt den Neustart der Animation
             v.classList.add('bump'); cell.classList.add('bump');
+            // Klasse wieder abnehmen: sonst bleibt der Farbverlauf der Kachel stehen,
+            // weil die Animation keinen Endzustand festhaelt
+            v.addEventListener('animationend', function () { v.classList.remove('bump'); },
+                               { once: true });
+            cell.addEventListener('animationend', function ab(e) {
+              if (e.target !== cell) return;          // das Bubbeln vom Wert ignorieren
+              cell.removeEventListener('animationend', ab);
+              cell.classList.remove('bump');
+            });
           }
           last[key] = now;
         });

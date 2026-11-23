@@ -342,6 +342,27 @@
     #zeiger .schema { min-width:320px; }
   }
 
+  /* ---- Startseite: Kacheln je Fachgebiet und Trefferliste der Suche ---- */
+  .kacheln { display:grid; grid-template-columns:repeat(auto-fit, minmax(236px, 1fr)); gap:var(--s3); }
+  .kachel { display:flex; flex-direction:column; gap:3px; padding:var(--s3) var(--s4);
+            border:1px solid var(--line); border-radius:var(--r-ctl); background:var(--sunk);
+            text-decoration:none; color:inherit; }
+  .kachel b { color:var(--accent); font-size:.95rem; }
+  .kachel span { color:var(--ink-3); font-size:.82rem; line-height:1.45; }
+  .kachel:hover, .kachel:focus-visible { border-color:var(--line-strong); }
+
+  .treffer { list-style:none; margin:var(--s3) 0 0; padding:0;
+             border:1px solid var(--line); border-radius:var(--r-ctl); overflow:hidden; }
+  .treffer li + li { border-top:1px solid var(--line-soft); }
+  .treffer a { display:flex; flex-direction:column; gap:2px; justify-content:center;
+               padding:9px 12px; min-height:44px; text-decoration:none; color:inherit; }
+  .treffer b { color:var(--accent); font-size:.92rem; }
+  .treffer span { color:var(--ink-3); font-size:.78rem; }
+  .treffer li.an, .treffer a:hover { background:color-mix(in srgb, var(--accent) 8%, transparent); }
+
+  code { font-family:var(--mono); font-size:.9em; background:var(--sunk); color:var(--ink);
+         border:1px solid var(--line); border-radius:4px; padding:1px 5px; }
+
   /* ---- Navigation (von et.js gefuellt) ---- */
   .nav { display:flex; flex-wrap:wrap; gap:2px; margin-top:var(--s3); }
   .nav a { position:relative; padding:7px 12px; font-size:.86rem; color:var(--ink-2);
@@ -351,6 +372,7 @@
     border-radius:2px; background:var(--accent); transform:scaleX(0); transform-origin:left;
   }
   .nav a:hover { color:var(--ink); background:color-mix(in srgb, var(--accent) 9%, transparent); }
+  .nav a.heim { color:var(--ink-3); }
   .nav a:hover::after { transform:scaleX(.45); }
   .nav a[aria-current="page"] { color:var(--accent); font-weight:600;
                                 background:color-mix(in srgb, var(--accent) 12%, transparent); }

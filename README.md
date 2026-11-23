@@ -1,12 +1,22 @@
-# KV-Diagramm & Elektrotechnik-Rechner
+# Mechatronik-Werkzeuge
 
 **Zur Seite: https://rouvenspinnt.github.io/kv-diagramm/**
 
-Wertetabelle eintragen, KV-Diagramm mit Blöcken, minimale DNF/KNF und Logikplan ablesen —
-dazu vier Rechner für den Elektrotechnik-Alltag.
-Läuft ohne Server und ohne Abhängigkeiten — `index.html` im Browser öffnen genügt.
+Rechnen und nachschlagen, ohne vorher zu wissen, wo es steht.
+`index.html` ist die Startseite: ein Suchfeld über alle Werkzeuge, ein Formelfeld
+mit Einheiten und Kacheln nach Fachgebiet.
+Läuft ohne Server und ohne Build-Schritt — `index.html` im Browser öffnen genügt.
 
-## KV-Diagramm (`index.html`)
+## Startseite (`index.html`)
+
+- Suche über `tools.js`, das Verzeichnis aller Rechner. Getippt wird, wonach man sucht
+  (`Vorwiderstand`, `cos phi`, `DNF`), nicht der Seitenname. Pfeiltasten und Eingabe bedienen die Liste.
+- Formelfeld mit Einheiten, getragen von Math.js aus dem CDN: `12 V / 4.7 kohm` ergibt
+  einen Strom, `90 km/h to m/s` rechnet um. Ohne Netz bleibt der Rest der Seite heil.
+- Kacheln nach Fachgebiet, ebenfalls aus dem Verzeichnis. Ein neuer Rechner braucht
+  genau einen Eintrag in `tools.js` und erscheint überall von selbst.
+
+## KV-Diagramm (`kv-diagramm.html`)
 
 - 2 bis 6 Variablen, ab 5 Variablen als verkoppelte Tafeln
 - Wertetabelle klickbar und per Tastatur (`0`, `1`, `X` für don't care), ganze Y-Spalte als Text eingebbar
