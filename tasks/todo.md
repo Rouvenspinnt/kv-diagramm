@@ -42,3 +42,21 @@
 - [x] 4.5 Kv-Wert
 - [x] 4.6 Rohr- und Schlauchquerschnitt
 - [x] Pruefpunkt B: Kv-Formeln, Baugroessen und Richtwerte gegen Normen und Kataloge geprueft
+
+## Phase 5 — Elektrotechnik ausbauen
+- [x] 5.1 Leitungsquerschnitt aus Strom, Laenge und Spannungsfall
+- [x] 5.2 Strombelastbarkeit nach Verlegeart, Temperatur und Haeufung
+- [x] 5.3 Absicherung und Ausloesebereiche B, C, D
+- [x] 5.4 Motorstrom aus dem Typenschild
+- [x] 5.5 Stern und Dreieck mit gezeichnetem Klemmbrett
+- [x] 5.6 Blindleistungskompensation
+- [x] 5.7 RC-Glied mit Ladekurve, Spule, Pufferzeit
+- [x] 5.8 Transformator, Gleichrichter und Glaettung
+- [x] Pruefpunkt B: Normwerte gegen DIN VDE geprueft — vier Befunde eingearbeitet
+      (Verlegeart E mit drei Adern, Rundungsrichtung bei Temperatur und Haeufung,
+      I2 <= 1,45 * Iz bei gG-Schmelzsicherungen), Grenzen der Rechnung auf der Seite
+
+## Phase 6 — Tabellenbuch
+- [x] 6.1 Nachschlageseite, in die vorhandene Suche eingehaengt
+- [x] 6.2 Artikel zu den haeufigsten Fragen schreiben — vierzehn Stueck
+- [x] 6.3 Querverweise zwischen Artikel und passendem Rechner

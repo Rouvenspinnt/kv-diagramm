@@ -36,8 +36,10 @@
                  [1e-6, 'µ'], [1e-9, 'n'], [1e-12, 'p']];
     var a = Math.abs(x);
     for (var i = 0; i < steps.length; i++) {
-      if (a >= steps[i][0] || i === steps.length - 1) {
-        return sig(x / steps[i][0]) + ' ' + steps[i][1] + unit;
+      /* Der Spielraum faengt Rechenungenauigkeit ab: 10k * 100µ ergibt
+         0,9999999999999999 und stuende sonst als "1000 ms" statt "1 s" da. */
+      if (a >= steps[i][0] * (1 - 1e-12) || i === steps.length - 1) {
+        return sig(x / steps[i][0]).replace('.', ',') + ' ' + steps[i][1] + unit;
       }
     }
   }

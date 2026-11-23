@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kondensator &amp; Spule</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Kondensator &amp; Spule</h1>
+    <p>Zeitkonstante, Ladekurve, gespeicherte Energie und wie lange ein Puffer hält.</p>
+    <nav class="nav" id="nav" aria-label="Werkzeuge"></nav>
+  </div>
+</header>
+
+<main class="wrap narrow">
+  <section class="panel" id="rc">
+    <h2>RC-Glied <span class="tag">τ = R · C</span></h2>
+    <div class="body">
+      <p class="caption">Ein Kondensator lädt sich nicht sprunghaft, sondern über eine
+        Kurve, die sich dem Endwert nur annähert. Wie schnell das geht, steckt allein in
+        der Zeitkonstante: nach einem τ sind 63 % erreicht, nach fünf gilt er als voll.</p>
+      <div class="fields">
+        <label class="f" data-help="Der Widerstand im Ladekreis in Ohm. Schreibweisen wie 4k7 oder 10k werden verstanden."><span>Widerstand R</span><div class="row"><input id="r" value="10k"><span class="unit">Ω</span></div></label>
+        <label class="f" data-help="Die Kapazität in Farad. Vorsätze mittippen: 100µ für 100 Mikrofarad, 470n für 470 Nanofarad. Der Aufdruck 104 auf einem Keramikkondensator heißt 10 · 10⁴ pF, also 100 nF."><span>Kapazität C</span><div class="row"><input id="c" value="100µ"><span class="unit">F</span></div></label>
+        <label class="f" data-help="Die Spannung, auf die geladen wird — die Quellenspannung."><span>Spannung U</span><div class="row"><input id="u" value="10"><span class="unit">V</span></div></label>
+        <label class="f" data-help="Der Zeitpunkt, für den die Spannung gerechnet wird. Vorsätze mittippen: 500m für 500 Millisekunden."><span>Zeitpunkt t</span><div class="row"><input id="t" value="1"><span class="unit">s</span></div></label>
+      </div>
+      <div class="field" data-help="Beim Laden steigt die Spannung von 0 auf U, beim Entladen fällt sie von U auf 0. Die Zeitkonstante ist in beiden Fällen dieselbe.">
+        <span class="lbl">Vorgang</span>
+        <div class="seg" id="modus" role="group" aria-label="Vorgang">
+          <button data-m="laden" aria-pressed="true">Laden</button><button data-m="entladen">Entladen</button>
+        </div>
+      </div>
+      <div class="out" id="out1"></div>
+      <div id="kurve"></div>
+      <p class="note" id="note1"></p>
+      <div id="tafel"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="rl">
+    <h2>Spule <span class="tag">τ = L / R</span></h2>
+    <div class="body">
+      <p class="caption">Bei der Spule ist es umgekehrt: Der Strom kann nicht springen,
+        er baut sich über dieselbe Kurve auf. Und beim Abschalten will er weiterfließen —
+        daher die Spannungsspitze, gegen die die Freilaufdiode sitzt.</p>
+      <div class="fields">
+        <label class="f" data-help="Die Induktivität in Henry. Vorsätze mittippen: 100m für 100 Millihenry."><span>Induktivität L</span><div class="row"><input id="lh" value="100m"><span class="unit">H</span></div></label>
+        <label class="f" data-help="Der Widerstand im Kreis in Ohm — bei einem Schütz oder Ventil der Spulenwiderstand selbst."><span>Widerstand R</span><div class="row"><input id="lr" value="10"><span class="unit">Ω</span></div></label>
+        <label class="f" data-help="Der Strom, der im eingeschwungenen Zustand fließt. Daraus kommt die gespeicherte Energie."><span>Strom I</span><div class="row"><input id="li" value="2"><span class="unit">A</span></div></label>
+      </div>
+      <div class="out" id="out2"></div>
+      <p class="note" id="note2"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="puffer">
+    <h2>Pufferzeit <span class="tag">t = C · ΔU / I</span></h2>
+    <div class="body">
+      <p class="caption">Wie lange hält ein Kondensator eine Last am Leben, wenn die
+        Versorgung wegbricht? So weit, bis die Spannung unter das fällt, was der
+        Verbraucher noch verträgt.</p>
+      <div class="fields">
+        <label class="f" data-help="Die Kapazität des Pufferkondensators in Farad. 10m sind 10 Millifarad, also 10 000 µF."><span>Kapazität C</span><div class="row"><input id="pc" value="10m"><span class="unit">F</span></div></label>
+        <label class="f" data-help="Die Spannung, bei der der Einbruch beginnt."><span>Von</span><div class="row"><input id="pv" value="24"><span class="unit">V</span></div></label>
+        <label class="f" data-help="Die kleinste Spannung, mit der der Verbraucher noch arbeitet. Eine SPS lässt meist bis 20 V zu."><span>Bis</span><div class="row"><input id="pb" value="20"><span class="unit">V</span></div></label>
+        <label class="f" data-help="Der Strom, den die Last in dieser Zeit zieht."><span>Laststrom I</span><div class="row"><input id="pi" value="0.5"><span class="unit">A</span></div></label>
+      </div>
+      <div class="out" id="out3"></div>
+      <p class="note" id="note3"></p>
+    </div>
+  </section>
+</main>
+
+<script src="tools.js"></script>
+<script src="et.js"></script>
+<script src="draw.js"></script>
+<script src="calc-bauteile.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  function zr(x, stellen) {
+    if (!isFinite(x)) return '—';
+    var f = Math.pow(10, stellen);
+    return String(Math.round(x * f) / f).replace('.', ',');
+  }
+  function kachel(k, v, klein) {
+    return '<div><div class="k">' + k + '</div><div class="v">' + v +
+           (klein ? ' <small>' + klein + '</small>' : '') + '</div></div>';
+  }
+  function num(id) {
+    var el = $(id), x = ET.parseVal(el.value);
+    var gut = isFinite(x) && x > 0;
+    el.classList.toggle('filled', gut && el.value.trim() !== '');
+    el.classList.toggle('bad', el.value.trim() !== '' && !gut);
+    return gut ? x : NaN;
+  }
+  function zeit(s) { return ET.fmt(s, 's'); }
+
+  /* ---- RC-Glied ---- */
+  function laedt() {
+    var b = $('modus').querySelector('[aria-pressed="true"]');
+    return !b || b.dataset.m === 'laden';
+  }
+
+  function teil1() {
+    var R = num('r'), C = num('c'), U = num('u'), t = num('t');
+    var lad = laedt();
+    if (!(R > 0 && C > 0 && U > 0)) {
+      $('out1').innerHTML = ''; $('kurve').innerHTML = ''; $('kurve').dataset.drawn = '';
+      $('tafel').innerHTML = '';
+      $('note1').className = 'note';
+      $('note1').textContent = 'Widerstand, Kapazität und Spannung eintragen.'; return;
+    }
+    var tau = BAUTEILE.tauRC(R, C);
+    var u = isFinite(t) ? BAUTEILE.spannungNachZeit(U, tau, t, lad) : NaN;
+    var voll = tau * 5;
+    var W = BAUTEILE.energieKondensator(C, U);
+
+    $('out1').innerHTML =
+      kachel('Zeitkonstante', zeit(tau), 'τ = R · C') +
+      (isFinite(u) ? kachel('Nach ' + zeit(t), zr(u, 2) + ' V',
+                            zr(u / U * 100, 1) + ' % von ' + zr(U, 1) + ' V')
+                   : kachel('Nach …', '—', 'Zeitpunkt eintragen')) +
+      kachel(lad ? 'Praktisch voll' : 'Praktisch leer', zeit(voll), 'nach 5 τ') +
+      kachel('Gespeichert', ET.fmt(W, 'J'), ET.fmt(BAUTEILE.ladung(C, U), 'C') + ' Ladung');
+
+    // Kurve ueber fuenf Zeitkonstanten
+    var xs = [], ys = [], n = 120, i;
+    for (i = 0; i <= n; i++) {
+      var x = voll * i / n;
+      xs.push(x); ys.push(BAUTEILE.spannungNachZeit(U, tau, x, lad));
+    }
+    D.mountChart($('kurve'), {
+      xs: xs, ys: ys, x0: 0, x1: voll, y1: U * 1.12,
+      xlab: 't', ylab: 'u in V',
+      title: lad ? 'Ladekurve am Kondensator' : 'Entladekurve am Kondensator',
+      fx: function (v) { return ET.fmt(v, ''); }, fy: function (v) { return zr(v, 1); },
+      point: isFinite(t) && t <= voll ? { x: t, y: u, label: zr(u, 2) + ' V' } : null,
+      readout: function (x, y) { return ET.fmt(x, 's') + ' → ' + zr(y, 2) + ' V'; }
+    });
+
+    var h = '<table class="farben"><thead><tr><th>nach</th><th>Anteil</th>' +
+            '<th>Spannung</th></tr></thead><tbody>';
+    for (i = 1; i <= 5; i++) {
+      var a = BAUTEILE.anteilNachTau(i, lad);
+      h += '<tr><td class="n">' + i + ' τ = ' + zeit(tau * i) + '</td><td>' +
+           zr(a * 100, 1) + ' %</td><td>' + zr(a * U, 2) + ' V</td></tr>';
+    }
+    $('tafel').innerHTML = h + '</tbody></table>';
+
+    $('note1').className = 'note';
+    $('note1').textContent = lad
+      ? 'Die Kurve erreicht die ' + zr(U, 1) + ' V nie ganz — sie nähert sich nur an. ' +
+        'In der Praxis gilt der Kondensator nach fünf Zeitkonstanten als voll, dann fehlt ' +
+        'noch knapp ein Prozent.'
+      : 'Beim Entladen über denselben Widerstand gilt dieselbe Zeitkonstante. Entlädt sich ' +
+        'der Kondensator dagegen über die Last und nicht über R, rechnet die Pufferzeit ' +
+        'weiter unten das richtiger.';
+  }
+
+  /* ---- Spule ---- */
+  function teil2() {
+    var L = num('lh'), R = num('lr'), I = num('li');
+    if (!(L > 0 && R > 0)) {
+      $('out2').innerHTML = ''; $('note2').className = 'note';
+      $('note2').textContent = 'Induktivität und Widerstand eintragen.'; return;
+    }
+    var tau = BAUTEILE.tauRL(L, R);
+    var W = isFinite(I) ? BAUTEILE.energieSpule(L, I) : NaN;
+    $('out2').innerHTML =
+      kachel('Zeitkonstante', zeit(tau), 'τ = L / R') +
+      kachel('Praktisch da', zeit(tau * 5), 'nach 5 τ') +
+      (isFinite(W) ? kachel('Gespeichert', ET.fmt(W, 'J'), 'im Magnetfeld')
+                   : kachel('Gespeichert', '—', 'Strom eintragen')) +
+      (isFinite(I) ? kachel('Stromanstieg', zr(I * 0.6321206, 2) + ' A',
+                            '63 % von ' + zr(I, 2) + ' A nach einer Zeitkonstante')
+                   : kachel('Stromanstieg', '—', 'Strom eintragen'));
+    $('note2').className = 'note';
+    $('note2').textContent = 'Beim Abschalten will der Strom weiterfließen. Wo er nicht kann, ' +
+      'steigt die Spannung so weit, bis sie sich einen Weg sucht — das sind die Funken am ' +
+      'Kontakt und die Spitzen, die Halbleiter zerstören. Eine Freilaufdiode parallel zur ' +
+      'Spule gibt dem Strom einen Kreis zum Auslaufen.';
+  }
+
+  /* ---- Pufferzeit ---- */
+  function teil3() {
+    var C = num('pc'), von = num('pv'), bis = num('pb'), I = num('pi');
+    if (!(C > 0 && von > 0 && bis > 0 && I > 0)) {
+      $('out3').innerHTML = ''; $('note3').className = 'note';
+      $('note3').textContent = 'Kapazität, beide Spannungen und den Laststrom eintragen.'; return;
+    }
+    if (bis >= von) {
+      $('out3').innerHTML = ''; $('note3').className = 'note bad';
+      $('note3').textContent = 'Die untere Spannung muss kleiner sein als die obere — ' +
+        'der Kondensator gibt seine Energie ja ab, indem er absackt.'; return;
+    }
+    var dU = von - bis;
+    var t = BAUTEILE.pufferzeit(C, dU, I);
+    var W = BAUTEILE.energieKondensator(C, von) - BAUTEILE.energieKondensator(C, bis);
+    $('out3').innerHTML =
+      kachel('Pufferzeit', zeit(t), 'bei ' + zr(I, 2) + ' A') +
+      kachel('Einbruch', zr(dU, 1) + ' V', 'von ' + zr(von, 1) + ' auf ' + zr(bis, 1)) +
+      kachel('Abgegeben', ET.fmt(W, 'J'), 'aus dem Kondensator') +
+      kachel('Netzperioden', zr(t * 50, 1) + ' ×', 'bei 50 Hz');
+    $('note3').className = 'note';
+    $('note3').textContent = 'Gerechnet ist konstanter Laststrom. Ein Schaltnetzteil zieht bei ' +
+      'sinkender Eingangsspannung mehr Strom, um seine Leistung zu halten — in Wirklichkeit ' +
+      'ist die Pufferzeit also etwas kürzer. Für einen Spannungseinbruch von einer halben ' +
+      'Netzperiode reicht meist schon wenig Kapazität, für echte Netzausfälle nicht.';
+  }
+
+  $('modus').onclick = function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    Array.prototype.forEach.call($('modus').children, function (x) {
+      x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
+    });
+    teil1();
+  };
+  ['r', 'c', 'u', 't'].forEach(function (id) { $(id).oninput = teil1; });
+  ['lh', 'lr', 'li'].forEach(function (id) { $(id).oninput = teil2; });
+  ['pc', 'pv', 'pb', 'pi'].forEach(function (id) { $(id).oninput = teil3; });
+  teil1(); teil2(); teil3();
+})();
+</script>
+</body>
+</html>

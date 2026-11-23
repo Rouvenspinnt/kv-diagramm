@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transformator &amp; Netzteil</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Transformator &amp; Netzteil</h1>
+    <p>Windungen, Spannungen und Ströme ineinander — und was der Gleichrichter daraus macht.</p>
+    <nav class="nav" id="nav" aria-label="Werkzeuge"></nav>
+  </div>
+</header>
+
+<main class="wrap narrow">
+  <section class="panel" id="uebersetzung">
+    <h2>Transformator <span class="tag">N₁/N₂ = U₁/U₂ = I₂/I₁</span></h2>
+    <div class="body">
+      <p class="caption">Die Spannungen verhalten sich wie die Windungszahlen, die Ströme
+        genau umgekehrt. Was auf der einen Seite an Spannung dazukommt, geht auf der anderen
+        an Strom ab — die Leistung bleibt, bis auf die Verluste, dieselbe.</p>
+      <p class="caption">Zwei Angaben reichen, um das Verhältnis zu bestimmen: entweder
+        beide Windungszahlen oder beide Spannungen. Was fehlt, wird gerechnet.</p>
+      <div class="fields">
+        <label class="f" data-help="Die Windungszahl der Primärwicklung — der Seite, die am Netz hängt. Leer lassen, wenn du über die Spannungen rechnest."><span>Windungen N₁</span><div class="row"><input id="n1" value="600"><span class="unit">Wdg</span></div></label>
+        <label class="f" data-help="Die Windungszahl der Sekundärwicklung. Leer lassen, dann wird sie aus dem Spannungsverhältnis gerechnet."><span>Windungen N₂</span><div class="row"><input id="n2" placeholder="wird gerechnet"><span class="unit">Wdg</span></div></label>
+        <label class="f" data-help="Die Spannung an der Primärseite."><span>Spannung U₁</span><div class="row"><input id="u1" value="230"><span class="unit">V</span></div></label>
+        <label class="f" data-help="Die Spannung an der Sekundärseite im Leerlauf."><span>Spannung U₂</span><div class="row"><input id="u2" value="24"><span class="unit">V</span></div></label>
+        <label class="f" data-help="Der Strom, den die Last sekundär zieht. Leer lassen, wenn dich nur das Spannungsverhältnis interessiert."><span>Strom I₂</span><div class="row"><input id="i2" value="2"><span class="unit">A</span></div></label>
+        <label class="f" data-help="Der Wirkungsgrad in Prozent. Kleine Netztrafos liegen bei 70 bis 85 %, große deutlich darüber. Leer lassen heißt verlustfrei gerechnet."><span>Wirkungsgrad η</span><div class="row"><input id="eta" value="90"><span class="unit">%</span></div></label>
+      </div>
+      <div class="out" id="out1"></div>
+      <p class="note" id="note1"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="gleich">
+    <h2>Gleichrichter &amp; Glättung <span class="tag">Û = U · √2 − U<sub>D</sub></span></h2>
+    <div class="body">
+      <p class="caption">Der Gleichrichter macht aus der Wechselspannung eine wellige
+        Gleichspannung, der Kondensator glättet sie. Was am Ende herauskommt, ist der
+        Scheitelwert — deutlich mehr, als auf dem Trafo steht.</p>
+      <div class="field" data-help="Der Brückengleichrichter nutzt beide Halbwellen: die Brummfrequenz ist doppelt so hoch und die Brummspannung halb so groß. Dafür liegen immer zwei Dioden in Reihe, es gehen also zwei Durchlassspannungen ab.">
+        <span class="lbl">Schaltung</span>
+        <div class="seg" id="art" role="group" aria-label="Gleichrichterart">
+          <button data-a="bruecke" aria-pressed="true">Brücke</button><button data-a="einweg">Einweg</button>
+        </div>
+      </div>
+      <div class="fields">
+        <label class="f" data-help="Die Wechselspannung vor dem Gleichrichter als Effektivwert — das, was der Trafo liefert und was das Messgerät anzeigt."><span>Wechselspannung</span><div class="row"><input id="ge" value="24"><span class="unit">V~</span></div></label>
+        <label class="f" data-help="Der Spannungsabfall an einer Diode. Silizium liegt bei 0,7 V, Schottky bei 0,3 bis 0,4 V."><span>Je Diode</span><div class="row"><input id="gd" value="0.7"><span class="unit">V</span></div></label>
+        <label class="f" data-help="Die Netzfrequenz vor dem Gleichrichter. In Europa 50 Hz."><span>Frequenz</span><div class="row"><input id="gf" value="50"><span class="unit">Hz</span></div></label>
+        <label class="f" data-help="Der Strom, den die Last zieht. Daraus und aus dem Kondensator kommt die Brummspannung."><span>Laststrom</span><div class="row"><input id="gi" value="1"><span class="unit">A</span></div></label>
+      </div>
+      <div class="fields">
+        <label class="f" data-help="Der Ladekondensator in Farad. 4700µ für 4700 Mikrofarad. Leer lassen, dann wird aus der zulässigen Brummspannung der nötige Kondensator gerechnet."><span>Ladekondensator</span><div class="row"><input id="gc" value="4700µ"><span class="unit">F</span></div></label>
+        <label class="f" data-help="Wie viel Brummspannung du zulässt. Leer lassen, dann wird sie aus dem Kondensator gerechnet. Trägst du beides ein, gilt der Kondensator."><span>Zulässiges Brummen</span><div class="row"><input id="gb" placeholder="wird gerechnet"><span class="unit">V</span></div></label>
+      </div>
+      <div class="out" id="out2"></div>
+      <p class="note" id="note2"></p>
+    </div>
+  </section>
+</main>
+
+<script src="tools.js"></script>
+<script src="et.js"></script>
+<script src="calc-bauteile.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  function zr(x, stellen) {
+    if (!isFinite(x)) return '—';
+    var f = Math.pow(10, stellen);
+    return String(Math.round(x * f) / f).replace('.', ',');
+  }
+  function kachel(k, v, klein) {
+    return '<div><div class="k">' + k + '</div><div class="v">' + v +
+           (klein ? ' <small>' + klein + '</small>' : '') + '</div></div>';
+  }
+  function num(id) {
+    var el = $(id), x = ET.parseVal(el.value);
+    var gut = isFinite(x) && x > 0;
+    el.classList.toggle('filled', gut && el.value.trim() !== '');
+    el.classList.toggle('bad', el.value.trim() !== '' && !gut);
+    return gut ? x : NaN;
+  }
+
+  /* ---- Transformator ---- */
+  function teil1() {
+    var w = { N1: num('n1'), N2: num('n2'), U1: num('u1'), U2: num('u2'),
+              I2: num('i2'), eta: num('eta') };
+    if (!isFinite(w.eta)) delete w.eta;
+    var r = BAUTEILE.trafo(w);
+    if (!r) {
+      $('out1').innerHTML = ''; $('note1').className = 'note';
+      $('note1').textContent = 'Entweder beide Windungszahlen oder beide Spannungen eintragen.';
+      return;
+    }
+    $('out1').innerHTML =
+      kachel('Übersetzung', zr(r.ue, 2) + ' : 1', r.ue > 1 ? 'heruntergesetzt' : 'heraufgesetzt') +
+      kachel('Primär', zr(r.U1, 1) + ' V', zr(r.N1, 0) + ' Wdg') +
+      kachel('Sekundär', zr(r.U2, 1) + ' V', zr(r.N2, 0) + ' Wdg') +
+      (isFinite(r.I1)
+        ? kachel('Primärstrom', zr(r.I1, 3) + ' A', 'bei ' + zr(r.I2, 2) + ' A sekundär')
+        : kachel('Primärstrom', '—', 'Sekundärstrom eintragen'));
+    var txt = [];
+    if (isFinite(r.P2)) {
+      txt.push('Sekundär gehen ' + zr(r.P2, 1) + ' W heraus, primär müssen ' +
+               zr(r.P1, 1) + ' W hinein' +
+               (r.eta < 1 ? ' — die Differenz von ' + zr(r.verlust, 1) +
+                            ' W wird im Eisen und im Kupfer zu Wärme.' : '.'));
+    }
+    txt.push('Gerechnet ist der ideale Trafo. In Wirklichkeit bricht die Sekundärspannung ' +
+             'unter Last ein; bei kleinen Netztrafos sind 10 bis 20 % normal. Die aufgedruckte ' +
+             'Spannung gilt meist bei Nennlast, im Leerlauf liegt mehr an.');
+    $('note1').className = 'note';
+    $('note1').textContent = txt.join(' ');
+  }
+
+  /* ---- Gleichrichter ---- */
+  function art() {
+    var b = $('art').querySelector('[aria-pressed="true"]');
+    return b ? b.dataset.a : 'bruecke';
+  }
+
+  function teil2() {
+    var a = art();
+    var Ueff = num('ge'), uD = num('gd'), f = num('gf'), I = num('gi');
+    var C = num('gc'), Ubr = num('gb');
+    if (!(Ueff > 0 && f > 0)) {
+      $('out2').innerHTML = ''; $('note2').className = 'note';
+      $('note2').textContent = 'Wechselspannung und Frequenz eintragen.'; return;
+    }
+    var Us = BAUTEILE.gleichrichter(Ueff, a, isFinite(uD) ? uD : undefined);
+    var fbr = BAUTEILE.brummfrequenz(f, a);
+    if (!isFinite(Us)) {
+      $('out2').innerHTML = ''; $('note2').className = 'note bad';
+      $('note2').textContent = 'Die Wechselspannung liegt unter dem, was die Dioden ' +
+        'schlucken — so kommt nichts durch.'; return;
+    }
+
+    var brumm = NaN, noetig = NaN, quelle = '';
+    if (isFinite(I) && I > 0) {
+      if (isFinite(C)) { brumm = BAUTEILE.brummspannung(I, C, fbr); quelle = 'aus ' + ET.fmt(C, 'F'); }
+      else if (isFinite(Ubr)) { brumm = Ubr; noetig = BAUTEILE.ladekondensator(I, Ubr, fbr); quelle = 'vorgegeben'; }
+    }
+
+    $('out2').innerHTML =
+      kachel('Scheitelwert', zr(Us, 1) + ' V', a === 'bruecke' ? 'zwei Dioden ab' : 'eine Diode ab') +
+      kachel('Brummfrequenz', zr(fbr, 0) + ' Hz', a === 'bruecke' ? 'beide Halbwellen' : 'eine Halbwelle') +
+      (isFinite(brumm)
+        ? kachel('Brummspannung', zr(brumm, 2) + ' V', quelle)
+        : kachel('Brummspannung', '—', 'Laststrom und Kondensator eintragen')) +
+      (isFinite(noetig)
+        ? kachel('Nötiger Kondensator', ET.fmt(noetig, 'F'), 'mindestens')
+        : isFinite(brumm)
+          ? kachel('Bleibt mindestens', zr(Us - brumm, 1) + ' V', 'im Wellental')
+          : kachel('Bleibt mindestens', '—', ''));
+
+    var txt = [];
+    if (isFinite(brumm) && brumm > Us * 0.2) {
+      txt.push('Das Brummen ist mit ' + zr(brumm / Us * 100, 0) + ' % des Scheitelwerts sehr ' +
+               'groß — der Kondensator ist für diesen Laststrom zu klein.');
+    }
+    txt.push('Der Scheitelwert ist das √2-fache der aufgedruckten Wechselspannung: aus ' +
+             zr(Ueff, 0) + ' V~ werden ' + zr(Us, 1) + ' V=. Darauf müssen Kondensator und ' +
+             'alles dahinter ausgelegt sein.');
+    txt.push('Gerechnet ist die übliche Näherung über die lineare Entladung. Nicht gerechnet ' +
+             'ist der Ladestromstoß: Der Kondensator lädt nur in der kurzen Spitze jeder ' +
+             'Halbwelle nach, der Spitzenstrom liegt dabei um ein Vielfaches über dem Laststrom.');
+    $('note2').className = isFinite(brumm) && brumm > Us * 0.2 ? 'note bad' : 'note';
+    $('note2').textContent = txt.join(' ');
+  }
+
+  $('art').onclick = function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    Array.prototype.forEach.call($('art').children, function (x) {
+      x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
+    });
+    teil2();
+  };
+  ['n1', 'n2', 'u1', 'u2', 'i2', 'eta'].forEach(function (id) { $(id).oninput = teil1; });
+  ['ge', 'gd', 'gf', 'gi', 'gc', 'gb'].forEach(function (id) { $(id).oninput = teil2; });
+  teil1(); teil2();
+})();
+</script>
+</body>
+</html>

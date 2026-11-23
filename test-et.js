@@ -25,7 +25,10 @@ ok(isNaN(et.parseVal('')), 'leer ist kein Wert');
 ok(isNaN(et.parseVal('5x')), 'unbekannter Vorsatz');
 
 // Ausgabe
-ok(et.fmt(4700, 'Ω') === '4.7 kΩ', 'fmt 4700 Ω, war ' + et.fmt(4700, 'Ω'));
+ok(et.fmt(4700, 'Ω') === '4,7 kΩ', 'fmt 4700 Ω, war ' + et.fmt(4700, 'Ω'));
+// Rechenungenauigkeit darf die Stufe nicht kippen: 10k * 100µ ist eine Sekunde
+ok(et.fmt(10000 * 0.0001, 's') === '1 s', 'fmt knapp unter 1 s, war ' + et.fmt(10000 * 0.0001, 's'));
+ok(et.fmt(0.0047, 'F') === '4,7 mF', 'fmt mit Komma, war ' + et.fmt(0.0047, 'F'));
 ok(et.fmt(0.000047, 'F') === '47 µF', 'fmt 47µF, war ' + et.fmt(0.000047, 'F'));
 ok(et.fmt(0, 'V') === '0 V', 'fmt 0');
 ok(et.fmt(NaN) === '–', 'fmt NaN');
@@ -100,7 +103,13 @@ ok(T.suche('cos phi').length > 0, 'Suche: zwei Woerter finden den Eintrag');
 ok(T.suche('resonanz blumentopf').length === 0, 'Suche: jedes Wort muss vorkommen');
 ok(T.ausDatei('ohm.html').id === 'ohm', 'Datei -> Werkzeug');
 ok(T.ausDatei('gibtesnicht.html') === null, 'unbekannte Datei ergibt nichts');
-ok(T.imGebiet('elektro').length === 4, 'vier Werkzeuge in der Elektrotechnik');
+// Keine feste Zahl pruefen: die waechst mit jedem neuen Werkzeug mit.
+ok(T.imGebiet('elektro').length ===
+   T.TOOLS.filter(function (t) { return t.gebiet === 'elektro'; }).length,
+   'imGebiet liefert genau die Werkzeuge des Gebiets');
+ok(T.imGebiet('elektro').every(function (t) { return t.gebiet === 'elektro'; }),
+   'und keine fremden');
+ok(T.imGebiet('gibtesnicht').length === 0, 'unbekanntes Gebiet ist leer');
 T.TOOLS.forEach(function (t) {
   ok(/^[a-z0-9-]+\.html(#[a-z0-9-]+)?$/.test(t.datei), 'Dateiname sauber: ' + t.id);
   ok(T.GEBIETE.some(function (g) { return g[0] === t.gebiet; }), 'Gebiet bekannt: ' + t.id);

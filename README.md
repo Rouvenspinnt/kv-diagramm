@@ -31,8 +31,48 @@ Läuft ohne Server und ohne Build-Schritt — `index.html` im Browser öffnen ge
 - **Widerstands-Farbcode** (`farbcode.html`) — Ringe ablesen oder einen Wert in Ringe umsetzen, 4 bis 6 Ringe, mit gezeichnetem Widerstand
 - **LED & Spannungsteiler** (`led.html`) — Vorwiderstand mit Normwert aus E6/E12/E24, Verlustleistung, unbelasteter Teiler
 - **Wechselstrom & Resonanz** (`wechselstrom.html`) — X_L, X_C, Scheinwiderstand, Phasenwinkel und Resonanzfrequenz
+- **Leitung & Absicherung** (`leitung.html`) — Querschnitt aus Strom, Länge und zulässigem
+  Spannungsfall, dazu Strombelastbarkeit nach Verlegeart, Umgebungstemperatur und Häufung,
+  und die passende Sicherung. Enthält außerdem die Gegenrechnung (Spannungsfall bei
+  gegebenem Querschnitt) und die Auslösebereiche der Kennlinien B, C und D.
+- **Drehstrom & Motor** (`drehstrom.html`) — Nennstrom und Anlaufstrom aus dem Typenschild,
+  Stern und Dreieck mit gezeichnetem Klemmbrett, und die Kondensatorgröße zur
+  Blindleistungskompensation
+- **Kondensator & Spule** (`kondensator.html`) — Zeitkonstante und Ladekurve des RC-Glieds
+  mit Diagramm und Tafel über fünf τ, Zeitkonstante und Energie der Spule, und die
+  Pufferzeit eines Stützkondensators
+- **Transformator & Netzteil** (`trafo.html`) — Windungen, Spannungen und Ströme ineinander
+  mit Wirkungsgrad; dazu Scheitelwert hinter dem Gleichrichter, Brummspannung und der
+  nötige Ladekondensator
 
 Eingaben verstehen Vorsätze und Schreibweisen wie `4k7`, `2.2k`, `0,1µF`, `20m`.
+
+Die Formeln für Leitung und Drehstrom stehen in `calc-elektro.js`. Die Strombelastbarkeit
+kommt aus DIN VDE 0298-4 Tabelle 2 (Ausgabe 2003; Kupfer, PVC, Bezug 30 °C), die
+Minderungsfaktoren aus den Tabellen 5 und 6 derselben Norm, die Bedingung Ib ≤ In ≤ Iz aus
+DIN VDE 0100-430 und die Auslösebereiche aus DIN EN 60898-1. Die Faktoren für
+Umgebungstemperatur und Häufung sind Bänder, keine Punkte: 38 °C fallen in das 40-°C-Band,
+elf Stromkreise werden wie zwölf gerechnet — es gilt immer der nächstschlechtere Wert.
+Bei der gG-Schmelzsicherung kommt zur Bedingung Ib ≤ In ≤ Iz noch I2 ≤ 1,45 · Iz hinzu;
+weil gG erst bei 1,6 · In auslöst, bleibt dort nur In ≤ Iz / 1,1. Beim LS-Schalter ist das
+automatisch erfüllt, weil dort I2 = 1,45 · In ist.
+
+Der Spannungsfall ist die ohmsche Näherung über die Leitfähigkeit, wie sie im Tabellenbuch
+steht. Zwei Dinge fehlen darin, beide in dieselbe Richtung: der induktive Anteil (ab etwa
+25 mm² spürbar, bei 120 mm² fast ein Drittel) und die Erwärmung des Leiters — DIN VDE
+0100-520 Anhang G rechnet mit dem Warmwert 0,0225 Ω·mm²/m statt mit κ = 56. Für die Prüfung
+ist κ = 56 die richtige Rechnung, für eine echte Anlage die optimistische. Die Seite sagt
+das auch. Die Sicherungsreihe endet bei 63 A, der Häufungsfaktor gilt für gebündelte
+Leitungen; auf einer Kabelwanne mit Abstand darf mehr fließen.
+
+Bewusst nicht gerechnet: Kurzschlussfestigkeit, Abschaltbedingung über die Schleifenimpedanz
+und Selektivität. Das sind eigene Nachweise, für die die Angaben auf der Seite nicht reichen.
+
+Kondensator, Spule und Trafo stehen in `calc-bauteile.js` und rechnen durchgehend in
+Basiseinheiten — Ohm, Farad, Henry, Sekunde. Die Eingabefelder nehmen die Vorsätze entgegen
+(`100µ`, `10m`, `4k7`), deshalb ist die Feldeinheit immer die Basiseinheit. Beim Netzteil
+fehlen bewusst der Innenwiderstand des Trafos und der Stromflusswinkel am Ladekondensator:
+beides macht reale Netzteile schlechter, als die Rechnung sie aussehen lässt.
 
 ## Fertigung & Zerspanung
 
@@ -109,6 +149,19 @@ IEC 60534 ableiten — nicht die volle Rechnung der Norm; viele Hersteller
 geben für Pneumatikventile stattdessen einen Normvolumenstrom oder die Werte C und b an —
 dann gilt deren Angabe, und die Seite sagt das auch.
 
+## Nachschlagen (`nachschlagen.html`)
+
+Vierzehn geschriebene Artikel zu den Fragen, die beim Rechnen aufkommen: wie ein
+Drehstrommotor funktioniert, warum Stern-Dreieck drittelt, was der FI sieht und was nicht,
+U/f am Umrichter, Selbsthaltung und warum der Aus-Taster ein Öffner ist, der SPS-Zyklus,
+das KV-Diagramm lesen, P/I/D, warum 4–20 mA, Pt100 gegen Thermoelement, H7/g6, warum v_c
+gleich bleibt, die Zahlen am Wegeventil und warum man mit Drehmoment anzieht.
+
+Jeder Artikel hängt als eigener Eintrag in der Registry und damit in der Suche. Damit eine
+ganze Frage funktioniert, wirft `suche()` vorher die Füllwörter weg — ohne das fände
+„wie funktioniert ein Drehstrommotor" nichts, weil sonst jedes Wort vorkommen muss.
+Unter jedem Artikel steht der Querverweis auf den passenden Rechner.
+
 ## Schaltbilder
 
 Ohm, LED/Teiler und Wechselstrom zeichnen die Schaltung, um die es gerade geht, und
@@ -148,6 +201,8 @@ node test-fertigung.js
 node test-messen.js
 node test-antrieb.js
 node test-fluid.js
+node test-elektro.js
+node test-bauteile.js
 ```
 
 `test.js` prüft alle 256 Funktionen mit 3 Variablen sowie Zufallsfunktionen mit 4 bis 6 Variablen

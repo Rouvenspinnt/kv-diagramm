@@ -15,7 +15,8 @@
     ['messen',    'Mess- & Regeltechnik'],
     ['antrieb',   'Antrieb & Mechanik'],
     ['fluid',     'Pneumatik & Hydraulik'],
-    ['fertigung', 'Fertigung & Zerspanung']
+    ['fertigung', 'Fertigung & Zerspanung'],
+    ['wissen',    'Nachschlagen']
   ];
 
   var TOOLS = [
@@ -44,6 +45,83 @@
       w: ['blindwiderstand', 'scheinwiderstand', 'impedanz', 'phasenwinkel',
           'resonanz', 'schwingkreis', 'kondensator', 'spule', 'xl', 'xc',
           'cos phi', 'frequenz', 'zeigerdiagramm'] },
+
+    { id: 'leitung', titel: 'Leitung & Absicherung', gebiet: 'elektro',
+      datei: 'leitung.html#auslegen',
+      kurz: 'Querschnitt aus Strom, Länge und Spannungsfall, mit Verlegeart und Sicherung',
+      w: ['leitungsquerschnitt', 'querschnitt', 'kabel', 'leitung', 'adern',
+          'strombelastbarkeit', 'verlegeart', 'belastbarkeit', 'haeufung', 'häufung',
+          'absicherung', 'sicherung', 'ls-schalter', 'leitungsschutzschalter',
+          'vde 0298', 'vde 0100', 'kupfer', 'aluminium'] },
+
+    { id: 'spannungsfall', titel: 'Spannungsfall', gebiet: 'elektro',
+      datei: 'leitung.html#fall',
+      kurz: 'Wie viel Spannung auf der Strecke bleibt, in Volt und in Prozent',
+      w: ['spannungsfall', 'spannungsabfall', 'delta u', 'leitungsverlust',
+          'leitungslaenge', 'leitungslänge', 'prozent', 'kappa', 'leitfaehigkeit',
+          'leitfähigkeit'] },
+
+    { id: 'absicherung', titel: 'Absicherung & Auslösung', gebiet: 'elektro',
+      datei: 'leitung.html#schutz',
+      kurz: 'Kennlinie B, C und D und ab welchem Strom der Schalter sofort auslöst',
+      w: ['kennlinie', 'ausloesung', 'auslösung', 'ausloesestrom', 'auslösestrom',
+          'b16', 'c16', 'automat', 'leitungsschutzschalter', 'ls', 'schmelzsicherung',
+          'ueberstrom', 'überstrom', 'kurzschluss'] },
+
+    { id: 'motorstrom', titel: 'Motorstrom', gebiet: 'elektro',
+      datei: 'drehstrom.html#motor',
+      kurz: 'Nennstrom und Anlaufstrom aus Leistung, cos φ und Wirkungsgrad',
+      w: ['motorstrom', 'nennstrom', 'anlaufstrom', 'typenschild', 'drehstrommotor',
+          'motor', 'wirkungsgrad', 'cos phi', 'scheinleistung', 'blindleistung',
+          'kva', 'kvar', 'ie3'] },
+
+    { id: 'sterndreieck', titel: 'Stern & Dreieck', gebiet: 'elektro',
+      datei: 'drehstrom.html#schaltung',
+      kurz: 'Strangwerte, Klemmbrett mit Brücken und warum der Stern ein Drittel bringt',
+      w: ['stern', 'dreieck', 'sterndreieck', 'stern-dreieck', 'y', 'delta',
+          'strangspannung', 'strangstrom', 'klemmbrett', 'klemmkasten', 'bruecken',
+          'brücken', 'anlauf', 'wurzel 3', '400/690'] },
+
+    { id: 'kompensation', titel: 'Blindleistung kompensieren', gebiet: 'elektro',
+      datei: 'drehstrom.html#kompensation',
+      kurz: 'Kondensatorgröße, um den Leistungsfaktor anzuheben',
+      w: ['kompensation', 'blindleistung', 'blindstrom', 'cos phi', 'leistungsfaktor',
+          'kondensator', 'kvar', 'mikrofarad', 'phasenschieber', 'ueberkompensation',
+          'überkompensation'] },
+
+    { id: 'rcglied', titel: 'RC-Glied & Zeitkonstante', gebiet: 'elektro',
+      datei: 'kondensator.html#rc',
+      kurz: 'Zeitkonstante, Ladekurve und Spannung nach der Zeit, mit Diagramm',
+      w: ['rc', 'rc-glied', 'zeitkonstante', 'tau', 'ladekurve', 'laden', 'entladen',
+          'kondensator', 'e-funktion', 'verzoegerung', 'verzögerung', 'wischkontakt',
+          '63 prozent'] },
+
+    { id: 'spule', titel: 'Spule & Freilauf', gebiet: 'elektro',
+      datei: 'kondensator.html#rl',
+      kurz: 'Zeitkonstante L/R, gespeicherte Energie und warum die Freilaufdiode sitzt',
+      w: ['spule', 'induktivitaet', 'induktivität', 'rl', 'rl-glied', 'henry',
+          'freilaufdiode', 'freilauf', 'abschaltspitze', 'schuetz', 'schütz',
+          'magnetventil', 'relais'] },
+
+    { id: 'pufferzeit', titel: 'Pufferzeit', gebiet: 'elektro',
+      datei: 'kondensator.html#puffer',
+      kurz: 'Wie lange ein Kondensator eine Last über den Spannungseinbruch trägt',
+      w: ['pufferzeit', 'puffer', 'stuetzkondensator', 'stützkondensator', 'ueberbrueckung',
+          'überbrückung', 'spannungseinbruch', 'netzausfall', 'sps', 'backup'] },
+
+    { id: 'trafo', titel: 'Transformator', gebiet: 'elektro',
+      datei: 'trafo.html#uebersetzung',
+      kurz: 'Windungen, Spannungen und Ströme ineinander, mit Wirkungsgrad',
+      w: ['trafo', 'transformator', 'uebersetzung', 'übersetzung', 'windungen',
+          'windungszahl', 'primaer', 'primär', 'sekundaer', 'sekundär', 'wicklung',
+          'netztrafo', 'klingeltrafo'] },
+
+    { id: 'gleichrichter', titel: 'Gleichrichter & Glättung', gebiet: 'elektro',
+      datei: 'trafo.html#gleich',
+      kurz: 'Scheitelwert, Brummspannung und der nötige Ladekondensator',
+      w: ['gleichrichter', 'bruecke', 'brücke', 'brueckengleichrichter', 'einweg',
+          'diode', 'glaettung', 'glättung', 'ladekondensator', 'brummspannung',
+          'brummen', 'ripple', 'netzteil', 'scheitelwert', 'wurzel 2'] },
 
     { id: 'drehzahl', titel: 'Drehzahl & Schnittgeschwindigkeit', gebiet: 'fertigung',
       datei: 'zerspanung.html#drehzahl',
@@ -162,7 +240,111 @@
     { id: 'rohr', titel: 'Rohr & Schlauch', gebiet: 'fluid', datei: 'stroemung.html#rohr',
       kurz: 'Innendurchmesser aus Volumenstrom und Strömungsgeschwindigkeit',
       w: ['rohr', 'schlauch', 'querschnitt', 'innendurchmesser', 'nennweite', 'stroemung',
-          'stroemungsgeschwindigkeit', 'druckverlust', 'saugleitung', 'druckleitung'] }
+          'stroemungsgeschwindigkeit', 'druckverlust', 'saugleitung', 'druckleitung'] },
+
+    { id: 'drehstrommotor', titel: 'Drehstrommotor', gebiet: 'wissen',
+      datei: 'nachschlagen.html#drehstrommotor',
+      kurz: 'Drehfeld, Synchrondrehzahl und warum der Läufer nachhängen muss',
+      w: ['drehstrommotor', 'drehstrom motor', 'asynchronmotor', 'asynchronmaschine',
+          'drehfeld', 'schlupf', 'synchrondrehzahl', 'polzahl', 'polpaare', 'kaefiglaeufer',
+          'käfigläufer', 'drehrichtung', 'motor erklaert', 'induktion', 'typenschild',
+          '1450', '1500'] },
+
+    { id: 'sterndreieck-warum', titel: 'Warum Stern-Dreieck drittelt', gebiet: 'wissen',
+      datei: 'nachschlagen.html#sterndreieck-warum',
+      kurz: 'Zweimal Wurzel 3 ergibt ein Drittel Strom und ein Drittel Moment',
+      w: ['stern dreieck', 'sterndreieck', 'y/d', 'warum drittel', 'anlauf',
+          'anlaufstrom senken', 'strangspannung', 'umschaltung', '400/690', '230/400',
+          'typenschild', 'moment quadrat'] },
+
+    { id: 'fi', titel: 'FI-Schalter', gebiet: 'wissen',
+      datei: 'nachschlagen.html#fi',
+      kurz: 'Wie der Summenstrom verglichen wird, und die Typen AC, A, F und B',
+      w: ['fi', 'fi schalter', 'rcd', 'fehlerstrom', 'fehlerstromschutzschalter',
+          'summenstrom', '30 ma', 'typ a', 'typ b', 'typ f', 'personenschutz',
+          'differenzstrom', 'umrichter fi', 'saettigung'] },
+
+    { id: 'umrichter', titel: 'Frequenzumrichter', gebiet: 'wissen',
+      datei: 'nachschlagen.html#umrichter',
+      kurz: 'U/f konstant, Feldschwächung und warum der Lüfter mitsinkt',
+      w: ['frequenzumrichter', 'fu', 'umrichter', 'u/f', 'spannungs frequenz verhaeltnis',
+          'feldschwaechung', 'feldschwächung', 'drehzahlsteuerung', 'saettigung',
+          'sättigung', 'fremdluefter', 'fremdlüfter', 'eigenbelueftet', 'nennfrequenz',
+          'vfd'] },
+
+    { id: 'schuetz', titel: 'Schütz & Selbsthaltung', gebiet: 'wissen',
+      datei: 'nachschlagen.html#schuetz',
+      kurz: 'Haupt- und Hilfskontakte, Selbsthaltung und warum Aus ein Öffner ist',
+      w: ['schuetz', 'schütz', 'relais', 'selbsthaltung', 'haltekontakt', 'oeffner',
+          'öffner', 'schliesser', 'schließer', 'aus taster', 'ruhestrom', 'drahtbruch',
+          'freilaufdiode', 'rc glied', 'spulenbeschaltung', 'motorschuetz'] },
+
+    { id: 'sps-zyklus', titel: 'Der SPS-Zyklus', gebiet: 'wissen',
+      datei: 'nachschlagen.html#sps-zyklus',
+      kurz: 'Prozessabbild, Zykluszeit und die zwei typischen Stolperfallen',
+      w: ['sps', 'zyklus', 'zykluszeit', 'prozessabbild', 'pae', 'paa', 'eingaenge lesen',
+          'ausgaenge schreiben', 'doppelte zuweisung', 'plc', 'programmdurchlauf',
+          'alarmeingang', 'schneller zaehler', 's7', 'tia'] },
+
+    { id: 'kv-lesen', titel: 'Das KV-Diagramm lesen', gebiet: 'wissen',
+      datei: 'nachschlagen.html#kv-lesen',
+      kurz: 'Gray-Code, Blockregeln, Rand und Don’t Care',
+      w: ['kv diagramm lesen', 'karnaugh', 'gray code', 'bloecke', 'blöcke',
+          'zusammenfassen', 'rand', 'dont care', 'don’t care', 'minimieren', 'vereinfachen',
+          'zweierpotenz', 'nachbarfeld', 'wahrheitstabelle'] },
+
+    { id: 'regelkreis', titel: 'P, I und D', gebiet: 'wissen',
+      datei: 'nachschlagen.html#regelkreis',
+      kurz: 'Was die drei Regleranteile tun und wie man sie von Hand einstellt',
+      w: ['pid', 'pi regler', 'p anteil', 'i anteil', 'd anteil', 'regler', 'regelkreis',
+          'regelabweichung', 'ueberschwingen', 'überschwingen', 'totzeit', 'einstellen',
+          'sollwert', 'istwert', 'stellgroesse'] },
+
+    { id: 'vier-zwanzig', titel: 'Warum 4–20 mA', gebiet: 'wissen',
+      datei: 'nachschlagen.html#vier-zwanzig',
+      kurz: 'Lebende Null, Zweileitertechnik und warum Strom nicht verfälscht wird',
+      w: ['warum 4 20 ma', 'lebende null', 'drahtbrucherkennung', 'zweileiter',
+          'vierleiter', '0 10 v', 'spannungsfall messleitung', 'stromsignal',
+          'einheitssignal', 'sensor leitung', '0 20 ma'] },
+
+    { id: 'temperaturfuehler', titel: 'Pt100 oder Thermoelement', gebiet: 'wissen',
+      datei: 'nachschlagen.html#temperaturfuehler',
+      kurz: 'Welcher Fühler wofür, und was jeder von beiden braucht',
+      w: ['pt100 oder thermoelement', 'welcher fuehler', 'welcher fühler',
+          'widerstandsthermometer', 'vergleichsstelle', 'kaltstelle', 'zweileiter pt100',
+          'dreileiter', 'vierleiter', 'typ k', 'typ j', 'platin',
+          'temperaturmessung vergleich'] },
+
+    { id: 'passung-lesen', titel: 'H7/g6 lesen', gebiet: 'wissen',
+      datei: 'nachschlagen.html#passung-lesen',
+      kurz: 'Großbuchstabe, Kleinbuchstabe, IT-Grad und die Einheitsbohrung',
+      w: ['h7/g6 lesen', 'passung lesen', 'was bedeutet h7', 'toleranzfeld', 'it grad',
+          'einheitsbohrung', 'einheitswelle', 'spielpassung', 'uebergangspassung',
+          'übergangspassung', 'presspassung', 'abmass', 'abmaß', 'grossbuchstabe',
+          'großbuchstabe'] },
+
+    { id: 'vc-konstant', titel: 'Warum vc gleich bleibt', gebiet: 'wissen',
+      datei: 'nachschlagen.html#vc-konstant',
+      kurz: 'Schnittgeschwindigkeit, Standzeit und G96 beim Plandrehen',
+      w: ['warum vc', 'standzeit', 'schnittgeschwindigkeit konstant', 'g96', 'plandrehen',
+          'grenzdrehzahl', 'verschleiss', 'verschleiß', 'schneidstoff', 'drehzahl anpassen',
+          'durchmesser klein'] },
+
+    { id: 'ventil-benennung', titel: '5/2-Wegeventil', gebiet: 'wissen',
+      datei: 'nachschlagen.html#ventil-benennung',
+      kurz: 'Was die Zahlen heißen, die Anschlussnummern und monostabil gegen bistabil',
+      w: ['5/2 wegeventil', '3/2 wegeventil', 'wegeventil', 'anschluesse', 'anschlüsse',
+          'schaltstellungen', 'iso 11727', 'monostabil', 'bistabil', 'impulsventil',
+          'doppeltwirkend', 'einfachwirkend', 'anschlussbezeichnung', 'p a b r s',
+          'not aus ventil'] },
+
+    { id: 'vorspannung', titel: 'Warum mit Drehmoment anziehen', gebiet: 'wissen',
+      datei: 'nachschlagen.html#vorspannung',
+      kurz: 'Vorspannkraft, Reibschluss und warum die Reibungszahl alles entscheidet',
+      w: ['vorspannkraft', 'anzugsmoment warum', 'reibschluss', 'reibungszahl', '0,14',
+          'geschmiert', 'drehmomentschluessel', 'drehmomentschlüssel',
+          'drehwinkelgesteuert', 'streuung', 'schraube reisst', 'schraube reißt',
+          'abscheren', 'gewindereibung', 'kopfreibung'] },
   ];
 
   /* Suche: jedes eingetippte Wort muss irgendwo vorkommen. Treffer im Titel
@@ -173,8 +355,20 @@
       .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss');
   }
 
+  /* Fuellwoerter einer gesprochenen Frage. Ohne sie waere "wie funktioniert ein
+     Drehstrommotor" ohne Treffer, weil jedes Wort vorkommen muss. */
+  var FUELL = ('wie was warum wieso weshalb wofuer wozu wann wo welche welcher welches ' +
+    'ist sind war hat habe haben kann koennen muss soll darf tut macht machen geht gehen ' +
+    'funktioniert funktionieren bedeutet heisst erklaer erklaere erklaeren erklaerung ' +
+    'der die das den dem des ein eine einen einem einer eines kein keine ' +
+    'und oder aber nicht man ich mir mich mein meine du dir sie es ' +
+    'bei von mit fuer ueber unter zu zum zur im in am an auf aus als ' +
+    'bitte mal denn doch so dann noch nur auch sich seine ihre').split(' ');
+
   function suche(frage, liste) {
-    var worte = norm(frage).split(/[\s,]+/).filter(Boolean);
+    var alle = norm(frage).split(/[\s,]+/).filter(Boolean);
+    var worte = alle.filter(function (w) { return FUELL.indexOf(w) < 0; });
+    if (!worte.length) worte = alle;         // nur Fuellwoerter: dann eben die
     if (!worte.length) return [];
     return (liste || TOOLS).map(function (t) {
       var titel = norm(t.titel), rest = norm(t.kurz + ' ' + t.w.join(' '));

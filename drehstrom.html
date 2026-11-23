@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Drehstrom &amp; Motor</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Drehstrom &amp; Motor</h1>
+    <p>Vom Typenschild zum Strom, von Stern zu Dreieck, von cos φ zum Kondensator.</p>
+    <nav class="nav" id="nav" aria-label="Werkzeuge"></nav>
+  </div>
+</header>
+
+<main class="wrap narrow">
+  <section class="panel" id="motor">
+    <h2>Motorstrom aus dem Typenschild <span class="tag">I = P / (√3 · U · cos φ · η)</span></h2>
+    <div class="body">
+      <p class="caption">Auf dem Typenschild steht die abgegebene Leistung an der Welle.
+        Aufnehmen muss der Motor mehr — um die Verluste. Darum steht der Wirkungsgrad mit
+        in der Rechnung, und darum fließt mehr Strom, als die reine Leistung vermuten lässt.</p>
+      <div class="fields">
+        <label class="f" data-help="Die Nennleistung vom Typenschild in Kilowatt. Das ist die mechanische Leistung an der Welle, nicht die aufgenommene elektrische."><span>Leistung P</span><div class="row"><input id="mp" inputmode="decimal" value="4"><span class="unit">kW</span></div></label>
+        <label class="f" data-help="Die Spannung zwischen zwei Außenleitern, für die der Motor in dieser Schaltung ausgelegt ist. Bei 400/690 V bedeutet das: 400 V im Dreieck, 690 V im Stern."><span>Spannung U</span><div class="row"><input id="mu" inputmode="decimal" value="400"><span class="unit">V</span></div></label>
+        <label class="f" data-help="Der Leistungsfaktor vom Typenschild. Kleine Motoren liegen bei 0,75, größere bei 0,85 bis 0,9. Im Teillastbetrieb wird er deutlich schlechter."><span>cos φ</span><div class="row"><input id="mcos" inputmode="decimal" value="0.82"><span class="unit">–</span></div></label>
+        <label class="f" data-help="Der Wirkungsgrad vom Typenschild in Prozent, oft als IE2, IE3 oder IE4 angegeben. Ein 4-kW-Motor der Klasse IE3 liegt bei rund 88 %."><span>Wirkungsgrad η</span><div class="row"><input id="meta" inputmode="decimal" value="88"><span class="unit">%</span></div></label>
+        <label class="f" data-help="Das Verhältnis von Anlaufstrom zu Nennstrom, auf dem Typenschild als I_A/I_N. Käfigläufer liegen beim Direktstart zwischen 5 und 8."><span>Anlauf I<sub>A</sub>/I<sub>N</sub></span><div class="row"><input id="mfak" inputmode="decimal" value="6.5"><span class="unit">×</span></div></label>
+      </div>
+      <div class="out" id="out1"></div>
+      <p class="note" id="note1"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="schaltung">
+    <h2>Stern oder Dreieck <span class="tag" id="stag"></span></h2>
+    <div class="body">
+      <p class="caption">Dieselben drei Wicklungen, zwei Arten sie zusammenzuschalten.
+        Im Stern liegt an jeder Wicklung nur die Spannung geteilt durch √3 — der Motor
+        zieht ein Drittel des Stroms und bringt ein Drittel des Moments. Das ist der
+        ganze Trick am Stern-Dreieck-Anlauf.</p>
+      <div class="field" data-help="Welche Brücken im Klemmkasten gesteckt sind. Ein Motor mit 400/690 V läuft am 400-V-Netz im Dreieck; der Stern ist dort nur die Anlaufstufe.">
+        <span class="lbl">Schaltung</span>
+        <div class="seg" id="schalt" role="group" aria-label="Schaltung">
+          <button data-s="dreieck" aria-pressed="true">Dreieck</button><button data-s="stern">Stern</button>
+        </div>
+      </div>
+      <div class="fields">
+        <label class="f" data-help="Die Netzspannung zwischen zwei Außenleitern, also die Spannung, die am Klemmkasten ankommt."><span>Außenleiter U</span><div class="row"><input id="su" inputmode="decimal" value="400"><span class="unit">V</span></div></label>
+        <label class="f" data-help="Der Strom, der in einem Außenleiter fließt — das, was die Stromzange anzeigt."><span>Außenleiter I</span><div class="row"><input id="si" inputmode="decimal" value="8"><span class="unit">A</span></div></label>
+      </div>
+      <div id="bild"></div>
+      <div class="out" id="out2"></div>
+      <p class="note" id="note2"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="kompensation">
+    <h2>Blindleistung kompensieren <span class="tag">Q<sub>c</sub> = P · (tan φ₁ − tan φ₂)</span></h2>
+    <div class="body">
+      <p class="caption">Der Motor zieht Blindleistung, um sein Magnetfeld aufzubauen.
+        Die pendelt zwischen Netz und Motor hin und her, leistet nichts und belastet
+        trotzdem Leitung und Sicherung. Ein Kondensator liefert sie vor Ort.</p>
+      <div class="fields">
+        <label class="f" data-help="Die Wirkleistung, die tatsächlich aufgenommen wird, in Kilowatt."><span>Wirkleistung P</span><div class="row"><input id="kp" inputmode="decimal" value="4"><span class="unit">kW</span></div></label>
+        <label class="f" data-help="Der Leistungsfaktor, wie er jetzt ist."><span>cos φ vorher</span><div class="row"><input id="kc1" inputmode="decimal" value="0.8"><span class="unit">–</span></div></label>
+        <label class="f" data-help="Der Leistungsfaktor, den du erreichen willst. 0,95 ist der übliche Zielwert — ganz auf 1 zu gehen lohnt sich selten und kann zu Überkompensation führen."><span>cos φ nachher</span><div class="row"><input id="kc2" inputmode="decimal" value="0.95"><span class="unit">–</span></div></label>
+        <label class="f" data-help="Die Netzspannung zwischen zwei Außenleitern."><span>Spannung U</span><div class="row"><input id="ku" inputmode="decimal" value="400"><span class="unit">V</span></div></label>
+        <label class="f" data-help="Die Netzfrequenz. In Europa 50 Hz."><span>Frequenz f</span><div class="row"><input id="kf" inputmode="decimal" value="50"><span class="unit">Hz</span></div></label>
+      </div>
+      <div class="out" id="out3"></div>
+      <p class="note" id="note3"></p>
+    </div>
+  </section>
+</main>
+
+<script src="tools.js"></script>
+<script src="et.js"></script>
+<script src="draw.js"></script>
+<script src="calc-elektro.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  function zr(x, stellen) {
+    if (!isFinite(x)) return '—';
+    var f = Math.pow(10, stellen);
+    return String(Math.round(x * f) / f).replace('.', ',');
+  }
+  function kachel(k, v, klein) {
+    return '<div><div class="k">' + k + '</div><div class="v">' + v +
+           (klein ? ' <small>' + klein + '</small>' : '') + '</div></div>';
+  }
+  function num(id) {
+    var el = $(id), x = ET.parseVal(el.value);
+    var gut = isFinite(x) && x > 0;
+    el.classList.toggle('filled', gut && el.value.trim() !== '');
+    el.classList.toggle('bad', el.value.trim() !== '' && !gut);
+    return gut ? x : NaN;
+  }
+
+  /* ---- Motorstrom ---- */
+  function teil1() {
+    var P = num('mp'), U = num('mu'), cos = num('mcos'), eta = num('meta'), fak = num('mfak');
+    if (!(P > 0 && U > 0 && cos > 0 && eta > 0)) {
+      $('out1').innerHTML = ''; $('note1').className = 'note';
+      $('note1').textContent = 'Leistung, Spannung, cos φ und Wirkungsgrad eintragen.'; return;
+    }
+    var In = ELEKTRO.motorstrom(P * 1000, U, cos, eta);
+    if (!isFinite(In)) {
+      $('out1').innerHTML = ''; $('note1').className = 'note bad';
+      $('note1').textContent = 'cos φ und Wirkungsgrad müssen zwischen 0 und 1 liegen ' +
+        '(oder als Prozent zwischen 0 und 100).'; return;
+    }
+    var e = eta > 1 ? eta / 100 : eta;
+    var Pzu = P * 1000 / e;
+    var S = ELEKTRO.scheinleistung(U, In);
+    var Q = ELEKTRO.blindleistung(S, Pzu);
+    var Ia = ELEKTRO.anlaufstrom(In, fak);
+    $('out1').innerHTML =
+      kachel('Nennstrom', zr(In, 2) + ' A', 'je Außenleiter') +
+      kachel('Anlaufstrom', zr(Ia, 0) + ' A', isFinite(fak) ? zr(fak, 1) + '-fach' : '') +
+      kachel('Aufgenommen', zr(Pzu / 1000, 2) + ' kW', zr(Pzu - P * 1000, 0) + ' W Verlust') +
+      kachel('Scheinleistung', zr(S / 1000, 2) + ' kVA', zr(Q / 1000, 2) + ' kvar blind');
+    $('note1').className = 'note';
+    $('note1').textContent = 'Als Faustwert zieht ein Drehstrommotor am 400-V-Netz rund 2 A je ' +
+      'Kilowatt — hier ' + zr(In / P, 2) + ' A/kW. Für die Absicherung zählt der Nennstrom, ' +
+      'für die Kennlinie des Schalters der Anlaufstrom: deshalb bekommen Motoren C statt B.';
+  }
+
+  /* ---- Stern und Dreieck ---- */
+  function schaltung() {
+    var b = $('schalt').querySelector('[aria-pressed="true"]');
+    return b ? b.dataset.s : 'dreieck';
+  }
+
+  function bild(s, Ustr, Istr) {
+    var sp = [110, 220, 330], oben = 80, unten = 140, h = '';
+    // Zuleitung
+    ['L1', 'L2', 'L3'].forEach(function (n, i) {
+      h += D.text(sp[i], 26, n, 'name');
+      h += D.wire(sp[i] + ',34 ' + sp[i] + ',' + oben);
+    });
+    // Bruecken zuerst, damit die Klemmpunkte darueber liegen
+    if (s === 'stern') {
+      h += D.wire(sp[0] + ',' + unten + ' ' + sp[2] + ',' + unten, 'hot');
+      h += D.text(220, unten + 26, 'Sternpunkt — alle drei gebrückt', 'val');
+    } else {
+      sp.forEach(function (x) { h += D.wire(x + ',' + oben + ' ' + x + ',' + unten, 'hot'); });
+      h += D.text(220, unten + 26, 'drei Brücken senkrecht', 'val');
+    }
+    // Klemmen
+    ['U1', 'V1', 'W1'].forEach(function (n, i) {
+      h += D.dot(sp[i], oben) + D.text(sp[i] - 26, oben + 4, n);
+    });
+    ['W2', 'U2', 'V2'].forEach(function (n, i) {
+      h += D.dot(sp[i], unten) + D.text(sp[i] - 26, unten + 4, n);
+    });
+    h += D.text(220, unten + 48, 'je Wicklung ' + zr(Ustr, 0) + ' V · ' + zr(Istr, 2) + ' A', 'val');
+    D.mount($('bild'), D.svg(440, 215, 'Klemmbrett in ' +
+            (s === 'stern' ? 'Sternschaltung' : 'Dreieckschaltung'), h));
+  }
+
+  function teil2() {
+    var s = schaltung(), U = num('su'), I = num('si');
+    $('stag').textContent = s === 'stern' ? 'Y' : 'Δ';
+    if (!(U > 0 && I > 0)) {
+      $('out2').innerHTML = ''; $('note2').className = 'note';
+      $('note2').textContent = 'Spannung und Strom am Außenleiter eintragen.';
+      $('bild').innerHTML = ''; $('bild').dataset.drawn = ''; return;
+    }
+    var r = s === 'stern' ? ELEKTRO.stern(U, I) : ELEKTRO.dreieck(U, I);
+    var S = ELEKTRO.scheinleistung(U, I);
+    bild(s, r.U_strang, r.I_strang);
+    $('out2').innerHTML =
+      kachel('Strangspannung', zr(r.U_strang, 0) + ' V', s === 'stern' ? 'U / √3' : '= U außen') +
+      kachel('Strangstrom', zr(r.I_strang, 2) + ' A', s === 'stern' ? '= I außen' : 'I / √3') +
+      kachel('Scheinleistung', zr(S / 1000, 2) + ' kVA', '√3 · U · I') +
+      (s === 'stern'
+        ? kachel('Im Dreieck', '3 ×', 'Strom und Moment')
+        : kachel('Im Stern', '⅓', 'Strom und Moment'));
+    $('note2').className = 'note';
+    $('note2').textContent = s === 'stern'
+      ? 'An jeder Wicklung liegen nur ' + zr(r.U_strang, 0) + ' V statt ' + zr(U, 0) + ' V. ' +
+        'Würde derselbe Motor am selben Netz im Dreieck laufen, zöge er den dreifachen Strom ' +
+        'und brächte das dreifache Moment. Ein Motor, der für Dreieck ausgelegt ist, läuft im ' +
+        'Stern dauerhaft zu schwach — der Stern ist nur die Anlaufstufe.'
+      : 'Jede Wicklung sieht die volle Netzspannung, führt aber nur ' + zr(r.I_strang, 2) +
+        ' A statt der ' + zr(I, 2) + ' A im Außenleiter. Beim Stern-Dreieck-Anlauf wird erst ' +
+        'im Stern angefahren und bei etwa 80 % der Drehzahl auf Dreieck umgeschaltet.';
+  }
+
+  /* ---- Kompensation ---- */
+  function teil3() {
+    var P = num('kp'), c1 = num('kc1'), c2 = num('kc2'), U = num('ku'), f = num('kf');
+    if (!(P > 0 && c1 > 0 && c2 > 0 && U > 0 && f > 0)) {
+      $('out3').innerHTML = ''; $('note3').className = 'note';
+      $('note3').textContent = 'Leistung, beide Leistungsfaktoren, Spannung und Frequenz eintragen.'; return;
+    }
+    var k = ELEKTRO.kompensation(P * 1000, c1, c2, U, f);
+    if (!k) {
+      $('out3').innerHTML = ''; $('note3').className = 'note bad';
+      $('note3').textContent = c2 <= c1
+        ? 'Der Ziel-Leistungsfaktor muss über dem jetzigen liegen — sonst ist es keine Kompensation.'
+        : 'Beide Leistungsfaktoren müssen zwischen 0 und 1 liegen.';
+      return;
+    }
+    var Ivor = P * 1000 / (ELEKTRO.WURZEL3 * U * c1);
+    var Inach = P * 1000 / (ELEKTRO.WURZEL3 * U * c2);
+    $('out3').innerHTML =
+      kachel('Nötige Leistung', zr(k.Qc / 1000, 2) + ' kvar', 'kapazitiv') +
+      kachel('Im Dreieck', zr(k.C_dreieck, 1) + ' µF', 'je Kondensator') +
+      kachel('Im Stern', zr(k.C_stern, 1) + ' µF', 'je Kondensator') +
+      kachel('Strom sinkt', zr(Ivor - Inach, 2) + ' A', 'von ' + zr(Ivor, 1) + ' auf ' + zr(Inach, 1));
+    $('note3').className = 'note';
+    $('note3').textContent = 'Im Dreieck geschaltet braucht es nur ein Drittel der Kapazität, ' +
+      'weil an jedem Kondensator die volle Außenleiterspannung liegt — deshalb ist das die ' +
+      'übliche Schaltung. Hängt der Kondensator fest am Motor, darf er nicht zu groß sein: ' +
+      'sonst erregt sich der Motor beim Auslaufen selbst und erzeugt gefährliche Spannungen. ' +
+      'Als Grenze gilt rund 90 % der Leerlauf-Blindleistung.';
+  }
+
+  $('schalt').onclick = function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    Array.prototype.forEach.call($('schalt').children, function (x) {
+      x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
+    });
+    teil2();
+  };
+  ['mp', 'mu', 'mcos', 'meta', 'mfak'].forEach(function (id) { $(id).oninput = teil1; });
+  ['su', 'si'].forEach(function (id) { $(id).oninput = teil2; });
+  ['kp', 'kc1', 'kc2', 'ku', 'kf'].forEach(function (id) { $(id).oninput = teil3; });
+  teil1(); teil2(); teil3();
+})();
+</script>
+</body>
+</html>

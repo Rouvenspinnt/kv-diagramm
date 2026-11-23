@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nachschlagen</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Nachschlagen</h1>
+    <p>Wie es funktioniert und warum es so gemacht wird — kurz erklärt, mit dem Rechner daneben.</p>
+    <nav class="nav" id="nav" aria-label="Werkzeuge"></nav>
+  </div>
+</header>
+
+<main class="wrap narrow">
+
+  <section class="panel" id="drehstrommotor">
+    <h2>Drehstrommotor <span class="tag">Asynchronmaschine</span></h2>
+    <div class="body artikel">
+      <p class="caption">Drei Spulen, drei zeitlich versetzte Ströme — daraus wird ein Magnetfeld, das umläuft.</p>
+      <p>Die drei Wicklungen im Ständer liegen räumlich um 120° versetzt, und die drei Ströme,
+        die durch sie fließen, sind zeitlich ebenfalls um 120° versetzt. Beides zusammen ergibt
+        ein Magnetfeld, dessen Richtung im Kreis herumwandert: das <strong>Drehfeld</strong>.
+        Es läuft mit der Synchrondrehzahl um, und die hängt nur an der Frequenz und der
+        Polpaarzahl — nicht an der Last und nicht an der Spannung.</p>
+      <table class="farben"><thead><tr><th>Polzahl</th><th>Polpaare p</th><th>bei 50 Hz</th></tr></thead>
+        <tbody>
+          <tr><td class="n">2-polig</td><td>1</td><td>3000 1/min</td></tr>
+          <tr><td class="n">4-polig</td><td>2</td><td>1500 1/min</td></tr>
+          <tr><td class="n">6-polig</td><td>3</td><td>1000 1/min</td></tr>
+          <tr><td class="n">8-polig</td><td>4</td><td>750 1/min</td></tr>
+        </tbody></table>
+      <p>Der Läufer hängt immer ein Stück hinterher, und das <em>muss</em> er. Nur wenn sich
+        das Drehfeld relativ zum Läufer bewegt, wird in dessen Stäben eine Spannung induziert;
+        nur dann fließt dort Strom, und nur dieser Strom erzeugt zusammen mit dem Drehfeld das
+        Moment. Liefe der Läufer genau mit, gäbe es keine Relativbewegung, keine Induktion und
+        kein Moment.</p>
+      <div class="merk">Dieser Rückstand ist der <strong>Schlupf</strong> — und der Grund für
+        den Namen Asynchronmotor. Ein 4-poliger Motor läuft synchron mit 1500 1/min und steht
+        als 1450 auf dem Typenschild: rund 3 % Schlupf bei Nennlast.</div>
+      <p>Das regelt sich selbst: Wird der Motor stärker belastet, bleibt er weiter zurück, der
+        Schlupf steigt, es wird mehr induziert, der Läuferstrom steigt — und damit das Moment,
+        bis es der Last wieder das Gleichgewicht hält.</p>
+      <p>Die Drehrichtung kehrt man um, indem man zwei beliebige Außenleiter tauscht. Das
+        Drehfeld läuft dann andersherum.</p>
+      <p class="dazu">Rechner dazu: <a href="drehstrom.html#motor">Motorstrom</a> ·
+        <a href="antrieb.html#motor">Asynchronmotor &amp; Schlupf</a></p>
+    </div>
+  </section>
+
+  <section class="panel" id="sterndreieck-warum">
+    <h2>Warum Stern-Dreieck drittelt <span class="tag">⅓ Strom, ⅓ Moment</span></h2>
+    <div class="body artikel">
+      <p class="caption">Zweimal √3 ergibt zusammen den Faktor drei.</p>
+      <p>Im Dreieck liegt an jeder Wicklung die volle Außenleiterspannung. Im Stern nur
+        die Spannung geteilt durch √3 — bei 400 V also 231 V. Weil der Strom durch eine
+        Wicklung der Spannung folgt, sinkt auch der Strangstrom auf 1/√3.</p>
+      <p>Dazu kommt der zweite Faktor: Im Dreieck ist der Außenleiterstrom das √3-fache des
+        Strangstroms, im Stern sind beide gleich. Beide Effekte zusammen ergeben
+        <strong>ein Drittel des Netzstroms</strong>.</p>
+      <p>Das Moment hängt dagegen vom <em>Quadrat</em> der Spannung ab. (1/√3)² ist ebenfalls
+        1/3 — auch das Moment fällt auf ein Drittel.</p>
+      <div class="merk">Deshalb fährt man im Stern an und schaltet bei etwa 80 % der Drehzahl
+        auf Dreieck um. Das funktioniert aber nur, wenn die Maschine mit einem Drittel Moment
+        überhaupt anläuft: Lüfter, Pumpe und leerer Förderer ja, ein Rührwerk im vollen
+        Behälter nicht.</div>
+      <p>Wichtig ist, was auf dem Typenschild steht. <strong>400/690 V</strong> heißt: Dreieck
+        an 400 V, Stern an 690 V — am 400-V-Netz ist der Stern nur die Anlaufstufe.
+        <strong>230/400 V</strong> heißt dagegen: Am 400-V-Netz läuft dieser Motor im Stern,
+        und zwar dauerhaft. Wer ihn dort ins Dreieck schaltet, legt die anderthalbfache
+        Spannung an jede Wicklung.</p>
+      <p class="dazu">Rechner dazu: <a href="drehstrom.html#schaltung">Stern &amp; Dreieck</a></p>
+    </div>
+  </section>
+
+  <section class="panel" id="fi">
+    <h2>FI-Schalter <span class="tag">RCD</span></h2>
+    <div class="body artikel">
+      <p class="caption">Er zählt nach, ob alles zurückkommt, was hingeflossen ist.</p>
+      <p>Der FI vergleicht die Summe der hin- und zurückfließenden Ströme. Im gesunden
+        Stromkreis ist diese Summe null: Was über den Außenleiter hineingeht, kommt über den
+        Neutralleiter zurück. Fließt ein Teil über einen anderen Weg ab — durch einen Menschen,
+        über den Schutzleiter, über feuchtes Mauerwerk —, dann fehlt er in der Summe. Ab der
+        Auslösedifferenz, meist 30 mA, schaltet der FI ab.</p>
+      <div class="merk">Er schützt damit gegen etwas, das die Sicherung gar nicht sehen kann.
+        30 mA durch einen Menschen sind lebensgefährlich — ein B16-Automat merkt von diesen
+        30 mA nichts.</div>
+      <p>Was er nicht kann: Er schützt nicht gegen einen Schlag zwischen Außen- und
+        Neutralleiter. Wer beide gleichzeitig anfasst, ist für den FI ein ganz normaler
+        Verbraucher — hin und zurück stimmt ja.</p>
+      <table class="farben"><thead><tr><th>Typ</th><th>erfasst zusätzlich</th><th>wofür</th></tr></thead>
+        <tbody>
+          <tr><td class="n">AC</td><td>nur sinusförmige Wechselfehlerströme</td><td>in Deutschland nicht mehr zulässig</td></tr>
+          <tr><td class="n">A</td><td>pulsierende Gleichfehlerströme</td><td>der Normalfall</td></tr>
+          <tr><td class="n">F</td><td>Mischfrequenzen</td><td>einphasige Umrichter</td></tr>
+          <tr><td class="n">B</td><td>glatte Gleichfehlerströme</td><td>dreiphasige Umrichter, Ladestationen</td></tr>
+        </tbody></table>
+      <p>Hinter einem Frequenzumrichter gehört in aller Regel Typ B. Ein glatter
+        Gleichfehlerstrom kann einen Typ-A-FI magnetisch sättigen — er löst dann nicht nur bei
+        diesem Fehler nicht aus, sondern wird auch für den Wechselfehlerstrom blind, gegen den
+        er eigentlich schützen soll.</p>
+    </div>
+  </section>
+
+  <section class="panel" id="umrichter">
+    <h2>Frequenzumrichter <span class="tag">U/f = konstant</span></h2>
+    <div class="body artikel">
+      <p class="caption">Die Drehzahl hängt an der Frequenz — die Spannung muss mitgehen.</p>
+      <p>Die Synchrondrehzahl ist n = 60 · f / p. Wer die Drehzahl verstellen will, verstellt
+        also die Frequenz. Nur: Der magnetische Fluss im Eisen hängt vom Verhältnis U/f ab.
+        Senkt man allein die Frequenz, steigt der Fluss, das Eisen geht in die Sättigung und
+        der Strom schießt hoch.</p>
+      <p>Deshalb senkt der Umrichter die Spannung im selben Verhältnis mit:
+        <strong>U/f bleibt konstant</strong>. Der Fluss bleibt, wo er hingehört, und bis zur
+        Nennfrequenz steht das volle Moment zur Verfügung.</p>
+      <p>Oberhalb der Nennfrequenz geht das nicht mehr weiter — mehr Spannung als die
+        Netzspannung hat der Umrichter nicht. Die Spannung bleibt stehen, U/f sinkt, der Fluss
+        sinkt: <strong>Feldschwächung</strong>.</p>
+      <table class="farben"><thead><tr><th>Bereich</th><th>Spannung</th><th>Moment</th><th>Leistung</th></tr></thead>
+        <tbody>
+          <tr><td class="n">unter f<sub>N</sub></td><td>steigt mit f</td><td>konstant</td><td>steigt mit f</td></tr>
+          <tr><td class="n">über f<sub>N</sub></td><td>bleibt stehen</td><td>fällt mit 1/f</td><td>konstant</td></tr>
+        </tbody></table>
+      <div class="merk">Ein eigenbelüfteter Motor kühlt bei kleiner Drehzahl schlechter, weil
+        sein Lüfter auf der eigenen Welle sitzt. Dauerbetrieb bei 10 Hz unter Volllast
+        überhitzt ihn, obwohl der Strom stimmt — dafür braucht es einen Fremdlüfter.</div>
+      <p class="dazu">Rechner dazu: <a href="antrieb.html#motor">Asynchronmotor &amp; Umrichter</a></p>
+    </div>
+  </section>
+
+  <section class="panel" id="schuetz">
+    <h2>Schütz &amp; Selbsthaltung <span class="tag">Öffner für Aus</span></h2>
+    <div class="body artikel">
+      <p class="caption">Ein Relais für Leistung — und eine Schaltung, die sich selbst hält.</p>
+      <p>Die Spule zieht einen Anker an, der die Hauptkontakte schließt. Dazu kommen
+        Hilfskontakte, die nur die Steuerung bedienen. Hauptkontakte sind für den Laststrom
+        gebaut, Hilfskontakte für Milliampere.</p>
+      <p><strong>Selbsthaltung:</strong> Der Ein-Taster ist ein Schließer und wird nur kurz
+        gedrückt. Parallel zu ihm liegt ein Schließer-Hilfskontakt des Schützes selbst. Zieht
+        das Schütz an, überbrückt dieser Kontakt den Taster — der Kreis hält sich von da an
+        selbst. Der Aus-Taster ist ein Öffner und liegt in Reihe dazu; er unterbricht ihn.</p>
+      <div class="merk">Der Aus-Taster ist <strong>immer ein Öffner</strong>, nie ein
+        Schließer. Bricht die Leitung zu ihm, fällt das Schütz ab — der Fehler führt in den
+        sicheren Zustand. Mit einem Schließer würde ein Drahtbruch dazu führen, dass sich die
+        Maschine nicht mehr abschalten lässt.</div>
+      <p><strong>Freilauf:</strong> Beim Abschalten will der Strom in der Spule weiterfließen.
+        Wo er nicht kann, steigt die Spannung so weit, bis sie sich einen Weg sucht — das sind
+        die Funken am Kontakt und die Spitzen, die Elektronik zerstören. Eine Diode
+        antiparallel zur Spule gibt dem Strom einen Kreis zum Auslaufen; bei Wechselspannung
+        nimmt man ein RC-Glied, weil eine Diode dort die halbe Welle kurzschließen würde.</p>
+      <p class="dazu">Rechner dazu: <a href="kondensator.html#rl">Spule &amp; Freilauf</a></p>
+    </div>
+  </section>
+
+  <section class="panel" id="sps-zyklus">
+    <h2>Die SPS und ihr Zyklus <span class="tag">E · V · A</span></h2>
+    <div class="body artikel">
+      <p class="caption">Eine SPS wirkt nicht gleichzeitig, sondern in Runden.</p>
+      <p>Anders als eine verdrahtete Schaltung arbeitet eine SPS der Reihe nach. Jede Runde —
+        der Zyklus — hat drei Teile:</p>
+      <ol>
+        <li><strong>Eingänge lesen.</strong> Alle Eingänge werden auf einen Schlag in das
+          Prozessabbild der Eingänge (PAE) kopiert.</li>
+        <li><strong>Programm rechnen.</strong> Das Programm läuft von oben nach unten und liest
+          dabei nicht die echten Klemmen, sondern das Abbild. Ergebnisse landen im Prozessabbild
+          der Ausgänge (PAA).</li>
+        <li><strong>Ausgänge schreiben.</strong> Das PAA geht geschlossen an die
+          Ausgangsklemmen.</li>
+      </ol>
+      <p>Daraus folgen zwei Dinge, über die jeder einmal stolpert:</p>
+      <ul>
+        <li>Ein Eingang, der sich mitten im Programmdurchlauf ändert, wird in diesem Zyklus
+          nicht mehr bemerkt. Die SPS sieht den Stand vom Zyklusanfang.</li>
+        <li>Wird derselbe Ausgang an zwei Stellen beschrieben, gewinnt die letzte. Die erste
+          Zuweisung erreicht die Klemme nie — sie wird überschrieben, bevor überhaupt etwas
+          nach außen geht.</li>
+      </ul>
+      <div class="merk">Die Zykluszeit liegt je nach Programm bei 1 bis 20 ms. Signale, die
+        kürzer sind als ein Zyklus, können durchrutschen. Dafür gibt es Alarmeingänge und
+        schnelle Zähler, die an der Zyklusgrenze vorbei arbeiten.</div>
+    </div>
+  </section>
+
+  <section class="panel" id="kv-lesen">
+    <h2>Das KV-Diagramm lesen <span class="tag">Gray-Code</span></h2>
+    <div class="body artikel">
+      <p class="caption">Eine Wertetabelle, so umsortiert, dass Zusammengehöriges nebeneinander liegt.</p>
+      <p>Die Felder sind so angeordnet, dass sich von einem Feld zum Nachbarn immer nur
+        <em>eine</em> Variable ändert. Dadurch stehen genau die Einsen nebeneinander, die sich
+        zu einem kürzeren Term zusammenfassen lassen.</p>
+      <p>Das Vorgehen: Alle Einsen mit möglichst großen Blöcken überdecken. Die Regeln dafür
+        sind eng:</p>
+      <ul>
+        <li>Ein Block hat 1, 2, 4, 8 … Felder — immer eine Zweierpotenz.</li>
+        <li>Er ist rechteckig, nie L-förmig.</li>
+        <li>Blöcke dürfen sich überlappen.</li>
+        <li>Sie dürfen über den Rand hinweg zusammengehen: Das Diagramm ist links mit rechts
+          und oben mit unten verklebt.</li>
+      </ul>
+      <p>Jeder Block wird ein Term, und darin stehen nur die Variablen, die sich innerhalb des
+        Blocks <em>nicht</em> ändern. Je größer der Block, desto mehr Variablen fallen weg und
+        desto kürzer der Term — darum die möglichst großen Blöcke.</p>
+      <div class="merk">Ein <strong>Don't Care</strong> (X) ist eine Eingangskombination, die
+        im Betrieb nie vorkommt. Man darf sie als Eins benutzen, wenn sie einen Block
+        vergrößert, und sonst einfach liegen lassen. Das ist oft der Unterschied zwischen einer
+        langen und einer kurzen Gleichung.</div>
+      <p class="dazu">Rechner dazu: <a href="kv-diagramm.html">KV-Diagramm</a></p>
+    </div>
+  </section>
+
+  <section class="panel" id="regelkreis">
+    <h2>P, I und D <span class="tag">Regelkreis</span></h2>
+    <div class="body artikel">
+      <p class="caption">Drei Anteile, drei Aufgaben — jeder gleicht eine Schwäche der anderen aus.</p>
+      <p>Ein Regler vergleicht Soll und Ist und macht aus der Abweichung eine Stellgröße. Wie
+        er das tut, steckt in den drei Anteilen:</p>
+      <p><strong>P — proportional.</strong> Die Stellgröße ist proportional zur Abweichung.
+        Reagiert sofort, aber lässt eine bleibende Regelabweichung stehen: Wäre die Abweichung
+        null, wäre auch die Stellgröße null — und dann sackt der Istwert wieder ab.</p>
+      <p><strong>I — integral.</strong> Summiert die Abweichung über die Zeit auf. Solange
+        irgendeine Abweichung bleibt, läuft dieser Anteil weiter hoch und räumt sie damit weg.
+        Dafür ist er langsam und neigt zum Überschwingen, weil er auch dann noch weiterschiebt,
+        wenn das Ziel schon erreicht ist.</p>
+      <p><strong>D — differenzial.</strong> Reagiert nicht auf die Abweichung, sondern auf ihre
+        Änderungsgeschwindigkeit. Er bremst, bevor das Ziel erreicht ist. Das macht die Regelung
+        schneller, verstärkt aber jedes Rauschen im Messwert — bei unruhigen Signalen lässt man
+        ihn weg und nimmt einen PI-Regler.</p>
+      <div class="merk">Von Hand einstellen: erst P allein hochdrehen, bis es gerade anfängt zu
+        schwingen, dann deutlich zurücknehmen. Dann I dazugeben, bis die bleibende Abweichung
+        verschwindet, ohne dass es überschwingt. D nur, wenn es wirklich nötig ist.</div>
+      <p>Strecken mit Totzeit — lange Rohre, Förderbänder, große Massen — vertragen wenig
+        Verstärkung. Was der Regler stellt, sieht er erst viel später, und bis dahin hat er
+        längst zu viel getan.</p>
+    </div>
+  </section>
+
+  <section class="panel" id="vier-zwanzig">
+    <h2>Warum 4–20 mA <span class="tag">und nicht 0–20</span></h2>
+    <div class="body artikel">
+      <p class="caption">Weil null sonst zweierlei heißen kann.</p>
+      <p>Bei 0–20 mA bedeutet null zwei völlig verschiedene Dinge: „der Messwert ist null" und
+        „die Leitung ist ab". Das ist bei 4–20 mA nicht so. Der kleinste gültige Wert ist 4 mA,
+        und alles darunter ist ein <strong>Fehler</strong>, den die Steuerung erkennen kann —
+        Drahtbruch, abgezogener Stecker, toter Sensor.</p>
+      <p>Der zweite Vorteil folgt daraus: Weil selbst beim kleinsten Messwert noch 4 mA
+        fließen, kann der Sensor sich aus denselben zwei Adern versorgen, über die er auch
+        misst. Das ist die Zweileitertechnik.</p>
+      <p>Der dritte ist der entscheidende für lange Strecken: <strong>Ein Strom ändert sich
+        entlang der Leitung nicht.</strong> Leitungswiderstand, Übergangswiderstände an den
+        Klemmen und Spannungsfall spielen keine Rolle — was der Sensor einprägt, kommt am
+        anderen Ende an. Bei 0–10 V ist das anders: Dort verfälscht jede lange Leitung den
+        Messwert.</p>
+      <div class="merk">Faustregel: 4–20 mA für alles, was den Schaltschrank verlässt.
+        0–10 V nur für kurze Wege innerhalb des Schranks.</div>
+      <p class="dazu">Rechner dazu: <a href="normsignal.html#norm">Normsignal skalieren</a> ·
+        <a href="normsignal.html#sps">SPS-Rohwert</a></p>
+    </div>
+  </section>
+
+  <section class="panel" id="temperaturfuehler">
+    <h2>Pt100 oder Thermoelement <span class="tag">Temperaturfühler</span></h2>
+    <div class="body artikel">
+      <p class="caption">Der eine ist genau, der andere robust und schnell.</p>
+      <p><strong>Pt100</strong> ist ein Platinwiderstand, der bei 0 °C genau 100 Ω hat und mit
+        der Temperatur fast linear steigt. Genau, langzeitstabil, einfach auszuwerten; der
+        Bereich reicht etwa von −200 bis +600 °C. Er braucht eine Stromversorgung, und bei
+        langer Leitung drei oder vier Adern: Im Zweileiter zählt der Leitungswiderstand voll
+        als Messfehler mit, und 1 Ω sind beim Pt100 schon rund 2,6 K.</p>
+      <p><strong>Thermoelement</strong> sind zwei verschiedene Metalle, miteinander verschweißt.
+        An der Verbindung entsteht eine Spannung, die von der Temperaturdifferenz zwischen
+        Messstelle und Anschlussstelle abhängt. Robust, sehr schnell, je nach Typ bis weit über
+        1000 °C. Dafür ungenauer, und es braucht eine Vergleichsstellenmessung: Das Element
+        liefert nur die Differenz, nie die Temperatur selbst.</p>
+      <div class="merk">Faustregel: Bis 600 °C und wenn es genau sein soll, Pt100. Darüber,
+        oder wenn es schnell und mechanisch robust sein muss, Thermoelement.</div>
+      <p class="dazu">Rechner dazu: <a href="temperatur.html#pt">Pt100 &amp; Pt1000</a> ·
+        <a href="temperatur.html#thermo">Thermoelement</a></p>
+    </div>
+  </section>
+
+  <section class="panel" id="passung-lesen">
+    <h2>H7/g6 lesen <span class="tag">Passungen</span></h2>
+    <div class="body artikel">
+      <p class="caption">Großbuchstabe Bohrung, Kleinbuchstabe Welle, Zahl die Enge.</p>
+      <p>Der Buchstabe sagt, wo das Toleranzfeld relativ zum Nennmaß liegt, die Zahl ist der
+        Toleranzgrad (IT) — je kleiner die Zahl, desto enger die Toleranz.
+        <strong>H</strong> bedeutet: Das untere Abmaß ist null, die Bohrung ist nie kleiner als
+        das Nennmaß. <strong>h</strong> bedeutet dasselbe für die Welle nach oben: Sie ist nie
+        größer als das Nennmaß.</p>
+      <table class="farben"><thead><tr><th>Art</th><th>Beispiel</th><th>was herauskommt</th></tr></thead>
+        <tbody>
+          <tr><td class="n">Spielpassung</td><td>H7/g6, H7/f7</td><td>Welle immer kleiner — es bleibt Spiel</td></tr>
+          <tr><td class="n">Übergangspassung</td><td>H7/k6, H7/j6</td><td>je nach Istmaß Spiel oder Übermaß</td></tr>
+          <tr><td class="n">Presspassung</td><td>H7/r6, H7/s6</td><td>Welle immer größer — nur mit Kraft oder Wärme zu fügen</td></tr>
+        </tbody></table>
+      <div class="merk">Die <strong>Einheitsbohrung</strong> (H) ist der Regelfall: Die Bohrung
+        bleibt, wie sie ist, und die Passung wird über die Welle eingestellt. Der Grund ist
+        banal — eine Welle abzudrehen ist billiger, als für jede Passung eine eigene Reibahle
+        und eine eigene Lehre zu haben.</div>
+      <p class="dazu">Rechner dazu: <a href="passungen.html">Passungen</a></p>
+    </div>
+  </section>
+
+  <section class="panel" id="vc-konstant">
+    <h2>Warum v<sub>c</sub> gleich bleibt <span class="tag">und n sich ändert</span></h2>
+    <div class="body artikel">
+      <p class="caption">Die Schneide interessiert nicht die Drehzahl, sondern ihr Tempo durch den Werkstoff.</p>
+      <p>Die Schnittgeschwindigkeit v<sub>c</sub> ist die Geschwindigkeit, mit der die Schneide
+        durch den Werkstoff geht. Sie bestimmt, wie heiß die Schneide wird und wie schnell sie
+        verschleißt. Für jede Paarung aus Werkstoff und Schneidstoff gibt es einen Bereich, in
+        dem die Standzeit stimmt — <strong>das</strong> ist die eigentliche Vorgabe.</p>
+      <p>Die Drehzahl ist nur das, was daraus folgt: n = v<sub>c</sub> · 1000 / (π · d). Bei
+        halbem Durchmesser braucht es die doppelte Drehzahl für dieselbe Schnittgeschwindigkeit.</p>
+      <div class="merk">Beim Plandrehen zur Mitte hin wird d immer kleiner. Bleibt die Drehzahl
+        fest, sinkt v<sub>c</sub> gegen null — die Schneide schmiert dann nur noch, statt zu
+        schneiden. Dagegen gibt es die konstante Schnittgeschwindigkeit (G96): Die Steuerung
+        zieht die Drehzahl hoch, während der Durchmesser fällt, bis zur eingestellten
+        Grenzdrehzahl.</div>
+      <p class="dazu">Rechner dazu: <a href="zerspanung.html#drehzahl">Drehzahl &amp;
+        Schnittgeschwindigkeit</a></p>
+    </div>
+  </section>
+
+  <section class="panel" id="ventil-benennung">
+    <h2>5/2-Wegeventil <span class="tag">was die Zahlen heißen</span></h2>
+    <div class="body artikel">
+      <p class="caption">Erste Zahl: Anschlüsse. Zweite Zahl: Schaltstellungen.</p>
+      <p>Ein 5/2-Wegeventil hat also fünf Anschlüsse und zwei Stellungen. Die Anschlüsse sind
+        nach ISO 11727 durchnummeriert; die alten Buchstaben stehen noch auf vielen Zeichnungen
+        daneben.</p>
+      <table class="farben"><thead><tr><th>Nummer</th><th>alt</th><th>wofür</th></tr></thead>
+        <tbody>
+          <tr><td class="n">1</td><td>P</td><td>Druckluft</td></tr>
+          <tr><td class="n">2 und 4</td><td>B und A</td><td>Arbeitsanschlüsse zum Zylinder</td></tr>
+          <tr><td class="n">3 und 5</td><td>R und S</td><td>Entlüftung</td></tr>
+          <tr><td class="n">12, 14</td><td>Z, Y</td><td>Steueranschlüsse</td></tr>
+        </tbody></table>
+      <p>Ein doppeltwirkender Zylinder braucht 5/2: In der einen Stellung ist 1→4 verbunden und
+        2 entlüftet über 3, in der anderen 1→2 und 4 entlüftet über 5. Ein einfachwirkender
+        Zylinder, der von einer Feder zurückgeholt wird, kommt mit 3/2 aus.</p>
+      <div class="merk"><strong>Monostabil</strong> heißt: Eine Feder bringt das Ventil in die
+        Ruhestellung zurück, sobald das Signal wegfällt. <strong>Bistabil</strong>
+        (Impulsventil) heißt: Es bleibt stehen, wo es zuletzt geschaltet wurde — auch beim
+        Not-Aus. Was der Zylinder in diesem Moment tut, muss man vorher wissen wollen.</div>
+      <p class="dazu">Rechner dazu: <a href="pneumatik.html#kraft">Zylinderkraft</a> ·
+        <a href="stroemung.html#kv">Kv-Wert</a></p>
+    </div>
+  </section>
+
+  <section class="panel" id="vorspannung">
+    <h2>Warum mit Drehmoment anziehen <span class="tag">Vorspannkraft</span></h2>
+    <div class="body artikel">
+      <p class="caption">Was hält, ist nicht die Schraube — es ist die Reibung zwischen den Teilen.</p>
+      <p>Eine Schraubverbindung hält, weil die Schraube die Teile so fest zusammenzieht, dass
+        die Reibung zwischen ihnen die Querkraft überträgt. Die Schraube selbst soll gar nicht
+        auf Abscheren belastet werden. Das Entscheidende ist also die
+        <strong>Vorspannkraft</strong>.</p>
+      <p>Die lässt sich nur nicht messen, während man anzieht. Das Drehmoment ist ein
+        Hilfsmaß — und kein besonders gutes: Nur etwa ein Zehntel davon geht überhaupt in die
+        Vorspannung, der ganze Rest wird in der Gewinde- und der Kopfreibung verbraucht.</p>
+      <div class="merk">Deshalb gilt jeder Tabellenwert immer für eine bestimmte Reibungszahl,
+        meist μ = 0,14. Ein geschmiertes Gewinde mit dem Wert für trocken angezogen bekommt
+        deutlich zu viel Vorspannung — die Schraube kann reißen. Umgekehrt hält ein rostiges
+        Gewinde beim selben Moment die Verbindung nicht.</div>
+      <p>Darum streut das Verfahren um ±20 bis 25 %. Wo es genauer sein muss, zieht man
+        drehwinkelgesteuert an: erst auf ein kleines Fügemoment, dann um einen festgelegten
+        Winkel weiter. Der Winkel hängt an der Längung der Schraube und nicht an der Reibung.</p>
+      <p class="dazu">Rechner dazu: <a href="mechanik.html#schraube">Schraubenanzugsmoment</a></p>
+    </div>
+  </section>
+
+</main>
+
+<script src="tools.js"></script>
+<script src="et.js"></script>
+</body>
+</html>

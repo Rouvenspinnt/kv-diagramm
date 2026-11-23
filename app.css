@@ -299,6 +299,26 @@
   .schema .dim { stroke:var(--accent); stroke-width:1.2; fill:none; opacity:.8; }
   .caption { text-align:center; color:var(--ink-3); font-size:.78rem; margin:0 0 var(--s2); }
 
+  /* Nachschlagen: Fliesstext, der sich am Stueck lesen laesst */
+  .artikel p { font-size:.9rem; line-height:1.68; color:var(--ink-2);
+               margin:0 0 var(--s3); max-width:66ch; }
+  .artikel p:last-child { margin-bottom:0; }
+  .artikel strong { color:var(--ink); font-weight:650; }
+  .artikel a { color:var(--accent); text-underline-offset:2px; }
+  .artikel ol, .artikel ul { font-size:.9rem; line-height:1.68; color:var(--ink-2);
+                             max-width:66ch; margin:0 0 var(--s3); padding-left:1.3em; }
+  .artikel li { margin-bottom:var(--s1); }
+  .artikel li::marker { color:var(--ink-3); }
+  .artikel .merk { margin:var(--s3) 0; padding:var(--s2) var(--s3); font-size:.88rem;
+                   color:var(--ink); max-width:66ch;
+                   border-left:3px solid var(--accent);
+                   background:color-mix(in srgb, var(--accent) 7%, transparent); }
+  .artikel .dazu { margin:var(--s4) 0 0; padding-top:var(--s3);
+                   border-top:1px solid var(--line-soft); font-size:.84rem; color:var(--ink-3); }
+  /* Die 360px Mindestbreite braucht hier niemand: der Text in diesen Tabellen
+     ist kurz und darf umbrechen, statt am Panelrand abgeschnitten zu werden. */
+  .artikel table.farben { margin:var(--s3) 0; min-width:0; }
+
   /* ---- Kurven. Eine Reihe je Bild, deshalb ohne Legende; Schrift traegt Textfarbe. ---- */
   .schema .axis { stroke:var(--ink-3); stroke-width:1; opacity:.7; }
   .schema .grid { stroke:var(--line-soft); stroke-width:1; }
