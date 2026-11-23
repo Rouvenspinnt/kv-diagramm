@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Drehmoment, Motor &amp; Getriebe</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Drehmoment, Motor &amp; Getriebe</h1>
+    <p>Vom Typenschild zur Drehzahl am Abtrieb — und zum Moment, das dort ankommt.</p>
+    <nav class="nav" id="nav" aria-label="Werkzeuge"></nav>
+  </div>
+</header>
+
+<main class="wrap narrow">
+  <section class="panel" id="moment">
+    <h2>Leistung, Drehzahl, Moment <span class="tag">P = M · 2π n / 60</span></h2>
+    <div class="body">
+      <p class="caption">Zwei Werte eintragen, der dritte kommt heraus. Das ist die Rechnung,
+        die man an jedem Typenschild braucht: 4 kW bei 1450 1/min sind 26,3 Nm.</p>
+      <div class="fields">
+        <label class="f" data-help="Die mechanische Leistung an der Welle in Kilowatt. Auf dem Typenschild eines Motors steht die abgegebene Leistung, nicht die aufgenommene."><span>Leistung P</span><div class="row"><input id="p" inputmode="decimal" value="4"><span class="unit">kW</span></div></label>
+        <label class="f" data-help="Die Drehzahl der Welle in Umdrehungen je Minute. Beim Motor die Nenndrehzahl vom Typenschild, nicht die Synchrondrehzahl."><span>Drehzahl n</span><div class="row"><input id="n" inputmode="decimal" value="1450"><span class="unit">1/min</span></div></label>
+        <label class="f" data-help="Das Drehmoment an der Welle in Newtonmetern. Leer lassen, dann wird es aus Leistung und Drehzahl gerechnet."><span>Moment M</span><div class="row"><input id="m" inputmode="decimal" placeholder="wird gerechnet"><span class="unit">Nm</span></div></label>
+        <label class="f" data-help="Der Wirkungsgrad des Antriebs als Zahl zwischen 0 und 1 oder in Prozent. Er sagt, wie viel von der aufgenommenen Leistung hinten ankommt — der Rest wird Wärme."><span>Wirkungsgrad η</span><div class="row"><input id="eta" inputmode="decimal" value="0.9"><span class="unit">—</span></div></label>
+      </div>
+      <div class="out" id="out1"></div>
+      <p class="note" id="note1"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="motor">
+    <h2>Asynchronmotor <span class="tag" id="mtag"></span></h2>
+    <div class="body">
+      <p class="caption">Die Synchrondrehzahl hängt nur an Netzfrequenz und Polzahl. Der Läufer
+        bleibt immer ein Stück zurück — ohne diesen Schlupf entsteht kein Moment. Darum steht
+        auf dem Typenschild nie 1500, sondern 1450.</p>
+      <div class="fields">
+        <label class="f" data-help="Die Frequenz, mit der der Motor gespeist wird. Am Netz sind das 50 Hz, am Umrichter das, was eingestellt ist."><span>Frequenz f</span><div class="row"><input id="f" inputmode="decimal" value="50"><span class="unit">Hz</span></div></label>
+        <label class="f" data-help="Die Zahl der Pole des Motors. Steht auf dem Typenschild oder lässt sich an der Nenndrehzahl ablesen: knapp unter 3000 heißt zweipolig, knapp unter 1500 vierpolig."><span>Polzahl</span><div class="row"><select id="pol"></select></div></label>
+        <label class="f" data-help="Die Nenndrehzahl vom Typenschild, bei voller Last. Daraus kommt der Schlupf. Leer lassen, dann wird mit 3 % gerechnet."><span>Nenndrehzahl</span><div class="row"><input id="nn" inputmode="decimal" value="1450"><span class="unit">1/min</span></div></label>
+        <label class="f" data-help="Wenn der Motor am Umrichter hängt: die eingestellte Ausgangsfrequenz. Unterhalb der Nennfrequenz bleibt das Moment erhalten, oberhalb fällt es ab, weil die Spannung nicht weiter mitwachsen kann."><span>Umrichter f</span><div class="row"><input id="fu" inputmode="decimal" placeholder="z. B. 35"><span class="unit">Hz</span></div></label>
+      </div>
+      <div class="out" id="out2"></div>
+      <p class="note" id="note2"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="getriebe">
+    <h2>Getriebe &amp; Riemen <span class="tag">i = n<sub>an</sub> / n<sub>ab</sub></span></h2>
+    <div class="body">
+      <p class="caption">Ein Getriebe tauscht Drehzahl gegen Moment. Was an Drehzahl verloren
+        geht, kommt als Moment dazu — bis auf die Verluste. Antriebsdrehzahl und ‑moment
+        kommen von oben; die Übersetzung trägst du als Zahl ein oder als Zähnezahlen.</p>
+      <div class="fields">
+        <label class="f" data-help="Das Verhältnis von Antriebs- zu Abtriebsdrehzahl. Größer als 1 heißt ins Langsame: 15 bedeutet, der Abtrieb dreht fünfzehnmal langsamer und bringt knapp das fünfzehnfache Moment."><span>Übersetzung i</span><div class="row"><input id="i1" inputmode="decimal" value="15"></div></label>
+        <label class="f" data-help="Eine zweite Stufe, zum Beispiel ein Riementrieb hinter dem Getriebe. Die Stufen multiplizieren sich. Leer lassen, wenn es nur eine Stufe gibt."><span>2. Stufe</span><div class="row"><input id="i2" inputmode="decimal" placeholder="optional"></div></label>
+        <label class="f" data-help="Der Wirkungsgrad des Getriebes. Ein Stirnradgetriebe liegt je Stufe bei 0,97, ein Schneckengetriebe je nach Steigung zwischen 0,4 und 0,9 — dort lohnt das Nachsehen im Datenblatt."><span>Wirkungsgrad</span><div class="row"><input id="etag" inputmode="decimal" value="0.95"><span class="unit">—</span></div></label>
+      </div>
+      <div class="out" id="out3"></div>
+      <p class="note" id="note3"></p>
+      <p class="note formula"><span>n<sub>ab</sub> = n<sub>an</sub> / i</span>      <span>M<sub>ab</sub> = M<sub>an</sub> · i · η</span></p>
+    </div>
+  </section>
+</main>
+
+<script src="tools.js"></script>
+<script src="et.js"></script>
+<script src="draw.js"></script>
+<script src="calc-antrieb.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  function zr(x, stellen) {
+    if (!isFinite(x)) return '—';
+    var f = Math.pow(10, stellen);
+    return String(Math.round(x * f) / f).replace('.', ',');
+  }
+  function kachel(k, v, klein) {
+    return '<div><div class="k">' + k + '</div><div class="v">' + v +
+           (klein ? ' <small>' + klein + '</small>' : '') + '</div></div>';
+  }
+  function num(id) {
+    var el = $(id), x = ET.parseVal(el.value);
+    var gut = isFinite(x);
+    el.classList.toggle('filled', gut && el.value.trim() !== '');
+    el.classList.toggle('bad', el.value.trim() !== '' && !gut);
+    return gut ? x : NaN;
+  }
+
+  var letzte = { P: NaN, n: NaN, M: NaN };
+
+  /* ---- Leistung, Drehzahl, Moment ---- */
+  function teil1() {
+    var P = num('p'), n = num('n'), M = num('m'), eta = num('eta');
+    var Pw = isFinite(P) ? P * 1000 : NaN;                  // kW -> W
+    var quelle;
+
+    if (isFinite(Pw) && isFinite(n))      { M = ANTR.moment(Pw, n); quelle = 'M'; }
+    else if (isFinite(Pw) && isFinite(M)) { n = ANTR.drehzahlAus(Pw, M); quelle = 'n'; }
+    else if (isFinite(n) && isFinite(M))  { Pw = ANTR.leistung(M, n); quelle = 'P'; }
+    else {
+      $('out1').innerHTML = ''; $('note1').className = 'note';
+      $('note1').textContent = 'Zwei der drei Größen eintragen.';
+      letzte = { P: NaN, n: NaN, M: NaN }; teil2(); return;
+    }
+    var w = ANTR.winkelgeschwindigkeit(n);
+    $('out1').innerHTML =
+      kachel('Moment M', zr(M, 2) + ' Nm', quelle === 'M' ? '' : 'gegeben') +
+      kachel('Leistung P', zr(Pw / 1000, 3) + ' kW', quelle === 'P' ? '' : 'gegeben') +
+      kachel('Drehzahl n', zr(n, 1) + ' 1/min', quelle === 'n' ? '' : 'gegeben') +
+      kachel('Winkelgeschw.', zr(w, 2) + ' 1/s', 'ω') +
+      (isFinite(eta)
+        ? kachel('Nach Verlusten', zr(ANTR.ab(Pw, eta) / 1000, 3) + ' kW',
+                 'η = ' + zr(eta > 1 ? eta / 100 : eta, 3))
+        : '');
+
+    $('note1').className = 'note';
+    $('note1').textContent = 'Bei gleicher Leistung steigt das Moment, je langsamer die Welle ' +
+      'dreht. Darum sitzt vor einer schweren Last ein Getriebe und kein größerer Motor.';
+    letzte = { P: Pw, n: n, M: M };
+    teil2();
+  }
+
+  /* ---- Asynchronmotor ---- */
+  function fuellePole() {
+    $('pol').innerHTML = [2, 4, 6, 8, 10, 12].map(function (z) {
+      return '<option value="' + (z / 2) + '">' + z + '-polig</option>';
+    }).join('');
+    $('pol').value = '2';
+  }
+
+  function teil2() {
+    var f = num('f'), p = parseFloat($('pol').value), nn = num('nn'), fu = num('fu');
+    if (!(f > 0)) {
+      $('out2').innerHTML = ''; $('note2').className = 'note bad';
+      $('note2').textContent = 'Frequenz eintragen.'; teil3(); return;
+    }
+    var nsyn = ANTR.synchrondrehzahl(f, p);
+    var s = isFinite(nn) ? ANTR.schlupf(nsyn, nn) : 0.03;
+    var nLauf = isFinite(nn) ? nn : ANTR.laeuferdrehzahl(nsyn, s);
+    $('mtag').textContent = (p * 2) + '-polig · ' + zr(nsyn, 0) + ' 1/min synchron';
+
+    var teile =
+      kachel('Synchrondrehzahl', zr(nsyn, 0) + ' 1/min', 'Drehfeld') +
+      kachel('Läuferdrehzahl', zr(nLauf, 0) + ' 1/min', isFinite(nn) ? 'gegeben' : 'bei 3 % Schlupf') +
+      kachel('Schlupf s', zr(s * 100, 2) + ' %', zr(nsyn - nLauf, 0) + ' 1/min Rückstand') +
+      kachel('Polpaare', String(p), (p * 2) + ' Pole');
+
+    if (isFinite(fu) && fu > 0) {
+      var nsynU = ANTR.synchrondrehzahl(fu, p);
+      var nU = nsynU * (1 - s);
+      var MU = isFinite(letzte.M) ? ANTR.umrichter(fu, f, letzte.M) : NaN;
+      teile += kachel('Mit ' + zr(fu, 1) + ' Hz', zr(nU, 0) + ' 1/min', 'bei gleichem Schlupf') +
+               (isFinite(MU) ? kachel('Moment dabei', zr(MU, 2) + ' Nm',
+                 fu > f ? 'Feldschwächung' : 'unverändert') : '');
+    }
+    $('out2').innerHTML = teile;
+
+    $('note2').className = 'note';
+    $('note2').textContent = s < 0
+      ? 'Die Nenndrehzahl liegt über der Synchrondrehzahl — dann ist entweder die Polzahl ' +
+        'falsch gewählt, oder der Motor wird angetrieben und arbeitet als Generator.'
+      : s > 0.15
+      ? 'Über 15 % Schlupf: das passt nicht zu einem Nennpunkt. Stimmt die Polzahl?'
+      : isFinite(fu) && fu > f
+      ? 'Über der Nennfrequenz bleibt die Spannung stehen, deshalb fällt das Moment mit 1/f. ' +
+        'Die Leistung bleibt dabei ungefähr gleich.'
+      : 'Der Schlupf wächst mit der Last. Im Leerlauf läuft der Motor fast synchron, ' +
+        'unter voller Last bleibt er um diese Drehzahl zurück.';
+    teil3();
+  }
+
+  /* ---- Getriebe ---- */
+  function teil3() {
+    var i1 = num('i1'), i2 = num('i2'), eta = num('etag');
+    if (!(i1 > 0)) {
+      $('out3').innerHTML = ''; $('note3').className = 'note';
+      $('note3').textContent = 'Übersetzung eintragen.'; return;
+    }
+    var i = isFinite(i2) && i2 > 0 ? ANTR.stufen([i1, i2]) : i1;
+    var nAb = isFinite(letzte.n) ? ANTR.abtriebsdrehzahl(letzte.n, i) : NaN;
+    var MAb = isFinite(letzte.M) ? ANTR.abtriebsmoment(letzte.M, i, isFinite(eta) ? eta : 1) : NaN;
+    var PAb = isFinite(MAb) && isFinite(nAb) ? ANTR.leistung(MAb, nAb) : NaN;
+
+    $('out3').innerHTML =
+      kachel('Übersetzung', zr(i, 3), isFinite(i2) && i2 > 0 ? 'zwei Stufen' : 'eine Stufe') +
+      kachel('Abtriebsdrehzahl', zr(nAb, 1) + ' 1/min', '') +
+      kachel('Abtriebsmoment', zr(MAb, 1) + ' Nm', isFinite(eta) ? 'mit η' : '') +
+      kachel('Leistung am Abtrieb', zr(PAb / 1000, 3) + ' kW',
+             isFinite(letzte.P) ? zr(PAb / letzte.P * 100, 1) + ' % vom Antrieb' : '');
+
+    $('note3').className = 'note';
+    $('note3').textContent = i < 1
+      ? 'Übersetzung unter 1: das Getriebe läuft ins Schnelle, das Moment wird kleiner.'
+      : 'Das Moment am Abtrieb wächst um die Übersetzung, die Drehzahl sinkt um denselben ' +
+        'Faktor. Der Wirkungsgrad geht nur vom Moment ab, nicht von der Drehzahl.';
+  }
+
+  fuellePole();
+  ['p', 'n', 'm', 'eta'].forEach(function (id) { $(id).oninput = teil1; });
+  ['f', 'pol', 'nn', 'fu'].forEach(function (id) { $(id).oninput = teil2; $(id).onchange = teil2; });
+  ['i1', 'i2', 'etag'].forEach(function (id) { $(id).oninput = teil3; });
+  teil1();
+})();
+</script>
+</body>
+</html>

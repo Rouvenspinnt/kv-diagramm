@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zylinder, Luftverbrauch &amp; Druckübersetzer</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Zylinder, Luftverbrauch &amp; Druckübersetzer</h1>
+    <p>Welche Kraft der Zylinder bringt, wie schnell er fährt und was er an Luft kostet.</p>
+    <nav class="nav" id="nav" aria-label="Werkzeuge"></nav>
+  </div>
+</header>
+
+<main class="wrap narrow">
+  <section class="panel" id="kraft">
+    <h2>Zylinderkraft <span class="tag" id="ktag"></span></h2>
+    <div class="body">
+      <p class="caption">Vorwärts drückt der Druck auf die ganze Kolbenfläche, rückwärts nur
+        auf die Ringfläche — die Kolbenstange nimmt Platz weg. Darum zieht jeder Zylinder
+        schwächer, als er drückt.</p>
+      <div class="fields">
+        <label class="f" data-help="Die üblichen Baugrößen nach ISO 15552 mit der zugehörigen Kolbenstange. Beide Maße lassen sich darunter überschreiben."><span>Baugröße</span><div class="row"><select id="bau"></select></div></label>
+        <label class="f" data-help="Der Innendurchmesser des Zylinderrohrs in Millimetern — die Bohrung, nicht das Außenmaß."><span>Bohrung D</span><div class="row"><input id="dk" inputmode="decimal" value="50"><span class="unit">mm</span></div></label>
+        <label class="f" data-help="Der Durchmesser der Kolbenstange in Millimetern. Sie bestimmt, wie viel Fläche beim Einfahren übrig bleibt."><span>Stange d</span><div class="row"><input id="ds" inputmode="decimal" value="20"><span class="unit">mm</span></div></label>
+        <label class="f" data-help="Der Betriebsdruck in bar Überdruck, also das, was das Manometer zeigt. In der Pneumatik sind 6 bar üblich, in der Hydraulik je nach Anlage 100 bis 350."><span>Druck p</span><div class="row"><input id="p" inputmode="decimal" value="6"><span class="unit">bar</span></div></label>
+        <label class="f" data-help="Der Wirkungsgrad deckt Dichtungs- und Führungsreibung ab. Beim Pneumatikzylinder sind 0,85 bis 0,95 üblich, beim Hydraulikzylinder etwas mehr."><span>Wirkungsgrad η</span><div class="row"><input id="eta" inputmode="decimal" value="0.9"><span class="unit">—</span></div></label>
+      </div>
+      <div class="out" id="out1"></div>
+      <p class="note" id="note1"></p>
+      <p class="note formula"><span>F = p · A · η</span>      <span>A<sub>Ring</sub> = π (D² − d²) / 4</span></p>
+    </div>
+  </section>
+
+  <section class="panel" id="tempo">
+    <h2>Kolbengeschwindigkeit <span class="tag">v = Q / A</span></h2>
+    <div class="body">
+      <p class="caption">Was an Volumenstrom hineingeht, muss der Kolben als Weg hergeben.
+        Bohrung und Stange kommen von oben.</p>
+      <div class="fields">
+        <label class="f" data-help="Der Volumenstrom, der in den Zylinder läuft, in Litern je Minute. In der Hydraulik ist das die Fördermenge der Pumpe, in der Pneumatik die Luftmenge im Betriebszustand — nicht in Normlitern."><span>Volumenstrom Q</span><div class="row"><input id="q" inputmode="decimal" value="10"><span class="unit">l/min</span></div></label>
+        <label class="f" data-help="Der Hub des Zylinders in Millimetern, also der Weg von ganz eingefahren bis ganz ausgefahren."><span>Hub s</span><div class="row"><input id="hub" inputmode="decimal" value="500"><span class="unit">mm</span></div></label>
+      </div>
+      <div class="out" id="out2"></div>
+      <p class="note" id="note2"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="luft">
+    <h2>Luftverbrauch <span class="tag">in Normlitern</span></h2>
+    <div class="body">
+      <p class="caption">Im Zylinder steht die Luft unter Druck. Der Kompressor muss sie
+        aus der Umgebung holen, deshalb zählt der Verbrauch in Normlitern — bei 6 bar ist
+        das knapp das Siebenfache des Zylindervolumens.</p>
+      <div class="fields">
+        <label class="f" data-help="Wie viele vollständige Doppelhübe der Zylinder in der Minute macht, also hin und zurück."><span>Takte je Minute</span><div class="row"><input id="takte" inputmode="decimal" value="20"><span class="unit">1/min</span></div></label>
+      </div>
+      <div class="out" id="out3"></div>
+      <p class="note" id="note3"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="uebersetzer">
+    <h2>Druckübersetzer <span class="tag">p₂ = p₁ · A₁ / A₂</span></h2>
+    <div class="body">
+      <p class="caption">Zwei Kolben auf einer Stange: der große wird mit Luft beaufschlagt,
+        der kleine presst Öl. Die Kraft bleibt gleich, der Druck steigt im Verhältnis der
+        Flächen. So kommt man mit 6 bar Luft auf dreistellige Öldrücke.</p>
+      <div class="fields">
+        <label class="f" data-help="Der Durchmesser des großen, treibenden Kolbens in Millimetern."><span>Kolben groß</span><div class="row"><input id="d1" inputmode="decimal" value="100"><span class="unit">mm</span></div></label>
+        <label class="f" data-help="Der Durchmesser des kleinen Kolbens, der den hohen Druck erzeugt."><span>Kolben klein</span><div class="row"><input id="d2" inputmode="decimal" value="20"><span class="unit">mm</span></div></label>
+        <label class="f" data-help="Der Druck auf der großen Seite, meist der Netzdruck der Druckluft."><span>Druck p₁</span><div class="row"><input id="pu" inputmode="decimal" value="6"><span class="unit">bar</span></div></label>
+      </div>
+      <div class="out" id="out4"></div>
+      <p class="note" id="note4"></p>
+    </div>
+  </section>
+</main>
+
+<script src="tools.js"></script>
+<script src="et.js"></script>
+<script src="draw.js"></script>
+<script src="calc-fluid.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  function zr(x, stellen) {
+    if (!isFinite(x)) return '—';
+    var f = Math.pow(10, stellen);
+    return String(Math.round(x * f) / f).replace('.', ',');
+  }
+  function kachel(k, v, klein) {
+    return '<div><div class="k">' + k + '</div><div class="v">' + v +
+           (klein ? ' <small>' + klein + '</small>' : '') + '</div></div>';
+  }
+  function num(id) {
+    var el = $(id), x = ET.parseVal(el.value);
+    var gut = isFinite(x) && x > 0;
+    el.classList.toggle('filled', gut && el.value.trim() !== '');
+    el.classList.toggle('bad', el.value.trim() !== '' && !gut);
+    return gut ? x : NaN;
+  }
+
+  var letzte = { D: NaN, d: NaN, AK: NaN, AR: NaN, p: NaN };
+
+  function fuelleBau() {
+    $('bau').innerHTML = '<option value="">eigene Maße</option>' +
+      FLUID.ZYLINDER.map(function (z) {
+        return '<option value="' + z.D + ',' + z.d + '">⌀ ' + z.D + ' / Stange ' + z.d + '</option>';
+      }).join('');
+    $('bau').value = '50,20';
+  }
+
+  /* ---- Kraft ---- */
+  function teil1() {
+    var D = num('dk'), d = num('ds'), p = num('p'), eta = num('eta');
+    var AK = FLUID.kolbenflaeche(D), AR = FLUID.ringflaeche(D, d);
+    if (!isFinite(AK) || !isFinite(AR) || !isFinite(p)) {
+      $('out1').innerHTML = ''; $('note1').className = 'note bad';
+      $('note1').textContent = !isFinite(AR) && isFinite(AK)
+        ? 'Die Kolbenstange muss dünner sein als die Bohrung.'
+        : 'Bohrung, Stange und Druck eintragen.';
+      letzte = { D: NaN, d: NaN, AK: NaN, AR: NaN, p: NaN };
+      teil2(); return;
+    }
+    var e = isFinite(eta) ? eta : 1;
+    var Faus = FLUID.kraft(p, AK, e), Fein = FLUID.kraft(p, AR, e);
+    $('ktag').textContent = '⌀ ' + zr(D, 1) + ' / ' + zr(d, 1) + ' · ' + zr(p, 1) + ' bar';
+
+    $('out1').innerHTML =
+      kachel('Kraft ausfahren', zr(Faus, 0) + ' N', zr(Faus / 9.81, 0) + ' kg Last') +
+      kachel('Kraft einfahren', zr(Fein, 0) + ' N', zr(Fein / Faus * 100, 0) + ' % davon') +
+      kachel('Kolbenfläche', zr(AK, 0) + ' mm²', '⌀ ' + zr(D, 1)) +
+      kachel('Ringfläche', zr(AR, 0) + ' mm²', 'Stange ⌀ ' + zr(d, 1));
+
+    $('note1').className = 'note';
+    $('note1').textContent = 'Die Werte gelten im Stillstand. Wer schnell fährt, verliert ' +
+      'zusätzlich Druck in Ventil und Schlauch — für eine Auslegung rechnet man mit ' +
+      'Reserve, in der Pneumatik gern mit dem Doppelten.';
+    letzte = { D: D, d: d, AK: AK, AR: AR, p: p };
+    teil2();
+  }
+
+  /* ---- Geschwindigkeit ---- */
+  function teil2() {
+    var Q = num('q'), s = num('hub');
+    if (!isFinite(letzte.AK) || !isFinite(Q)) {
+      $('out2').innerHTML = ''; $('note2').textContent = ''; teil3(); return;
+    }
+    var vAus = FLUID.geschwindigkeit(Q, letzte.AK);
+    var vEin = FLUID.geschwindigkeit(Q, letzte.AR);
+    $('out2').innerHTML =
+      kachel('Ausfahren', zr(vAus, 3) + ' m/s', zr(vAus * 1000, 0) + ' mm/s') +
+      kachel('Einfahren', zr(vEin, 3) + ' m/s', 'schneller, weniger Fläche') +
+      (isFinite(s)
+        ? kachel('Hubzeit aus', zr(FLUID.hubzeit(s, vAus), 2) + ' s', zr(s, 0) + ' mm') +
+          kachel('Hubzeit ein', zr(FLUID.hubzeit(s, vEin), 2) + ' s', '')
+        : '');
+    $('note2').className = 'note';
+    $('note2').textContent = 'Beim selben Volumenstrom fährt der Zylinder rückwärts schneller, ' +
+      'weil die Ringfläche kleiner ist. In der Pneumatik stellt man die Geschwindigkeit ' +
+      'nicht über den Volumenstrom ein, sondern mit Drosselrückschlagventilen an der Abluft.';
+    teil3();
+  }
+
+  /* ---- Luftverbrauch ---- */
+  function teil3() {
+    var s = num('hub'), takte = num('takte');
+    if (!isFinite(letzte.AK) || !isFinite(s) || !isFinite(letzte.p)) {
+      $('out3').innerHTML = ''; $('note3').textContent = ''; teil4(); return;
+    }
+    var vd = FLUID.luftJeDoppelhub(letzte.D, letzte.d, s, letzte.p);
+    var proMin = isFinite(takte) ? FLUID.luftJeMinute(vd, takte) : NaN;
+    var bauraum = (letzte.AK + letzte.AR) * s / 1e6;
+
+    $('out3').innerHTML =
+      kachel('Je Doppelhub', zr(vd, 2) + ' Nl', zr(bauraum, 2) + ' l Bauraum') +
+      kachel('Je Minute', zr(proMin, 1) + ' Nl', isFinite(takte) ? zr(takte, 0) + ' Takte' : '') +
+      kachel('Je Stunde', zr(proMin * 60 / 1000, 2) + ' Nm³', '') +
+      kachel('Verdichtung', zr(FLUID.verdichtung(letzte.p), 2) + ' : 1', 'bei ' + zr(letzte.p, 1) + ' bar');
+
+    $('note3').className = 'note';
+    $('note3').textContent = 'Nur der Zylinder. Leitungen, Ventile und Leckage kommen dazu — ' +
+      'in einer gewachsenen Anlage ist die Leckage oft der größere Posten.';
+    teil4();
+  }
+
+  /* ---- Druckübersetzer ---- */
+  function teil4() {
+    var D1 = num('d1'), D2 = num('d2'), p1 = num('pu');
+    var A1 = FLUID.kolbenflaeche(D1), A2 = FLUID.kolbenflaeche(D2);
+    if (!isFinite(A1) || !isFinite(A2) || !isFinite(p1)) {
+      $('out4').innerHTML = ''; $('note4').textContent = ''; return;
+    }
+    var p2 = FLUID.uebersetzer(p1, A1, A2);
+    var F = FLUID.kraft(p1, A1);
+    $('out4').innerHTML =
+      kachel('Druck p₂', zr(p2, 1) + ' bar', 'auf der kleinen Seite') +
+      kachel('Übersetzung', zr(A1 / A2, 2) + ' : 1', 'Flächenverhältnis') +
+      kachel('Kraft auf der Stange', zr(F, 0) + ' N', 'auf beiden Seiten gleich') +
+      kachel('Volumen', zr(A2 / A1 * 100, 1) + ' %', 'so viel Weg bleibt');
+
+    $('note4').className = 'note';
+    $('note4').textContent = 'Was an Druck dazukommt, geht an Weg verloren: der kleine Kolben ' +
+      'schiebt nur ' + zr(A2 / A1 * 100, 1) + ' % des Volumens. Deshalb arbeiten Übersetzer ' +
+      'mit kurzem Hub und werden für längere Wege nachgespeist.';
+  }
+
+  fuelleBau();
+  $('bau').onchange = function () {
+    var v = $('bau').value;
+    if (!v) return;
+    var t = v.split(',');
+    $('dk').value = t[0]; $('ds').value = t[1];
+    teil1();
+  };
+  ['dk', 'ds', 'p', 'eta'].forEach(function (id) { $(id).oninput = teil1; });
+  ['q', 'hub'].forEach(function (id) { $(id).oninput = teil2; });
+  $('takte').oninput = teil3;
+  ['d1', 'd2', 'pu'].forEach(function (id) { $(id).oninput = teil4; });
+  teil1();
+})();
+</script>
+</body>
+</html>

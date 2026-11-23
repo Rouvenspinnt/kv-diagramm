@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kv-Wert &amp; Rohrquerschnitt</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Kv-Wert &amp; Rohrquerschnitt</h1>
+    <p>Welches Ventil den Durchfluss schafft — und welches Rohr dazu passt.</p>
+    <nav class="nav" id="nav" aria-label="Werkzeuge"></nav>
+  </div>
+</header>
+
+<main class="wrap narrow">
+  <section class="panel" id="kv">
+    <h2>Kv-Wert <span class="tag" id="kvtag"></span></h2>
+    <div class="body">
+      <p class="caption">Der Kv-Wert ist der Durchfluss in Kubikmetern je Stunde, den ein
+        Ventil bei 1 bar Druckabfall mit Wasser durchlässt. Er steht im Datenblatt und ist
+        die Zahl, mit der man Ventile vergleicht.</p>
+      <div class="field" data-help="Flüssigkeiten rechnen über die Dichte, Luft nicht: sie wird beim Entspannen schneller und bleibt ab einem bestimmten Druckverhältnis bei Schallgeschwindigkeit stehen. Deshalb ist die Rechnung für Luft eine andere.">
+        <span class="lbl">Medium</span>
+        <div class="seg" id="medium" role="group" aria-label="Medium">
+          <button data-m="wasser" aria-pressed="true">Wasser</button><button data-m="oel">Hydrauliköl</button><button data-m="luft">Druckluft</button>
+        </div>
+      </div>
+      <div class="fields" id="fl">
+        <label class="f" data-help="Der Durchfluss, den die Anlage braucht, in Kubikmetern je Stunde. 1 m³/h sind 16,7 Liter je Minute."><span>Durchfluss Q</span><div class="row"><input id="q" inputmode="decimal" value="10"><span class="unit">m³/h</span></div></label>
+        <label class="f" data-help="Der Druckabfall über dem Ventil in bar — der Anteil des Anlagendrucks, den du am Ventil verlieren darfst. Mehr Druckabfall heißt mehr Durchfluss, aber auch mehr Verlustleistung und Wärme."><span>Druckabfall Δp</span><div class="row"><input id="dp" inputmode="decimal" value="1"><span class="unit">bar</span></div></label>
+        <label class="f" id="lkv" data-help="Der Kv-Wert des Ventils aus dem Datenblatt. Leer lassen, dann wird der nötige Kv aus Durchfluss und Druckabfall gerechnet."><span>Kv des Ventils</span><div class="row"><input id="kvw" inputmode="decimal" placeholder="wird gerechnet"><span class="unit">m³/h</span></div></label>
+      </div>
+      <div class="fields" id="fluft" hidden>
+        <label class="f" data-help="Der Druck vor dem Ventil in bar Überdruck, also der Netzdruck."><span>Druck vor p₁</span><div class="row"><input id="p1" inputmode="decimal" value="6"><span class="unit">bar</span></div></label>
+        <label class="f" data-help="Der Druck hinter dem Ventil in bar Überdruck. 0 bedeutet Ausblasen ins Freie."><span>Druck hinter p₂</span><div class="row"><input id="p2" inputmode="decimal" value="5"><span class="unit">bar</span></div></label>
+        <label class="f" data-help="Der Kv-Wert des Ventils aus dem Datenblatt. Manche Hersteller geben stattdessen einen Normvolumenstrom bei einem genannten Druckabfall an — dann gilt deren Angabe."><span>Kv des Ventils</span><div class="row"><input id="kvl" inputmode="decimal" value="1"><span class="unit">m³/h</span></div></label>
+      </div>
+      <div class="out" id="out1"></div>
+      <p class="note" id="note1"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="rohr">
+    <h2>Rohr &amp; Schlauch <span class="tag">v = Q / A</span></h2>
+    <div class="body">
+      <p class="caption">Zu dünn heißt Druckverlust, Wärme und Pfeifen; zu dick heißt unnötig
+        teuer und träge. Trag den Volumenstrom ein und entweder die gewünschte
+        Geschwindigkeit oder den vorhandenen Innendurchmesser.</p>
+      <div class="fields">
+        <label class="f" data-help="Der Volumenstrom durch die Leitung in Litern je Minute, im Betriebszustand gemessen — bei Druckluft also nicht in Normlitern."><span>Volumenstrom</span><div class="row"><input id="rq" inputmode="decimal" value="60"><span class="unit">l/min</span></div></label>
+        <label class="f" data-help="Die gewünschte Strömungsgeschwindigkeit in Metern je Sekunde. Richtwerte stehen in der Tafel darunter. Leer lassen, wenn du vom Durchmesser aus rechnest."><span>Geschwindigkeit</span><div class="row"><input id="rv" inputmode="decimal" value="5"><span class="unit">m/s</span></div></label>
+        <label class="f" data-help="Der Innendurchmesser der Leitung in Millimetern — bei Schläuchen die lichte Weite, nicht das Außenmaß. Leer lassen, dann wird er gerechnet."><span>Innendurchmesser</span><div class="row"><input id="rd" inputmode="decimal" placeholder="wird gerechnet"><span class="unit">mm</span></div></label>
+      </div>
+      <div class="out" id="out2"></div>
+      <p class="note" id="note2"></p>
+      <div id="tafel"></div>
+    </div>
+  </section>
+</main>
+
+<script src="tools.js"></script>
+<script src="et.js"></script>
+<script src="draw.js"></script>
+<script src="calc-fluid.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  function zr(x, stellen) {
+    if (!isFinite(x)) return '—';
+    var f = Math.pow(10, stellen);
+    return String(Math.round(x * f) / f).replace('.', ',');
+  }
+  function kachel(k, v, klein) {
+    return '<div><div class="k">' + k + '</div><div class="v">' + v +
+           (klein ? ' <small>' + klein + '</small>' : '') + '</div></div>';
+  }
+  function num(id) {
+    var el = $(id), x = ET.parseVal(el.value);
+    var gut = isFinite(x) && x > 0;
+    el.classList.toggle('filled', gut && el.value.trim() !== '');
+    el.classList.toggle('bad', el.value.trim() !== '' && !gut);
+    return gut ? x : NaN;
+  }
+  function medium() {
+    var b = $('medium').querySelector('[aria-pressed="true"]');
+    return b ? b.dataset.m : 'wasser';
+  }
+
+  /* ---- Kv-Wert ---- */
+  function teil1() {
+    var m = medium();
+    $('fl').hidden = m === 'luft';
+    $('fluft').hidden = m !== 'luft';
+    $('kvtag').textContent = m === 'luft' ? 'Druckluft' : m === 'oel' ? 'Hydrauliköl' : 'Wasser';
+
+    if (m === 'luft') { luft(); return; }
+
+    var Q = num('q'), dp = num('dp'), kv = num('kvw');
+    var dichte = m === 'oel' ? 0.87 : 1;
+    if (!isFinite(dp)) {
+      $('out1').innerHTML = ''; $('note1').className = 'note bad';
+      $('note1').textContent = 'Druckabfall eintragen.'; return;
+    }
+    if (isFinite(kv)) {                      // Ventil gegeben: was schafft es?
+      var qIst = FLUID.durchflussFluessig(kv, dp, dichte);
+      $('out1').innerHTML =
+        kachel('Durchfluss', zr(qIst, 2) + ' m³/h', zr(qIst * 1000 / 60, 1) + ' l/min') +
+        kachel('Kv', zr(kv, 2) + ' m³/h', 'gegeben') +
+        kachel('Bei Δp', zr(dp, 2) + ' bar', '') +
+        (isFinite(Q) ? kachel('Gebraucht', zr(Q, 2) + ' m³/h',
+                              qIst >= Q ? 'reicht' : 'zu wenig') : '');
+      $('note1').className = isFinite(Q) && qIst < Q ? 'note bad' : 'note';
+      $('note1').textContent = isFinite(Q) && qIst < Q
+        ? 'Das Ventil schafft den geforderten Durchfluss bei diesem Druckabfall nicht. ' +
+          'Nötig wäre Kv ' + zr(FLUID.kvFluessig(Q, dp, dichte), 2) + '.'
+        : 'Der Durchfluss wächst mit der Wurzel aus dem Druckabfall: viermal so viel ' +
+          'Druckabfall gibt nur den doppelten Durchfluss.';
+      return;
+    }
+    if (!isFinite(Q)) {
+      $('out1').innerHTML = ''; $('note1').className = 'note';
+      $('note1').textContent = 'Durchfluss oder Kv-Wert eintragen.'; return;
+    }
+    var kvNoetig = FLUID.kvFluessig(Q, dp, dichte);
+    $('out1').innerHTML =
+      kachel('Nötiger Kv', zr(kvNoetig, 2) + ' m³/h', 'mindestens') +
+      kachel('Durchfluss', zr(Q, 2) + ' m³/h', zr(Q * 1000 / 60, 1) + ' l/min') +
+      kachel('Bei Δp', zr(dp, 2) + ' bar', '') +
+      kachel('Mit 1 bar', zr(FLUID.kvFluessig(Q, 1, dichte), 2) + ' m³/h', 'nötiger Kv');
+    $('note1').className = 'note';
+    $('note1').textContent = 'Nimm das nächstgrößere Ventil aus dem Katalog. ' +
+      (m === 'oel' ? 'Für Öl ist die Dichte mit 0,87 angesetzt; kaltes Öl ist zäher, ' +
+       'der wirkliche Druckverlust liegt dann höher.'
+                   : 'Der Kv-Wert gilt für Wasser bei 5 bis 30 °C.');
+  }
+
+  function luft() {
+    var p1 = num('p1'), p2 = ET.parseVal($('p2').value), kv = num('kvl');
+    if (!isFinite(p2) || p2 < 0) p2 = 0;
+    $('p2').classList.toggle('filled', $('p2').value.trim() !== '');
+    if (!isFinite(p1) || !isFinite(kv)) {
+      $('out1').innerHTML = ''; $('note1').className = 'note bad';
+      $('note1').textContent = 'Druck vor dem Ventil und Kv-Wert eintragen.'; return;
+    }
+    var r = FLUID.luftdurchsatz(kv, p1, p2);
+    if (!r) {
+      $('out1').innerHTML = ''; $('note1').className = 'note bad';
+      $('note1').textContent = 'Hinter dem Ventil kann nicht mehr Druck stehen als davor.';
+      return;
+    }
+    $('out1').innerHTML =
+      kachel('Normvolumenstrom', zr(r.qn, 1) + ' Nm³/h', zr(r.qn * 1000 / 60, 0) + ' Nl/min') +
+      kachel('Kv', zr(kv, 2) + ' m³/h', 'gegeben') +
+      kachel('Druckabfall', zr(p1 - p2, 2) + ' bar', zr(p1, 1) + ' auf ' + zr(p2, 1)) +
+      kachel('Strömung', r.kritisch ? 'kritisch' : 'normal',
+             r.kritisch ? 'Schallgeschwindigkeit' : 'unterkritisch');
+    $('note1').className = 'note';
+    $('note1').textContent = r.kritisch
+      ? 'Unterhalb des halben Eingangsdrucks strömt die Luft mit Schallgeschwindigkeit. ' +
+        'Mehr Druckabfall bringt dann keinen Durchfluss mehr — der Wert steht an der Sperrgrenze.'
+      : 'Unterkritische Strömung. Viele Hersteller geben für Pneumatikventile statt des ' +
+        'Kv-Werts einen Normvolumenstrom bei einem genannten Druckabfall an oder die ' +
+        'Werte C und b — dann gilt deren Angabe, nicht diese Rechnung.';
+  }
+
+  /* ---- Rohr ---- */
+  function teil2() {
+    var Q = num('rq'), v = num('rv'), d = num('rd');
+    if (!isFinite(Q)) {
+      $('out2').innerHTML = ''; $('note2').className = 'note';
+      $('note2').textContent = 'Volumenstrom eintragen.'; return;
+    }
+    var quelle;
+    if (isFinite(d))      { v = FLUID.rohrGeschwindigkeit(Q, d); quelle = 'd'; }
+    else if (isFinite(v)) { d = FLUID.rohrDurchmesser(Q, v); quelle = 'v'; }
+    else {
+      $('out2').innerHTML = ''; $('note2').className = 'note';
+      $('note2').textContent = 'Geschwindigkeit oder Durchmesser eintragen.'; return;
+    }
+    $('out2').innerHTML =
+      kachel('Innendurchmesser', zr(d, 1) + ' mm', quelle === 'd' ? 'gegeben' : 'mindestens') +
+      kachel('Geschwindigkeit', zr(v, 2) + ' m/s', quelle === 'v' ? 'gewünscht' : 'ergibt sich') +
+      kachel('Querschnitt', zr(FLUID.kolbenflaeche(d), 0) + ' mm²', '') +
+      kachel('Volumenstrom', zr(Q, 1) + ' l/min', zr(Q * 60 / 1000, 2) + ' m³/h');
+
+    var passt = FLUID.RICHTWERTE.filter(function (r) { return v >= r.von && v <= r.bis; });
+    $('note2').className = 'note';
+    $('note2').textContent = passt.length
+      ? 'Das passt zu: ' + passt.map(function (r) { return r.was; }).join(', ') + '.'
+      : v > 20
+      ? 'Über 20 m/s wird es laut und der Druckverlust steigt steil — ein größeres Rohr ' +
+        'ist fast immer billiger als die verlorene Leistung.'
+      : 'Unter den üblichen Richtwerten. Das schadet nicht, kostet aber Material.';
+    tafel(v);
+  }
+
+  function tafel(v) {
+    var h = '<table class="farben"><thead><tr><th>Leitung</th><th>m/s</th>' +
+            '<th>bei diesem Volumenstrom</th></tr></thead><tbody>';
+    var Q = num('rq');
+    FLUID.RICHTWERTE.forEach(function (r) {
+      var drin = isFinite(v) && v >= r.von && v <= r.bis;
+      var dVon = FLUID.rohrDurchmesser(Q, r.bis), dBis = FLUID.rohrDurchmesser(Q, r.von);
+      h += '<tr' + (drin ? ' aria-current="true"' : '') + '><td class="n">' + r.was +
+           '</td><td>' + zr(r.von, 1) + ' … ' + zr(r.bis, 1) + '</td><td>' +
+           (isFinite(dVon) ? '⌀ ' + zr(dVon, 1) + ' … ' + zr(dBis, 1) + ' mm' : '—') +
+           '</td></tr>';
+    });
+    $('tafel').innerHTML = h + '</tbody></table>';
+  }
+
+  $('medium').onclick = function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    Array.prototype.forEach.call($('medium').children, function (x) {
+      x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
+    });
+    teil1();
+  };
+  ['q', 'dp', 'kvw', 'p1', 'p2', 'kvl'].forEach(function (id) { $(id).oninput = teil1; });
+  ['rq', 'rv', 'rd'].forEach(function (id) { $(id).oninput = teil2; });
+  teil1(); teil2();
+})();
+</script>
+</body>
+</html>

@@ -23,19 +23,22 @@
 - [x] 2.3 Pt100 / Pt1000
 - [x] 2.4 Thermoelemente K, J, T
 - [x] 2.5 Messabweichung und Toleranz
+- [x] Pruefpunkt B: Kennlinien und Rohwerte gegen Norm und Siemens-Doku geprueft
 
 ## Phase 3 — Antrieb und Mechanik
-- [ ] 3.1 Drehmoment, Drehzahl, Leistung
-- [ ] 3.2 Asynchronmotor mit Schlupf
-- [ ] 3.3 Getriebe und Riemen
-- [ ] 3.4 Hebel und Moment
-- [ ] 3.5 Flaechenpressung und Festigkeit
-- [ ] 3.6 Schraubenanzugsmoment
+- [x] 3.1 Drehmoment, Drehzahl, Leistung
+- [x] 3.2 Asynchronmotor mit Schlupf
+- [x] 3.3 Getriebe und Riemen
+- [x] 3.4 Hebel und Moment
+- [x] 3.5 Flaechenpressung und Festigkeit
+- [x] 3.6 Schraubenanzugsmoment
+- [x] Pruefpunkt B: Anzugsmomente und Werkstoffkennwerte gegen VDI 2230 und Normen geprueft
 
 ## Phase 4 — Pneumatik und Hydraulik
-- [ ] 4.1 Zylinderkraft
-- [ ] 4.2 Kolbengeschwindigkeit
-- [ ] 4.3 Luftverbrauch
-- [ ] 4.4 Druckuebersetzer
-- [ ] 4.5 Kv-Wert
-- [ ] 4.6 Rohr- und Schlauchquerschnitt
+- [x] 4.1 Zylinderkraft
+- [x] 4.2 Kolbengeschwindigkeit
+- [x] 4.3 Luftverbrauch
+- [x] 4.4 Druckuebersetzer
+- [x] 4.5 Kv-Wert
+- [x] 4.6 Rohr- und Schlauchquerschnitt
+- [x] Pruefpunkt B: Kv-Formeln, Baugroessen und Richtwerte gegen Normen und Kataloge geprueft

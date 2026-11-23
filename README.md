@@ -77,6 +77,38 @@ Siemens-Rohwertgrenzen gelten für Analogeingaben; 2–10 V steht in keiner Siem
 und ist nur nach demselben Schema fortgeschrieben, und für 0–10 V führt Siemens keinen
 Untersteuerungsbereich auf — beides steht als Hinweis auf der Seite.
 
+## Antrieb & Mechanik
+
+- **Drehmoment, Motor & Getriebe** (`antrieb.html`) — zwei von Leistung, Drehzahl und
+  Moment geben die dritte; dazu der Asynchronmotor mit Synchrondrehzahl, Schlupf und
+  Betrieb am Umrichter, und das Getriebe, das Drehzahl gegen Moment tauscht, ein- oder
+  mehrstufig. Drehzahl und Moment wandern von Abschnitt zu Abschnitt weiter.
+- **Hebel, Spannung & Schrauben** (`mechanik.html`) — das Hebelgesetz mit einer
+  maßstäblichen Zeichnung für den ein- und den zweiseitigen Hebel, Flächenpressung mit
+  Sicherheit gegen die Streckgrenze je Werkstoff, und die Anzugsmomente für 8.8, 10.9
+  und 12.9 mit einer groben Korrektur für andere Reibungszahlen.
+
+Die Zahlen stehen in `calc-antrieb.js`: Werkstoffkennwerte als Rp0,2 und Rm, Anzugsmomente
+als Richtwerte nach VDI 2230 für µ = 0,14. Die Reibungskorrektur ist ausdrücklich eine
+Näherung — wer eine Verbindung auslegt statt nachzuziehen, rechnet nach VDI 2230.
+
+## Pneumatik & Hydraulik
+
+- **Zylinder, Luftverbrauch & Druckübersetzer** (`pneumatik.html`) — Kraft beim Aus- und
+  Einfahren, Kolbengeschwindigkeit und Hubzeit, der Luftverbrauch in Normlitern und der
+  Druckübersetzer samt dem Weg, der dabei verloren geht. Bohrung und Stange gelten für
+  alle vier Abschnitte.
+- **Kv-Wert & Rohrquerschnitt** (`stroemung.html`) — das Ventil nach Durchfluss und
+  Druckabfall, für Wasser und Öl über die Dichte, für Druckluft mit der Sperrgrenze bei
+  Schallgeschwindigkeit; dazu der Innendurchmesser aus Volumenstrom und
+  Strömungsgeschwindigkeit, mit Richtwerten je Leitungsart.
+
+Die Formeln stehen in `calc-fluid.js`. Der Luftverbrauch ist auf 1,013 bar Umgebungsdruck
+bezogen. Für Druckluft gilt die vereinfachte Industrieformel, die Bürkert und Samson aus
+IEC 60534 ableiten — nicht die volle Rechnung der Norm; viele Hersteller
+geben für Pneumatikventile stattdessen einen Normvolumenstrom oder die Werte C und b an —
+dann gilt deren Angabe, und die Seite sagt das auch.
+
 ## Schaltbilder
 
 Ohm, LED/Teiler und Wechselstrom zeichnen die Schaltung, um die es gerade geht, und
@@ -114,6 +146,8 @@ node test.js
 node test-et.js
 node test-fertigung.js
 node test-messen.js
+node test-antrieb.js
+node test-fluid.js
 ```
 
 `test.js` prüft alle 256 Funktionen mit 3 Variablen sowie Zufallsfunktionen mit 4 bis 6 Variablen
@@ -123,3 +157,7 @@ die Wechselstromformeln und das Werkzeugverzeichnis samt Suche.
 `test-fertigung.js` prüft Schnittdaten, Gewindetafel und Passungen gegen von Hand nachgerechnete Werte.
 `test-messen.js` prüft Normsignale und Rohwertgrenzen, die Pt100-Kennlinie gegen die
 Grundwertreihe und die Thermospannungen gegen die NIST-Tafeln, dazu Abweichung und Toleranz.
+`test-antrieb.js` prüft Leistung und Moment, Schlupf und Polzahl, Getriebe, Hebel,
+Flächenpressung und die Anzugsmomente gegen von Hand nachgerechnete Werte.
+`test-fluid.js` prüft Zylinderflächen und -kräfte, Geschwindigkeit, Luftverbrauch,
+Druckübersetzer, Kv-Werte und Rohrquerschnitte.

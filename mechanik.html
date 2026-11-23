@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hebel, Spannung &amp; Schrauben</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Hebel, Spannung &amp; Schrauben</h1>
+    <p>Welche Kraft wo wirkt, was das Material aushält und wie fest die Schraube darf.</p>
+    <nav class="nav" id="nav" aria-label="Werkzeuge"></nav>
+  </div>
+</header>
+
+<main class="wrap narrow">
+  <section class="panel" id="hebel">
+    <h2>Hebel <span class="tag">F₁ · l₁ = F₂ · l₂</span></h2>
+    <div class="body">
+      <p class="caption">Drei Werte eintragen, den vierten leer lassen — er wird gerechnet.
+        Die Rechnung ist für beide Hebelarten dieselbe; der Unterschied liegt nur darin,
+        auf welcher Seite des Drehpunkts die Kräfte angreifen.</p>
+      <div class="field" data-help="Beim zweiseitigen Hebel liegt der Drehpunkt zwischen den Kräften, wie bei einer Wippe oder einer Zange. Beim einseitigen liegt er außen und beide Kräfte wirken auf derselben Seite — Schubkarre, Nussknacker, Brechstange am Boden.">
+        <span class="lbl">Art</span>
+        <div class="seg" id="art" role="group" aria-label="Art des Hebels">
+          <button data-a="zwei" aria-pressed="true">zweiseitig</button><button data-a="ein">einseitig</button>
+        </div>
+      </div>
+      <div class="fields">
+        <label class="f" data-help="Die Kraft, die du aufbringst, in Newton. 10 kg Gewicht sind rund 98 N."><span>Kraft F₁</span><div class="row"><input id="f1" inputmode="decimal" value="100"><span class="unit">N</span></div></label>
+        <label class="f" data-help="Der Abstand dieser Kraft vom Drehpunkt, senkrecht zur Kraftrichtung gemessen, in Millimetern."><span>Hebelarm l₁</span><div class="row"><input id="l1" inputmode="decimal" value="500"><span class="unit">mm</span></div></label>
+        <label class="f" data-help="Die Kraft auf der anderen Seite — die Last. Leer lassen, dann wird sie gerechnet."><span>Kraft F₂</span><div class="row"><input id="f2" inputmode="decimal" placeholder="wird gerechnet"><span class="unit">N</span></div></label>
+        <label class="f" data-help="Der Abstand der Last vom Drehpunkt in Millimetern."><span>Hebelarm l₂</span><div class="row"><input id="l2" inputmode="decimal" value="100"><span class="unit">mm</span></div></label>
+      </div>
+      <div class="dia" id="bild"></div>
+      <div class="out" id="out1"></div>
+      <p class="note" id="note1"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="spannung">
+    <h2>Flächenpressung &amp; Sicherheit <span class="tag">σ = F / A</span></h2>
+    <div class="body">
+      <p class="caption">Dieselbe Kraft auf halber Fläche ist die doppelte Spannung. Die
+        Sicherheit sagt, wie weit du von der Streckgrenze entfernt bist — unter 1 verformt
+        sich das Teil bleibend.</p>
+      <div class="field" data-help="Die Form der tragenden Fläche. Bei einer Schraube auf Zug ist es der Kreis des Kernquerschnitts, bei einem Rohr der Ring, bei einer Auflage das Rechteck.">
+        <span class="lbl">Fläche</span>
+        <div class="seg" id="form" role="group" aria-label="Form der Fläche">
+          <button data-f="kreis" aria-pressed="true">Kreis</button><button data-f="ring">Ring</button><button data-f="rechteck">Rechteck</button>
+        </div>
+      </div>
+      <div class="fields">
+        <label class="f" id="lA" data-help="Der Außendurchmesser beziehungsweise die erste Kantenlänge, in Millimetern."><span id="tA">Durchmesser d</span><div class="row"><input id="dA" inputmode="decimal" value="20"><span class="unit">mm</span></div></label>
+        <label class="f" id="lB" data-help="Der Innendurchmesser beziehungsweise die zweite Kantenlänge, in Millimetern." hidden><span id="tB">Innen d<sub>i</sub></span><div class="row"><input id="dB" inputmode="decimal" value="10"><span class="unit">mm</span></div></label>
+        <label class="f" data-help="Die Kraft, die auf die Fläche drückt oder an ihr zieht, in Newton."><span>Kraft F</span><div class="row"><input id="kraft" inputmode="decimal" value="10000"><span class="unit">N</span></div></label>
+        <label class="f" data-help="Der Werkstoff bestimmt, bei welcher Spannung Schluss ist. Gerechnet wird gegen die Streckgrenze Rp0,2 — ab dort bleibt die Verformung."><span>Werkstoff</span><div class="row"><select id="werk"></select></div></label>
+      </div>
+      <div class="out" id="out2"></div>
+      <p class="note" id="note2"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="schraube">
+    <h2>Schraubenanzugsmoment <span class="tag">Richtwerte VDI 2230</span></h2>
+    <div class="body">
+      <p class="caption">Werte aus VDI 2230 Tabelle A1, Spalte μ = 0,14, bei 90 % Ausnutzung
+        der Streckgrenze — für Sechskant- und Zylinderschrauben mit Regelgewinde und
+        Durchgangsloch „mittel“. Veröffentlichte Tabellen streuen um rund 10 %, und die
+        größte Unsicherheit ist die Reibung: geölt zieht dieselbe Schraube bei kleinerem
+        Moment weiter an und reißt eher ab. M3 fehlt, weil die Tabelle bei M4 beginnt.</p>
+      <div class="fields">
+        <label class="f" data-help="Der Nenndurchmesser der Schraube, also die Zahl hinter dem M. Gilt für Regelgewinde; beim Feingewinde liegen die Momente etwas höher."><span>Größe</span><div class="row"><select id="gr"></select></div></label>
+        <label class="f" data-help="Die Festigkeitsklasse steht auf dem Schraubenkopf. 8.8 ist der Normalfall, 10.9 und 12.9 sind hochfest und vertragen mehr Vorspannung."><span>Klasse</span><div class="row"><select id="kl"></select></div></label>
+        <label class="f" data-help="Die Gesamtreibungszahl aus Gewinde und Kopfauflage. 0,14 gilt für leicht geölte Stahlschrauben und ist der Tabellenwert. Trocken und rau liegt bei 0,20, geschmiert oder beschichtet bei 0,08 bis 0,10."><span>Reibung μ</span><div class="row"><input id="mu" inputmode="decimal" value="0.14"><span class="unit">—</span></div></label>
+      </div>
+      <div class="out" id="out3"></div>
+      <p class="note" id="note3"></p>
+      <div id="tafel"></div>
+    </div>
+  </section>
+</main>
+
+<script src="tools.js"></script>
+<script src="et.js"></script>
+<script src="draw.js"></script>
+<script src="calc-antrieb.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  function zr(x, stellen) {
+    if (!isFinite(x)) return '—';
+    var f = Math.pow(10, stellen);
+    return String(Math.round(x * f) / f).replace('.', ',');
+  }
+  function kachel(k, v, klein) {
+    return '<div><div class="k">' + k + '</div><div class="v">' + v +
+           (klein ? ' <small>' + klein + '</small>' : '') + '</div></div>';
+  }
+  function num(id) {
+    var el = $(id), x = ET.parseVal(el.value);
+    var gut = isFinite(x) && x > 0;
+    el.classList.toggle('filled', gut && el.value.trim() !== '');
+    el.classList.toggle('bad', el.value.trim() !== '' && !gut);
+    return gut ? x : NaN;
+  }
+  function wahl(id) {
+    var b = $(id).querySelector('[aria-pressed="true"]');
+    return b ? b.dataset.a || b.dataset.f : '';
+  }
+  function segKlick(id, fn) {
+    $(id).onclick = function (e) {
+      var b = e.target.closest('button');
+      if (!b) return;
+      Array.prototype.forEach.call($(id).children, function (x) {
+        x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
+      });
+      fn();
+    };
+  }
+
+  /* ---- Hebel ---- */
+  function teil1() {
+    var F1 = num('f1'), l1 = num('l1'), F2 = num('f2'), l2 = num('l2');
+    var h = ANTR.hebel(F1, l1, F2, l2);
+    if (!h) {
+      $('out1').innerHTML = ''; $('note1').className = 'note';
+      $('note1').textContent = 'Genau einen der vier Werte leer lassen — der wird gerechnet.';
+      $('bild').innerHTML = ''; $('bild').dataset.drawn = '';
+      return;
+    }
+    $('out1').innerHTML =
+      kachel('Kraft F₁', zr(h.F1, 1) + ' N', isFinite(F1) ? 'gegeben' : '') +
+      kachel('Kraft F₂', zr(h.F2, 1) + ' N', isFinite(F2) ? 'gegeben' : '') +
+      kachel('Moment', zr(h.M, 2) + ' Nm', 'am Drehpunkt') +
+      kachel('Verhältnis', zr(h.l1 / h.l2, 3) + ' : 1', 'l₁ zu l₂');
+
+    $('note1').className = 'note';
+    $('note1').textContent = 'Am Drehpunkt wirkt in beiden Fällen dasselbe Moment. ' +
+      (wahl('art') === 'ein'
+        ? 'Beim einseitigen Hebel zeigen beide Kräfte auf derselben Seite in ' +
+          'entgegengesetzte Richtungen, das Lager trägt also die Differenz: ' +
+          zr(Math.abs(h.F2 - h.F1), 1) + ' N.'
+        : 'Beim zweiseitigen Hebel trägt das Lager die Summe beider Kräfte: ' +
+          zr(h.F1 + h.F2, 1) + ' N.');
+    bild(h);
+  }
+
+  /* Der Hebel maßstäblich: die Arme stehen im Verhältnis, die Kraftpfeile
+     wachsen mit der Kraft. Zahlen allein zeigen nicht, wie kurz l₂ wirklich ist. */
+  function bild(h) {
+    var w = 460, h0 = 200, y = 92, x0 = 40, x1 = 420, einseitig = wahl('art') === 'ein';
+    var sum = h.l1 + h.l2;
+    var xD, xF1, xF2;
+    if (einseitig) {                        // Drehpunkt außen, beide Kräfte rechts davon
+      xD = x0;
+      xF1 = x0 + (x1 - x0) * h.l1 / Math.max(h.l1, h.l2);
+      xF2 = x0 + (x1 - x0) * h.l2 / Math.max(h.l1, h.l2);
+    } else {                                // Drehpunkt zwischen den Kräften
+      xD = x0 + (x1 - x0) * h.l1 / sum;
+      xF1 = x0; xF2 = x1;
+    }
+    var fmax = Math.max(h.F1, h.F2), kurz = 20, lang = 52;
+
+    /* Kraftpfeil über dem Balken. Beim einseitigen Hebel liegen beide Kräfte auf
+       derselben Seite des Drehpunkts, also müssen sie entgegengesetzt zeigen —
+       sonst gäbe es kein Gleichgewicht. */
+    function kraft(x, F, name, hoch) {
+      var L = kurz + (lang - kurz) * (F / fmax);
+      var spitze = hoch ? y - L - 14 : y - 2;
+      var dy = hoch ? 10 : -10;
+      return '<path class="dim late" d="M' + x.toFixed(1) + ' ' + (y - L - 14) +
+             'V' + (y - 4) + '" fill="none"/>' +
+             '<path class="arrow late" d="M' + (x - 5).toFixed(1) + ' ' + (spitze + dy) +
+             'l5 ' + (-dy) + ' 5 ' + dy + 'z"/>' +
+             D.text(x, y - L - 20, name + ' = ' + zr(F, 0) + ' N', 'val');
+    }
+    function masz(xa, xb, name, wert, reihe) {
+      var yy = y + 30 + reihe * 26, m = (xa + xb) / 2;
+      return '<path class="wire late" d="M' + xa.toFixed(1) + ' ' + yy + 'H' + xb.toFixed(1) +
+             'M' + xa.toFixed(1) + ' ' + (yy - 5) + 'v10M' + xb.toFixed(1) + ' ' + (yy - 5) +
+             'v10" opacity=".6" fill="none"/>' +
+             D.text(m, yy + 18, name + ' = ' + zr(wert, 0) + ' mm', '');
+    }
+    var inner =
+      '<rect class="part late" x="' + Math.min(x0, xD) + '" y="' + (y - 7) + '" width="' +
+        (x1 - Math.min(x0, xD)) + '" height="14" rx="3"/>' +
+      '<path class="part late fillA" d="M' + (xD - 13).toFixed(1) + ' ' + (y + 26) +
+        'L' + xD.toFixed(1) + ' ' + (y + 8) + 'L' + (xD + 13).toFixed(1) + ' ' + (y + 26) + 'z"/>' +
+      kraft(xF1, h.F1, 'F₁', false) +
+      kraft(xF2, h.F2, 'F₂', einseitig) +
+      masz(Math.min(xD, xF1), Math.max(xD, xF1), 'l₁', h.l1, einseitig ? 1 : 0) +
+      masz(Math.min(xD, xF2), Math.max(xD, xF2), 'l₂', h.l2, 0);
+    D.mount($('bild'), D.svg(w, h0, 'Hebel mit Drehpunkt, Kräften und Hebelarmen', inner));
+  }
+
+  /* ---- Flächenpressung ---- */
+  function fuelleWerk() {
+    $('werk').innerHTML = ANTR.WERKSTOFF.map(function (w, i) {
+      return '<option value="' + i + '">' + w.name + '</option>';
+    }).join('');
+  }
+
+  function teil2() {
+    var form = wahl('form');
+    $('tA').innerHTML = form === 'rechteck' ? 'Kante a' : 'Durchmesser d';
+    $('tB').innerHTML = form === 'rechteck' ? 'Kante b' : 'Innen d<sub>i</sub>';
+    $('lB').hidden = form === 'kreis';
+
+    var a = num('dA'), b = num('dB'), F = num('kraft');
+    var w = ANTR.WERKSTOFF[parseInt($('werk').value, 10)] || ANTR.WERKSTOFF[0];
+    var A = form === 'kreis' ? ANTR.kreis(a)
+          : form === 'ring' ? ANTR.ring(a, b)
+          : ANTR.rechteck(a, b);
+    if (!isFinite(A) || !isFinite(F)) {
+      $('out2').innerHTML = ''; $('note2').className = 'note bad';
+      $('note2').textContent = form === 'ring'
+        ? 'Maße und Kraft eintragen — der Innendurchmesser muss kleiner sein als der äußere.'
+        : 'Maße und Kraft eintragen.';
+      return;
+    }
+    var sigma = ANTR.spannung(F, A);
+    // Grauguss und andere spröde Werkstoffe fließen nicht — dort ist die
+    // Zugfestigkeit die Grenze, und sie verlangt größere Sicherheiten.
+    var grenze = w.sproede ? w.rm : w.rp;
+    var nuSoll = w.sproede ? 3 : 1.5;
+    var nu = ANTR.sicherheit(grenze, sigma);
+    $('out2').innerHTML =
+      kachel('Fläche A', zr(A, 1) + ' mm²',
+             { kreis: 'Kreis', ring: 'Ring', rechteck: 'Rechteck' }[form]) +
+      kachel('Spannung σ', zr(sigma, 1) + ' N/mm²', 'MPa') +
+      kachel('Sicherheit ν', zr(nu, 2), w.sproede ? 'gegen R<sub>m</sub>' : 'gegen R<sub>p0,2</sub>') +
+      kachel('Trägt bis', zr(ANTR.tragkraft(grenze, A, nuSoll) / 1000, 1) + ' kN',
+             'bei ν = ' + zr(nuSoll, 1));
+
+    $('note2').className = nu < 1 ? 'note bad' : 'note';
+    $('note2').textContent = w.sproede
+      ? (nu < 1 ? 'Über der Zugfestigkeit von ' + w.rm + ' N/mm² — das Teil bricht. '
+                : 'Grauguss fließt nicht, er bricht. ') +
+        'Deshalb ist hier die Zugfestigkeit die Grenze und keine Streckgrenze, und es ' +
+        'gehören größere Sicherheiten dazu — 3 und mehr. Auf Druck verträgt derselbe ' +
+        'Werkstoff rund das Dreifache, Zug und Druck gehören getrennt gerechnet.'
+      : nu < 1
+      ? 'Über der Streckgrenze von ' + w.rp + ' N/mm² — das Teil verformt sich bleibend.'
+      : nu < 1.5
+      ? 'Hält, aber ohne Reserve. Im Maschinenbau rechnet man bei ruhender Last mit 1,5 ' +
+        'bis 2, bei wechselnder deutlich mehr.'
+      : 'Streckgrenze ' + w.rp + ' N/mm², Zugfestigkeit ' + w.rm + ' N/mm². Gerechnet ist ' +
+        'gegen die Streckgrenze — bei schwingender Last gilt stattdessen die Dauerfestigkeit, ' +
+        'die weit darunter liegt.';
+  }
+
+  /* ---- Schraube ---- */
+  function fuelleSchraube() {
+    $('gr').innerHTML = ANTR.ANZUG.map(function (e) {
+      return '<option value="' + e.d + '">M' + e.d + '</option>';
+    }).join('');
+    $('gr').value = '8';
+    $('kl').innerHTML = ANTR.KLASSEN.map(function (k) {
+      return '<option value="' + k + '">' + k + '</option>';
+    }).join('');
+    $('kl').value = '8.8';
+  }
+
+  function teil3() {
+    var d = parseFloat($('gr').value), kl = $('kl').value, mu = num('mu');
+    var MA = ANTR.anzugsmoment(d, kl);
+    if (!isFinite(MA)) { $('out3').innerHTML = ''; return; }
+    var korr = isFinite(mu) ? ANTR.anzugMitReibung(MA, mu) : MA;
+
+    $('out3').innerHTML =
+      kachel('Anzugsmoment', zr(korr, 1) + ' Nm', 'M' + d + ' · ' + kl) +
+      kachel('Tabellenwert', zr(MA, 1) + ' Nm', 'bei μ = 0,14') +
+      kachel('Je Klasse', zr(ANTR.anzugsmoment(d, '8.8'), 1) + ' / ' +
+             zr(ANTR.anzugsmoment(d, '10.9'), 1) + ' / ' +
+             zr(ANTR.anzugsmoment(d, '12.9'), 1), '8.8 / 10.9 / 12.9');
+
+    $('note3').className = 'note';
+    $('note3').textContent = !isFinite(mu) || Math.abs(mu - 0.14) < 1e-9
+      ? 'Tabellenwert für leicht geölte Stahlschrauben. Ohne Drehmomentschlüssel ist das eine ' +
+        'Hausnummer — von Hand liegt man leicht um die Hälfte daneben.'
+      : mu < 0.14
+      ? 'Geschmiert braucht dieselbe Vorspannung weniger Moment. Wer trotzdem nach der ' +
+        'trockenen Tabelle anzieht, überdehnt die Schraube.'
+      : 'Trocken und rau geht mehr Moment in die Reibung — bei gleichem Anzugsmoment ' +
+        'kommt weniger Vorspannung in der Verbindung an.';
+    tafel(d, kl);
+  }
+
+  function tafel(dJetzt, klJetzt) {
+    var h = '<table class="farben"><thead><tr><th>Gewinde</th><th>8.8</th><th>10.9</th>' +
+            '<th>12.9</th></tr></thead><tbody>';
+    ANTR.ANZUG.forEach(function (e) {
+      var hier = Math.abs(e.d - dJetzt) < 1e-9;
+      h += '<tr' + (hier ? ' aria-current="true"' : '') + '><td class="n">M' + e.d + '</td><td>' +
+           zr(e.k88, 1) + '</td><td>' + zr(e.k109, 1) + '</td><td>' + zr(e.k129, 1) + '</td></tr>';
+    });
+    $('tafel').innerHTML = h + '</tbody></table>';
+  }
+
+  fuelleWerk();
+  fuelleSchraube();
+  ['f1', 'l1', 'f2', 'l2'].forEach(function (id) { $(id).oninput = teil1; });
+  segKlick('art', teil1);
+  ['dA', 'dB', 'kraft', 'werk'].forEach(function (id) { $(id).oninput = teil2; $(id).onchange = teil2; });
+  segKlick('form', teil2);
+  ['gr', 'kl', 'mu'].forEach(function (id) { $(id).oninput = teil3; $(id).onchange = teil3; });
+  teil1(); teil2(); teil3();
+})();
+</script>
+</body>
+</html>

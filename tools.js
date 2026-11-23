@@ -95,7 +95,74 @@
     { id: 'thermo', titel: 'Thermoelement', gebiet: 'messen', datei: 'temperatur.html#thermo',
       kurz: 'Typ K, J und T: Millivolt und Temperatur, mit Vergleichsstelle',
       w: ['thermoelement', 'thermoelemente', 'typ k', 'typ j', 'typ t', 'nicr', 'nicrni',
-          'millivolt', 'mv', 'vergleichsstelle', 'kaltstelle', 'klemmentemperatur', 'ofen'] }
+          'millivolt', 'mv', 'vergleichsstelle', 'kaltstelle', 'klemmentemperatur', 'ofen'] },
+
+    { id: 'drehmoment', titel: 'Leistung, Drehzahl, Moment', gebiet: 'antrieb',
+      datei: 'antrieb.html#moment',
+      kurz: 'Zwei der drei Größen eintragen, die dritte kommt heraus',
+      w: ['drehmoment', 'moment', 'nm', 'leistung', 'kw', 'drehzahl', 'welle',
+          'typenschild', 'winkelgeschwindigkeit', 'omega', 'wirkungsgrad', 'p=m*omega'] },
+
+    { id: 'asm', titel: 'Asynchronmotor', gebiet: 'antrieb', datei: 'antrieb.html#motor',
+      kurz: 'Synchrondrehzahl, Schlupf, Polzahl und Betrieb am Umrichter',
+      w: ['asynchronmotor', 'drehstrommotor', 'schlupf', 'synchrondrehzahl', 'polzahl',
+          'polpaare', 'vierpolig', '1450', 'umrichter', 'fu', 'frequenzumrichter',
+          'feldschwaechung', 'drehfeld'] },
+
+    { id: 'getriebe', titel: 'Getriebe & Riemen', gebiet: 'antrieb', datei: 'antrieb.html#getriebe',
+      kurz: 'Übersetzung, Abtriebsdrehzahl und -moment, auch mehrstufig',
+      w: ['getriebe', 'uebersetzung', 'riemen', 'riementrieb', 'zahnrad', 'zaehnezahl',
+          'abtrieb', 'untersetzung', 'stufen', 'schneckengetriebe', 'wirkungsgrad'] },
+
+    { id: 'hebel', titel: 'Hebel', gebiet: 'antrieb', datei: 'mechanik.html#hebel',
+      kurz: 'Kraft und Hebelarm im Gleichgewicht, ein- und zweiseitig',
+      w: ['hebel', 'hebelgesetz', 'hebelarm', 'drehmoment', 'drehpunkt', 'gleichgewicht',
+          'kraft', 'last', 'wippe', 'brechstange', 'zange'] },
+
+    { id: 'spannung', titel: 'Flächenpressung & Sicherheit', gebiet: 'antrieb',
+      datei: 'mechanik.html#spannung',
+      kurz: 'σ = F/A mit Sicherheit gegen die Streckgrenze, je Werkstoff',
+      w: ['flaechenpressung', 'spannung', 'sigma', 'zugspannung', 'druck', 'querschnitt',
+          'streckgrenze', 'rp02', 'zugfestigkeit', 'sicherheit', 'festigkeit', 'mpa',
+          'n/mm2', 'werkstoff'] },
+
+    { id: 'schraube', titel: 'Schraubenanzugsmoment', gebiet: 'antrieb',
+      datei: 'mechanik.html#schraube',
+      kurz: 'Richtwerte für 8.8, 10.9 und 12.9, mit Reibungskorrektur',
+      w: ['anzugsmoment', 'drehmoment schraube', 'festigkeitsklasse', '8.8', '10.9', '12.9',
+          'vorspannkraft', 'drehmomentschluessel', 'vdi 2230', 'reibung', 'anziehen'] },
+
+    { id: 'zylinder', titel: 'Zylinderkraft', gebiet: 'fluid', datei: 'pneumatik.html#kraft',
+      kurz: 'Kraft beim Aus- und Einfahren aus Bohrung, Stange und Druck',
+      w: ['zylinder', 'kolben', 'kolbenstange', 'bohrung', 'kraft', 'pneumatik', 'hydraulik',
+          'ringflaeche', 'kolbenflaeche', 'bar', 'druck', 'ausfahren', 'einfahren'] },
+
+    { id: 'kolbentempo', titel: 'Kolbengeschwindigkeit', gebiet: 'fluid',
+      datei: 'pneumatik.html#tempo',
+      kurz: 'Volumenstrom und Fläche geben Geschwindigkeit und Hubzeit',
+      w: ['kolbengeschwindigkeit', 'geschwindigkeit', 'volumenstrom', 'hubzeit', 'hub',
+          'l/min', 'pumpe', 'foerdermenge', 'drossel'] },
+
+    { id: 'luftverbrauch', titel: 'Luftverbrauch', gebiet: 'fluid', datei: 'pneumatik.html#luft',
+      kurz: 'Normliter je Hub und je Minute, mit dem Verdichtungsverhältnis',
+      w: ['luftverbrauch', 'druckluft', 'normliter', 'nl', 'kompressor', 'verdichtung',
+          'verbrauch', 'takte', 'doppelhub'] },
+
+    { id: 'drucküb', titel: 'Druckübersetzer', gebiet: 'fluid',
+      datei: 'pneumatik.html#uebersetzer',
+      kurz: 'Flächenverhältnis, Druck und der Weg, der dabei verloren geht',
+      w: ['druckuebersetzer', 'uebersetzer', 'booster', 'flaechenverhaeltnis', 'luft oel',
+          'hochdruck', 'pressen'] },
+
+    { id: 'kvwert', titel: 'Kv-Wert', gebiet: 'fluid', datei: 'stroemung.html#kv',
+      kurz: 'Ventil nach Durchfluss und Druckabfall, für Wasser, Öl und Luft',
+      w: ['kv', 'kv-wert', 'kvs', 'ventil', 'ventilauswahl', 'durchfluss', 'druckabfall',
+          'drosselung', 'durchflusskoeffizient', 'sperrgrenze', 'kritisch'] },
+
+    { id: 'rohr', titel: 'Rohr & Schlauch', gebiet: 'fluid', datei: 'stroemung.html#rohr',
+      kurz: 'Innendurchmesser aus Volumenstrom und Strömungsgeschwindigkeit',
+      w: ['rohr', 'schlauch', 'querschnitt', 'innendurchmesser', 'nennweite', 'stroemung',
+          'stroemungsgeschwindigkeit', 'druckverlust', 'saugleitung', 'druckleitung'] }
   ];
 
   /* Suche: jedes eingetippte Wort muss irgendwo vorkommen. Treffer im Titel
