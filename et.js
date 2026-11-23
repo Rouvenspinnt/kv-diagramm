@@ -225,6 +225,9 @@
       b.dataset.text = el.dataset.help;
       b.setAttribute('aria-expanded', 'false');
       b.setAttribute('aria-label', 'Erklärung zu: ' + (name || 'diesem Feld'));
+      // Das ? sitzt im <label>, sonst haengte sein aria-label am Namen des Feldes
+      var fld = el.querySelector('input, select, textarea');
+      if (fld && name && !fld.getAttribute('aria-label')) fld.setAttribute('aria-label', name);
       if (!cap && el.classList.contains('seg') && el.parentNode) {
         el.parentNode.insertBefore(b, el.nextSibling);   // neben den Schaltkasten, nicht hinein
       } else {

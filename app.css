@@ -1,33 +1,23 @@
 /* Gemeinsames Stylesheet aller Werkzeuge */
-/* Messgeraet-Optik: dunkler Grund mit feinem Raster, Cyan fuer Messwerte,
-     Bernstein fuer Hinweise. Helle Variante bleibt vollwertig. */
+/* Helle Messgeraet-Optik: Papier mit feinem Raster, Petrol fuer Messwerte,
+     Bernstein fuer Hinweise. Alle Kontraste nachgerechnet. */
   :root {
-    color-scheme: light dark;
-    --paper:#eef1f6; --panel:#ffffff; --sunk:#f3f6fa;
-    --ink:#0f1720; --ink-2:#4a5565; --ink-3:#788393;
-    --line:#d6dde7; --line-soft:#e8edf4;
-    --accent:#0b6e82; --accent-2:#0e8ea6; --on-accent:#ffffff;
-    --dc:#a2600b; --focus:#0b6e82;
-    --fill-1:#0891b2; --fill-2:#c2820a;   /* vom Prüfskript bestätigt, hell */
-    --on-fill:#06121a;                    /* dunkle Schrift: 5,1–6,4:1 auf beiden Füllungen */
-    --grid:rgba(15,23,32,.055);
-    --glow:rgba(11,110,130,.16);
+    color-scheme: light;
+    --paper:#f1f4f8; --panel:#ffffff; --sunk:#f5f7fa;
+    --ink:#10151c; --ink-2:#475569; --ink-3:#5a6778;   /* ink-3: 5,2–5,8:1 auf allen Gründen */
+    --line:#dbe1e9; --line-soft:#eaeef3;
+    --line-strong:#808d9e;                              /* Rand von Bedienelementen, 3,1–3,4:1 */
+    --accent:#0e7490; --accent-2:#0891b2; --on-accent:#ffffff;
+    --fill-1:#0891b2; --fill-2:#c2820a;                 /* vom Prüfskript bestätigt */
+    --on-fill:#06121a;                                  /* dunkle Schrift auf den Füllungen */
+    --dc:#946009; --focus:#0e7490;
+    --grid:rgba(16,21,28,.05);
+    --glow:rgba(14,116,144,.09);
+    --schatten:0 1px 2px rgba(16,21,28,.05), 0 2px 12px rgba(16,21,28,.035);
     --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px;
     --r-ctl:7px; --r-panel:12px;
     --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
     --ease: cubic-bezier(.22,.68,.32,1);
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --paper:#070b11; --panel:#0e141c; --sunk:#131b25;
-      --ink:#e8eef6; --ink-2:#9fb0c4; --ink-3:#6d8095;
-      --line:#1f2a37; --line-soft:#18212c;
-      --accent:#22d3ee; --accent-2:#67e8f9; --on-accent:#04222a;
-      --dc:#fbbf24; --focus:#22d3ee;
-      --fill-1:#0ea5b7; --fill-2:#c2820a; /* vom Prüfskript bestätigt, dunkel */
-      --grid:rgba(118,164,205,.07);
-      --glow:rgba(34,211,238,.17);
-    }
   }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
@@ -59,7 +49,7 @@
 
   main { padding-top:var(--s5); }
   .panel { background:var(--panel); border:1px solid var(--line); border-radius:var(--r-panel);
-           position:relative; overflow:hidden; }
+           position:relative; overflow:hidden; box-shadow:var(--schatten); }
   .panel::before {                                 /* feiner Lichtkantenstrich oben */
     content:''; position:absolute; inset:0 0 auto; height:1px;
     background:linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 45%, transparent), transparent);
@@ -80,17 +70,18 @@
   .field { display:flex; align-items:center; gap:var(--s2); }
   .field > .lbl { font-size:.78rem; color:var(--ink-3); letter-spacing:.06em; text-transform:uppercase;
                   font-weight:600; }
-  .seg { display:flex; border:1px solid var(--line); border-radius:var(--r-ctl); overflow:hidden;
-         background:var(--sunk); }
+  .seg { display:flex; border:1px solid var(--line-strong); border-radius:var(--r-ctl); overflow:hidden;
+         background:var(--panel); }
   .seg button {
     font:inherit; font-size:.88rem; line-height:1; padding:8px 12px; border:0; cursor:pointer;
     background:transparent; color:var(--ink-2); border-right:1px solid var(--line-soft);
   }
   .seg button:last-child { border-right:0; }
+  .seg button:focus-visible { outline-offset:-2px; }
   .seg button:hover { color:var(--ink); background:color-mix(in srgb, var(--accent) 10%, transparent); }
   .seg button[aria-pressed="true"] { background:var(--accent); color:var(--on-accent); font-weight:600; }
   .btn { font:inherit; font-size:.88rem; line-height:1; padding:8px 12px; cursor:pointer;
-         background:var(--sunk); color:var(--ink); border:1px solid var(--line); border-radius:var(--r-ctl); }
+         background:var(--panel); color:var(--ink); border:1px solid var(--line-strong); border-radius:var(--r-ctl); }
   .btn:hover { border-color:var(--accent); color:var(--accent); }
   .btn:active { transform:translateY(1px); }
   :focus-visible { outline:2px solid var(--focus); outline-offset:2px; border-radius:3px; }
@@ -101,7 +92,7 @@
 
   /* Wertetabelle */
   #col { width:100%; font-family:var(--mono); font-size:.9rem; letter-spacing:.1em;
-         padding:7px 9px; border:1px solid var(--line); border-radius:var(--r-ctl);
+         padding:8px 10px; border:1px solid var(--line-strong); border-radius:var(--r-ctl);
          background:var(--sunk); color:inherit; }
   #col.bad { border-color:var(--dc); background:color-mix(in srgb, var(--dc) 10%, var(--sunk)); }
   .hint { color:var(--ink-2); font-size:.8rem; line-height:1.45; }
@@ -157,7 +148,9 @@
          color:var(--ink-3); margin-top:3px; letter-spacing:.03em; }
   .mi { position:absolute; left:4px; top:2px; font-size:.62rem; color:var(--ink-3); z-index:3; }
   .loop { position:absolute; border-radius:6px; pointer-events:none; z-index:1; }
-  td.val button:hover, table.kv td > button:hover { background:color-mix(in srgb, var(--ink) 9%, transparent); }
+  /* Hover als Ring statt Tönung: auf einer markierten Zelle stapelten sich sonst zwei
+     Tönungen und die Ziffern fielen unter 4,5:1 */
+  td.val button:hover, table.kv td > button:hover { box-shadow:inset 0 0 0 2px var(--line-strong); }
   .v0 { color:var(--ink-3); font-weight:400 !important; }
   .v1 { color:var(--accent); }
   .v2 { color:var(--dc); }
@@ -206,7 +199,7 @@
   ul.dep b { font-family:var(--mono); }
   .count { color:var(--ink-3); font-size:.82rem; margin-top:var(--s3); }
   @media print {
-    /* immer helles Papier, auch wenn der Bildschirm dunkel ist */
+    /* Papier: reines Weiss, kraeftigeres Schwarz, kein Raster */
     :root { --paper:#fff; --panel:#fff; --sunk:#f2f2f2; --ink:#000; --ink-2:#3a3a3a; --ink-3:#666;
             --line:#999; --line-soft:#c8c8c8; --dc:#8a5a00; --accent:#045; --on-accent:#fff;
             --grid:transparent; --glow:transparent; }
@@ -362,19 +355,20 @@
   label.f { display:flex; flex-direction:column; gap:4px; font-size:.8rem; color:var(--ink-2); }
   label.f .row { display:flex; align-items:center; gap:6px; }
   label.f input, label.f select, .panel select { font:inherit; font-family:var(--mono); font-size:.95rem;
-    width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:var(--r-ctl);
+    width:100%; padding:8px 10px; border:1px solid var(--line-strong); border-radius:var(--r-ctl);
     background:var(--sunk); color:var(--ink); }
   label.f input:hover, label.f select:hover { border-color:var(--ink-3); }
-  label.f input:focus, label.f select:focus { outline:none; border-color:var(--accent);
+  label.f input:focus, label.f select:focus { outline:2px solid var(--focus); outline-offset:1px;
+    border-color:var(--accent);
     box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
   label.f input.filled { border-color:color-mix(in srgb, var(--accent) 55%, var(--line)); }
   label.f .unit { font-family:var(--mono); color:var(--ink-3); font-size:.92rem; min-width:1.5em; }
   .out { margin-top:var(--s4); padding-top:var(--s4); border-top:1px solid var(--line-soft);
          display:grid; grid-template-columns:repeat(auto-fit, minmax(132px, 1fr)); gap:var(--s3); }
-  .out > div { position:relative; padding:10px 12px; border-radius:var(--r-ctl);
-               background:var(--sunk); border:1px solid var(--line-soft); overflow:hidden; }
-  .out > div::before { content:''; position:absolute; left:0; top:0; bottom:0; width:2px;
-                       background:var(--accent); opacity:.65; }
+  .out > div { position:relative; padding:10px 12px 10px 14px; border-radius:var(--r-ctl);
+               background:var(--sunk); border:1px solid var(--line); overflow:hidden; }
+  .out > div::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+                       background:var(--accent); }
   .out .k { font-size:.68rem; color:var(--ink-3); letter-spacing:.09em; text-transform:uppercase;
             font-weight:600; }
   .out .v { font-family:var(--mono); font-size:1.18rem; font-weight:650; color:var(--accent);
@@ -393,22 +387,22 @@
   /* ---- Widerstands-Zeichnung ---- */
   .res-svg { display:block; margin:6px 0 2px; max-width:100%; height:auto; }
   .res-svg .lead { stroke:var(--ink-2); stroke-width:3; }
-  .res-svg .body { fill:#e3cfa6; stroke:var(--ink-2); stroke-width:1.5; }
-  .res-svg .band { stroke:rgba(0,0,0,.35); stroke-width:.75; }
+  .res-svg .body { fill:#d8bf8a; stroke:var(--ink-2); stroke-width:1.5; }
+  .res-svg .band { stroke:rgba(0,0,0,.55); stroke-width:1; }
   .swatch-row { display:flex; align-items:center; gap:6px; }
-  .chip { width:14px; height:14px; border-radius:3px; border:1px solid var(--line); flex:none; }
+  .chip { width:14px; height:14px; border-radius:3px; border:1px solid var(--line-strong); flex:none; }
 
   /* Hilfe-Fragezeichen an den Feldern */
   .help { position:relative; display:inline-flex; align-items:center; justify-content:center;
           width:16px; height:16px; margin-left:1px; padding:0; vertical-align:middle; flex:none;
           font:600 10px/1 inherit; cursor:help; -webkit-appearance:none; appearance:none;
           color:var(--ink-3); background:var(--panel);
-          border:1px solid var(--line); border-radius:50%; }
+          border:1px solid var(--line-strong); border-radius:50%; }
   .help::after { content:''; position:absolute; inset:-8px; }   /* größere Trefferfläche fürs Tippen */
   .help:hover, .help:focus-visible { color:var(--ink); border-color:var(--ink-2); }
   .tip { position:absolute; z-index:60; max-width:290px; padding:10px 12px;
          font-size:.8rem; line-height:1.55; color:var(--ink-2);
          background:var(--panel); border:1px solid var(--line); border-radius:var(--r-panel);
-         box-shadow:0 8px 24px rgba(0,0,0,.16); }
+         box-shadow:0 6px 20px rgba(16,21,28,.12); }
   .tip[hidden] { display:none; }
   @media print { .help, .tip { display:none !important; } }
