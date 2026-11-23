@@ -279,7 +279,10 @@
   .schema .part.fill { fill:var(--ink); }
   .schema .hot { stroke:var(--accent); }
   .schema .dot { fill:var(--ink-2); stroke:none; }
-  .schema text { fill:var(--ink-2); font-family:var(--mono); font-size:11px; text-anchor:middle; }
+  /* Panelfarbe als Saum hinter der Schrift: Beschriftungen bleiben lesbar, auch wo sie
+     eine Leitung, einen Bogen oder die Kurve streifen */
+  .schema text { fill:var(--ink-2); font-family:var(--mono); font-size:11px; text-anchor:middle;
+                 paint-order:stroke; stroke:var(--panel); stroke-width:3px; stroke-linejoin:round; }
   .schema text.val { fill:var(--accent); font-weight:650; font-size:11.5px; }
   .schema text.name { fill:var(--ink); font-weight:650; }
   .schema .arrow { fill:var(--accent); stroke:none; }
@@ -304,9 +307,11 @@
   /* ---- Gestapelter Balken (Spannungsbilanz) ---- */
   .bar { display:flex; width:100%; height:38px; border-radius:var(--r-ctl); overflow:hidden;
          gap:2px; margin:var(--s3) 0 var(--s2); }
-  .bar > span { display:flex; align-items:center; justify-content:center; min-width:0;
+  /* Block statt Flex, damit ein zu schmaler Abschnitt seine Beschriftung sauber
+     auslaeufen laesst statt sie beidseitig abzuschneiden */
+  .bar > span { display:block; min-width:0; padding:0 6px; line-height:38px; text-align:center;
                 font-family:var(--mono); font-size:.76rem; font-weight:650; color:var(--on-fill);
-                white-space:nowrap; overflow:hidden; }
+                white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .bar .s1 { background:var(--fill-1); }
   .bar .s2 { background:var(--fill-2); }
   .barkey { display:flex; flex-wrap:wrap; gap:var(--s2) var(--s4); font-size:.78rem; color:var(--ink-2); }
@@ -314,7 +319,8 @@
   .barkey i { width:11px; height:11px; border-radius:3px; flex:none; }
 
   /* ---- Farbtafel ---- */
-  table.farben { border-collapse:collapse; width:100%; font-size:.82rem; }
+  #tafel { overflow-x:auto; scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
+  table.farben { border-collapse:collapse; width:100%; min-width:360px; font-size:.82rem; }
   table.farben th { text-align:left; font-size:.68rem; letter-spacing:.09em; text-transform:uppercase;
                     color:var(--ink-3); font-weight:650; padding:6px 8px 6px 0;
                     border-bottom:1px solid var(--line); }
@@ -364,15 +370,17 @@
   label.f input.filled { border-color:color-mix(in srgb, var(--accent) 55%, var(--line)); }
   label.f .unit { font-family:var(--mono); color:var(--ink-3); font-size:.92rem; min-width:1.5em; }
   .out { margin-top:var(--s4); padding-top:var(--s4); border-top:1px solid var(--line-soft);
-         display:grid; grid-template-columns:repeat(auto-fit, minmax(132px, 1fr)); gap:var(--s3); }
+         display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:var(--s3); }
   .out > div { position:relative; padding:10px 12px 10px 14px; border-radius:var(--r-ctl);
-               background:var(--sunk); border:1px solid var(--line); overflow:hidden; }
+               background:var(--sunk); border:1px solid var(--line); overflow:hidden;
+               display:flex; flex-direction:column; }
   .out > div::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
                        background:var(--accent); }
-  .out .k { font-size:.68rem; color:var(--ink-3); letter-spacing:.09em; text-transform:uppercase;
-            font-weight:600; }
+  /* lange Woerter wie "Scheinwiderstand" trennen statt abschneiden */
+  .out .k { font-size:.68rem; color:var(--ink-3); letter-spacing:.07em; text-transform:uppercase;
+            font-weight:600; hyphens:auto; overflow-wrap:break-word; }
   .out .v { font-family:var(--mono); font-size:1.18rem; font-weight:650; color:var(--accent);
-            margin-top:3px; letter-spacing:-.01em; }
+            margin-top:auto; padding-top:3px; letter-spacing:-.01em; overflow-wrap:anywhere; }
   .out .v small { font-family:var(--mono); font-size:.72rem; font-weight:400; color:var(--ink-3); }
   .note { font-size:.84rem; color:var(--ink-2); margin:var(--s3) 0 0; }
   .note.bad { color:var(--dc); }
