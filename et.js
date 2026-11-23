@@ -80,16 +80,6 @@
     return { U: U, I: I, R: R, P: P, given: given };
   }
 
-  function combine(values, kind) {                // Reihe und Parallel fuer R, L oder C
-    var list = values.filter(function (x) { return isFinite(x) && x > 0; });
-    if (!list.length) return { series: NaN, parallel: NaN, n: 0 };
-    var sum = list.reduce(function (a, b) { return a + b; }, 0);
-    var inv = list.reduce(function (a, b) { return a + 1 / b; }, 0);
-    var rec = 1 / inv;
-    return kind === 'C' ? { series: rec, parallel: sum, n: list.length }
-                        : { series: sum, parallel: rec, n: list.length };
-  }
-
   // Farbcode. d = Ziffer, m = Multiplikator, tol = Toleranz in %, tk = ppm/K.
   var COLORS = [
     { n: 'schwarz',  hex: '#111111', d: 0, m: 1 },
@@ -163,7 +153,7 @@
   function resonance(L, C) { return (L > 0 && C > 0) ? 1 / (2 * Math.PI * Math.sqrt(L * C)) : NaN; }
 
   var api = { parseVal: parseVal, fmt: fmt, sig: sig, SERIES: SERIES, nearestE: nearestE,
-              solveOhm: solveOhm, combine: combine, COLORS: COLORS, bandsToValue: bandsToValue,
+              solveOhm: solveOhm, COLORS: COLORS, bandsToValue: bandsToValue,
               valueToBands: valueToBands, xl: xl, xc: xc, impedance: impedance, resonance: resonance };
 
   // Navigationsleiste, damit sie nicht in jeder Seite doppelt steht

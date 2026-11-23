@@ -31,23 +31,6 @@
       <p class="rowline" style="margin-top:12px"><button class="btn" id="clear">Felder leeren</button></p>
     </div>
   </section>
-
-  <section class="panel">
-    <h2>Reihe und Parallel</h2>
-    <div class="body">
-      <div class="rowline">
-        <label class="f" style="flex:1 1 260px" data-help="Die Einzelwerte der Schaltung, durch Komma getrennt — z. B. 100, 220, 330. Vorsätze wie k, m oder µ sind erlaubt, die Einheit kannst du weglassen."><span>Werte, mit Komma getrennt</span>
-          <div class="row"><input id="list" placeholder="100, 220, 330"></div></label>
-        <div class="field">
-          <div class="seg" id="kind" role="group" aria-label="Bauteilart" data-help="Welche Bauteile du zusammenschaltest. Widerstände und Spulen addieren sich in Reihe, Kondensatoren genau umgekehrt: dort addieren sie sich parallel.">
-            <button data-kind="R">Widerstände</button><button data-kind="C">Kondensatoren</button><button data-kind="L">Spulen</button>
-          </div>
-        </div>
-      </div>
-      <div class="out" id="out2"></div>
-      <p class="note" id="note2"></p>
-    </div>
-  </section>
 </main>
 
 <script src="et.js"></script>
@@ -96,41 +79,12 @@
     $('note').textContent = neg ? 'Negative Werte ergeben hier keinen Sinn – Eingabe prüfen.' : '';
   }
 
-  var kind = 'R', KUNIT = { R: 'Ω', C: 'F', L: 'H' };
-  function calc2() {
-    Array.prototype.forEach.call($('kind').children, function (b) {
-      b.setAttribute('aria-pressed', String(b.dataset.kind === kind));
-    });
-    var raw = $('list').value.split(/[,;\n]+/).filter(function (s) { return s.trim(); });
-    var nums = raw.map(ET.parseVal);
-    var bad = nums.some(function (x) { return !isFinite(x) || x <= 0; });
-    var c = ET.combine(nums, kind);
-    if (!c.n) {
-      $('out2').innerHTML = '';
-      $('note2').className = 'note';
-      $('note2').textContent = 'Mindestens zwei Werte eintragen, z. B. 100, 220, 330.';
-      return;
-    }
-    $('out2').innerHTML =
-      '<div><div class="k">In Reihe</div><div class="v">' + ET.fmt(c.series, KUNIT[kind]) + '</div></div>' +
-      '<div><div class="k">Parallel</div><div class="v">' + ET.fmt(c.parallel, KUNIT[kind]) + '</div></div>' +
-      '<div><div class="k">Bauteile</div><div class="v">' + c.n + '</div></div>';
-    $('note2').className = 'note' + (bad ? ' bad' : '');
-    $('note2').textContent = bad ? 'Ein Eintrag ist keine gültige positive Zahl und wurde übersprungen.'
-      : (kind === 'C' ? 'Bei Kondensatoren ist es umgekehrt: parallel addieren sich die Kapazitäten.' : '');
-  }
-
   Object.keys(FIELDS).forEach(function (id) { $(id).oninput = calc; });
   $('clear').onclick = function () {
     Object.keys(FIELDS).forEach(function (id) { $(id).value = ''; });
     calc();
   };
-  $('list').oninput = calc2;
-  $('kind').onclick = function (e) {
-    var b = e.target.closest('button[data-kind]');
-    if (b) { kind = b.dataset.kind; calc2(); }
-  };
-  calc(); calc2();
+  calc();
 })();
 </script>
 </body>

@@ -52,13 +52,6 @@ var ref = { U: 12, I: 0.5, R: 24, P: 6 };
 ok(et.solveOhm({ U: 12, I: NaN, R: NaN, P: NaN }).error, 'ein Wert ist zu wenig');
 ok(et.solveOhm({ U: 12, I: 1, R: 12, P: NaN }).error, 'drei Werte sind zu viel');
 
-// Reihe und Parallel
-var r2 = et.combine([100, 100], 'R');
-near(r2.series, 200, 'R Reihe'); near(r2.parallel, 50, 'R parallel');
-var c2 = et.combine([100e-9, 100e-9], 'C');
-near(c2.parallel, 200e-9, 'C parallel'); near(c2.series, 50e-9, 'C Reihe');
-near(et.combine([100, 220, 330], 'R').series, 650, 'drei Widerstaende in Reihe');
-
 // Farbcode hin und zurueck
 var gelb = 4, violett = 7, rot = 2, gold = 10, braun = 1, schwarz = 0;
 var v4 = et.bandsToValue([gelb, violett, rot, gold]);

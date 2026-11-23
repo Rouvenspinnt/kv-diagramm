@@ -17,7 +17,7 @@ Läuft ohne Server und ohne Abhängigkeiten — `index.html` im Browser öffnen 
 
 ## Elektrotechnik-Rechner
 
-- **Ohm & Leistung** (`ohm.html`) — zwei Größen aus U, I, R, P eingeben, die anderen beiden kommen heraus; dazu Reihen- und Parallelschaltung
+- **Ohm & Leistung** (`ohm.html`) — zwei Größen aus U, I, R, P eingeben, die anderen beiden kommen heraus
 - **Widerstands-Farbcode** (`farbcode.html`) — Ringe ablesen oder einen Wert in Ringe umsetzen, 4 bis 6 Ringe, mit gezeichnetem Widerstand
 - **LED & Spannungsteiler** (`led.html`) — Vorwiderstand mit Normwert aus E6/E12/E24, Verlustleistung, unbelasteter Teiler
 - **Wechselstrom & Resonanz** (`wechselstrom.html`) — X_L, X_C, Scheinwiderstand, Phasenwinkel und Resonanzfrequenz
