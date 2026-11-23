@@ -46,6 +46,13 @@
       <p class="note" id="note2"></p>
     </div>
   </section>
+  <section class="panel">
+    <h2>Farbtafel <span class="tag">zum Nachschlagen</span></h2>
+    <div class="body">
+      <p class="caption">Was jeder Ring bedeutet, je nach Stelle, an der er sitzt.</p>
+      <div id="tafel"></div>
+    </div>
+  </section>
 </main>
 
 <script src="et.js"></script>
@@ -122,6 +129,20 @@
     read();
   }
 
+  // Nachschlagetabelle aus denselben Daten, aus denen auch gerechnet wird
+  function tafel() {
+    var h = '<table class="farben"><thead><tr><th>Farbe</th><th>Ziffer</th>' +
+            '<th>Multiplikator</th><th>Toleranz</th><th>ppm/K</th></tr></thead><tbody>';
+    C.forEach(function (f) {
+      var m = f.m == null ? '—' : (f.m >= 1 ? '× ' + ET.fmt(f.m, '') : '× ' + String(f.m).replace('.', ','));
+      h += '<tr><td class="n"><i class="chip" style="background:' + f.hex + '"></i>' + f.n + '</td>' +
+           '<td>' + (f.d == null ? '—' : f.d) + '</td><td>' + m + '</td>' +
+           '<td>' + (f.tol == null ? '—' : '± ' + String(f.tol).replace('.', ',') + ' %') + '</td>' +
+           '<td>' + (f.tk == null ? '—' : f.tk) + '</td></tr>';
+    });
+    $('tafel').innerHTML = h + '</tbody></table>';
+  }
+
   function read() {
     var sels = $('rings').querySelectorAll('select');
     var bands = Array.prototype.map.call(sels, function (s) { return +s.value; });
@@ -184,7 +205,7 @@
   };
   $('val').oninput = write; $('count2').onchange = write; $('tol2').onchange = write;
   $('val').value = '4k7';
-  buildRings(); write();
+  buildRings(); write(); tafel();
 })();
 </script>
 </body>

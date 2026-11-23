@@ -28,6 +28,7 @@
       </div>
       <div id="dia1"></div>
       <div class="out" id="out1"></div>
+      <div id="bilanz"></div>
       <p class="note" id="note1"></p>
       <p class="note formula">R = (U<sub>q</sub> − n · U<sub>F</sub>) / I<sub>F</sub></p>
     </div>
@@ -60,6 +61,24 @@
   function tile(k, val) { return '<div><div class="k">' + k + '</div><div class="v">' + val + '</div></div>'; }
 
   function g(x, u) { return isFinite(x) ? ET.fmt(x, u) : '?'; }
+
+  // Wohin die Versorgungsspannung geht: ein Balken, beide Teile beschriftet
+  function bilanz(uq, ur, uf, n) {
+    var led = n * uf;
+    if (!(uq > 0) || !(ur > 0) || !(led > 0)) { $('bilanz').innerHTML = ''; return; }
+    $('bilanz').innerHTML =
+      '<div class="bar" role="img" aria-label="Von ' + g(uq, 'V') + ' fallen ' + g(ur, 'V') +
+        ' am Widerstand ab und ' + g(led, 'V') + ' an den LEDs">' +
+        '<span class="s1" style="flex:' + ur.toFixed(4) + '" title="Widerstand">R ' + g(ur, 'V') + '</span>' +
+        '<span class="s2" style="flex:' + led.toFixed(4) + '" title="LEDs">' +
+          (n > 1 ? n + ' LEDs ' : 'LED ') + g(led, 'V') + '</span>' +
+      '</div>' +
+      '<div class="barkey">' +
+        '<span><i style="background:var(--fill-1)"></i>Am Vorwiderstand verheizt</span>' +
+        '<span><i style="background:var(--fill-2)"></i>In Licht umgesetzt</span>' +
+        '<span>Gesamt ' + g(uq, 'V') + '</span>' +
+      '</div>';
+  }
 
   // LED-Kreis: Quelle, Vorwiderstand, LED-Kette
   function diaLed(uq, ur, uf, n, i, rn) {
@@ -96,6 +115,7 @@
     var serie = $('serie').value;
     if (![uq, uf, i].every(isFinite) || i <= 0) {
       diaLed(uq, NaN, uf, n, i, NaN);
+      bilanz(uq, NaN, uf, n);
       $('out1').innerHTML = '';
       $('note1').className = 'note bad';
       $('note1').textContent = 'Versorgung, Flussspannung und Strom werden gebraucht (Strom größer als 0).';
@@ -104,6 +124,7 @@
     var rest = uq - n * uf;
     if (rest <= 0) {
       diaLed(uq, rest, uf, n, i, NaN);
+      bilanz(uq, rest, uf, n);
       $('out1').innerHTML = '';
       $('note1').className = 'note bad';
       $('note1').textContent = n + ' LED(s) brauchen ' + ET.fmt(n * uf, 'V') + ' – das ist mehr als die Versorgung von ' +
@@ -112,6 +133,7 @@
     }
     var r = rest / i, rn = ET.nearestE(r, serie), iReal = rest / rn;
     diaLed(uq, rest, uf, n, iReal, rn);
+    bilanz(uq, rest, uf, n);
     $('out1').innerHTML =
       tile('Rechnerisch R', ET.fmt(r, 'Ω')) +
       tile('Normwert ' + serie, ET.fmt(rn, 'Ω')) +

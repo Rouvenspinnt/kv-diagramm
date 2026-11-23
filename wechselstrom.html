@@ -40,6 +40,15 @@
       <div id="zeiger"></div>
     </div>
   </section>
+
+  <section class="panel">
+    <h2>Scheinwiderstand über der Frequenz <span class="tag" id="ftag"></span></h2>
+    <div class="body">
+      <p class="caption">Wie sich Z ändert, wenn die Frequenz wandert. Der Punkt ist deine Frequenz;
+        die gestrichelte Linie die Resonanz, wo Z auf R zusammenfällt. Fahre über die Kurve, um abzulesen.</p>
+      <div id="zkurve"></div>
+    </div>
+  </section>
 </main>
 
 <script src="et.js"></script>
@@ -98,6 +107,26 @@
     D.mount($('zeiger'), D.svg(360, 260, 'Zeigerdiagramm von R, X und Z', inner));
   }
 
+  // |Z| über der Frequenz, logarithmisch abgetastet
+  function zkurve(f, r, l, c, hasL, hasC, zJetzt, f0) {
+    var von = f / 25, bis = f * 25, xs = [], ys = [], i, fi, X;
+    for (i = 0; i <= 90; i++) {
+      fi = von * Math.pow(bis / von, i / 90);
+      X = (hasL ? ET.xl(fi, l) : 0) - (hasC ? ET.xc(fi, c) : 0);
+      xs.push(fi); ys.push(Math.sqrt(r * r + X * X));
+    }
+    var deckel = Math.max(zJetzt * 4, r * 3, 1e-9);
+    $('ftag').textContent = ET.fmt(von, 'Hz') + ' … ' + ET.fmt(bis, 'Hz');
+    D.mountChart($('zkurve'), {
+      xs: xs, ys: ys, x0: von, x1: bis, y1: deckel, logx: true,
+      xlab: 'f in Hz', ylab: 'Z in Ω', title: 'Scheinwiderstand über der Frequenz',
+      fx: function (v) { return ET.fmt(v, ''); }, fy: function (v) { return ET.fmt(v, ''); },
+      point: { x: f, y: zJetzt, label: ET.fmt(zJetzt, 'Ω') },
+      mark: isFinite(f0) && f0 > von && f0 < bis ? { x: f0, label: 'f₀ ' + ET.fmt(f0, 'Hz') } : null,
+      readout: function (x, y) { return ET.fmt(x, 'Hz') + ' → ' + ET.fmt(y, 'Ω'); }
+    });
+  }
+
   function calc() {
     var f = v('f'), r = v('r'), l = v('l'), c = v('c'), u = v('u');
     if (!isFinite(f) || f <= 0) {
@@ -111,7 +140,8 @@
     diaKreis(f, r, l, c, hasL, hasC);
     if (!hasL && !hasC) {
       diaZeiger(r, 0, r, 0);
-      $('zart').textContent = '';
+      $('zkurve').innerHTML = ''; $('zkurve').dataset.drawn = '';
+      $('zart').textContent = ''; $('ftag').textContent = '';
       $('out').innerHTML = '';
       $('note').className = 'note bad';
       $('note').textContent = 'Mindestens L oder C eintragen.';
@@ -120,6 +150,7 @@
     var XL = hasL ? ET.xl(f, l) : 0, XC = hasC ? ET.xc(f, c) : 0;
     var z = ET.impedance(r, XL - XC);
     diaZeiger(r, XL - XC, z.Z, z.phi);
+    zkurve(f, r, l, c, hasL, hasC, z.Z, hasL && hasC ? ET.resonance(l, c) : NaN);
     $('zart').textContent = Math.abs(XL - XC) < z.Z * 1e-9 ? 'rein ohmsch'
                           : (XL - XC > 0 ? 'induktiv' : 'kapazitiv');
     var out = (hasL ? tile('X_L', ET.fmt(XL, 'Ω')) : '') +

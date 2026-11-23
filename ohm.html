@@ -32,6 +32,15 @@
       <p class="rowline" style="margin-top:12px"><button class="btn" id="clear">Felder leeren</button></p>
     </div>
   </section>
+
+  <section class="panel">
+    <h2>Kennlinie <span class="tag" id="ktag"></span></h2>
+    <div class="body">
+      <p class="caption">Bei festem Widerstand steigt der Strom proportional zur Spannung.
+        Die Steigung der Geraden ist 1/R — je kleiner R, desto steiler. Fahre über die Kurve, um abzulesen.</p>
+      <div id="kennlinie"></div>
+    </div>
+  </section>
 </main>
 
 <script src="et.js"></script>
@@ -66,6 +75,25 @@
     D.mount($('dia'), D.svg(520, 170, 'Stromkreis aus Quelle und Widerstand', inner));
   }
 
+  // I = U/R als Gerade, mit dem eingetragenen Arbeitspunkt
+  function kennlinie(res) {
+    var R = res.R, U = res.U, I = res.I;
+    if (!(R > 0) || !isFinite(U) || !isFinite(I)) {
+      $('kennlinie').innerHTML = ''; $('kennlinie').dataset.drawn = ''; $('ktag').textContent = '';
+      return;
+    }
+    var umax = Math.max(U * 2, 1e-9), xs = [], ys = [], i;
+    for (i = 0; i <= 60; i++) { xs.push(umax * i / 60); ys.push(umax * i / 60 / R); }
+    $('ktag').textContent = 'R = ' + ET.fmt(R, 'Ω');
+    D.mountChart($('kennlinie'), {
+      xs: xs, ys: ys, x0: 0, x1: umax, logx: false,
+      xlab: 'U in V', ylab: 'I in A', title: 'Strom über Spannung bei festem Widerstand',
+      fx: function (v) { return ET.fmt(v, ''); }, fy: function (v) { return ET.fmt(v, ''); },
+      point: { x: U, y: I, label: ET.fmt(U, 'V') + ' · ' + ET.fmt(I, 'A') },
+      readout: function (x, y) { return ET.fmt(x, 'V') + ' → ' + ET.fmt(y, 'A'); }
+    });
+  }
+
   function calc() {
     var v = { U: NaN, I: NaN, R: NaN, P: NaN };
     Object.keys(FIELDS).forEach(function (id) {
@@ -76,6 +104,7 @@
     });
     var res = ET.solveOhm(v);
     dia(res.error ? v : res);
+    kennlinie(res.error ? { R: NaN } : res);
     if (res.error) {
       $('out').innerHTML = '';
       $('used').textContent = '';

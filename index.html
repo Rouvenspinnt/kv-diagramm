@@ -75,6 +75,16 @@
       </section>
 
       <section class="panel">
+        <h2>Impulsdiagramm <span class="tag" id="pulstag"></span></h2>
+        <div class="body">
+          <p class="caption">Dieselbe Funktion als Signalverlauf: die Eingänge zählen binär hoch,
+            unten steht, was Y dabei macht.
+            Ein X liegt dabei auf halber Höhe.</p>
+          <div id="puls"></div>
+        </div>
+      </section>
+
+      <section class="panel">
         <h2>Abhängigkeiten</h2>
         <div class="body deps" id="deps"></div>
       </section>
@@ -386,6 +396,39 @@
     $('varnames').textContent = kv.VARS[0] + '–' + kv.VARS[n - 1];
   }
 
+  // Signalverlauf über alle Zeilen der Wertetabelle
+  function renderPuls() {
+    var L = kv.VARS.slice(0, n), rows = 1 << n;
+    var step = Math.max(9, Math.min(26, 640 / rows));
+    var lane = 26, amp = 15, x0 = 26, w = x0 + rows * step + 8, h = (n + 1) * lane + 16;
+    var out = '', i, m, v, y, prev, top, bot;
+
+    function spur(werte, cls, name, reihe) {
+      var yb = reihe * lane + amp + 6, yt = yb - amp, d = '', mid = (yb + yt) / 2, letzte = null;
+      for (i = 0; i < rows; i++) {
+        v = werte(i);
+        y = v === 2 ? mid : (v ? yt : yb);
+        d += (i === 0 ? 'M' + x0 + ' ' + y : (y === letzte ? '' : 'V' + y)) + 'H' + (x0 + (i + 1) * step);
+        letzte = y;
+      }
+      return '<line class="base" x1="' + x0 + '" y1="' + yb + '" x2="' + (x0 + rows * step) +
+             '" y2="' + yb + '"/><path class="sig ' + cls + '" d="' + d + '"/>' +
+             '<text class="name" x="0" y="' + (mid + 4) + '">' + name + '</text>';
+    }
+
+    for (var b = 0; b < n; b++) {
+      (function (bit) {
+        out += spur(function (m) { return (m >> (n - 1 - bit)) & 1; }, '', L[bit], bit);
+      })(b);
+    }
+    out += spur(function (m) { return vals[m]; }, 'y', 'Y', n);
+    out += '<text x="' + x0 + '" y="' + (h - 3) + '">0</text>' +
+           '<text x="' + (x0 + rows * step - 10) + '" y="' + (h - 3) + '">' + (rows - 1) + '</text>';
+    $('pulstag').textContent = rows + ' Takte';
+    $('puls').innerHTML = '<svg class="puls" viewBox="0 0 ' + w + ' ' + h +
+      '" role="img" aria-label="Signalverlauf der Eingänge und des Ausgangs Y">' + out + '</svg>';
+  }
+
   function render() {
     var dnf = kv.minimize(n, vals, 1), knf = kv.minimize(n, vals, 0);
     syncControls();
@@ -395,6 +438,7 @@
     renderGroups(mode === 1 ? dnf : knf);
     renderPlan(mode === 1 ? dnf : knf);
     renderDeps(dnf);
+    renderPuls();
     $('dnf').innerHTML = '<span class="kind">Disjunktive Normalform</span><span class="lhs">Y = </span>' + prettyResult(dnf);
     $('knf').innerHTML = '<span class="kind">Konjunktive Normalform</span><span class="lhs">Y = </span>' + prettyResult(knf);
     $('plain').textContent = 'DNF   ' + kv.resultText(dnf) + '\nKNF   ' + kv.resultText(knf);

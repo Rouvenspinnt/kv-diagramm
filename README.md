@@ -32,6 +32,20 @@ zeigt zusätzlich das Zeigerdiagramm: R waagerecht, X senkrecht, Z als schräger
 dem Phasenwinkel als Bogen. Bei Last erscheint im Teiler ein zweiter Zweig.
 Die SVG-Bausteine liegen gemeinsam in `draw.js`.
 
+Dazu je Seite eine Grafik, die den Zusammenhang zeigt statt nur die Zahl:
+
+- **Kennlinie** (Ohm) — I über U als Gerade mit Steigung 1/R, mit dem Arbeitspunkt
+- **Spannungsbilanz** (LED) — ein Balken zeigt, wie viel von U_q im Vorwiderstand verheizt
+  und wie viel in den LEDs umgesetzt wird
+- **Z über f** (Wechselstrom) — die Resonanz als Einbruch der Kurve, f₀ markiert
+- **Farbtafel** (Farbcode) — alle zwölf Ringfarben zum Nachschlagen
+- **Impulsdiagramm** (KV) — dieselbe Funktion als Signalverlauf über alle Takte
+
+Die beiden Kurven haben einen Ablesestrich: Mauszeiger darüber, Wert erscheint.
+Die Flächenfarben sind mit dem Prüfskript der dataviz-Richtlinie gegen Farbsehschwäche
+und Kontrast geprüft (hell `#0891b2`/`#c2820a`, dunkel `#0ea5b7`/`#c2820a`), die Beschriftung
+sitzt zusätzlich direkt in der Fläche — Farbe allein trägt nirgends die Bedeutung.
+
 Bewegung (einlaufende Tafeln, sich zeichnende Leitungen, hervorgehobene neue Messwerte) ist
 durchweg Zugabe: unter `prefers-reduced-motion: reduce` bleibt alles stehen und vollständig.
 

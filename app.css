@@ -8,6 +8,8 @@
     --line:#d6dde7; --line-soft:#e8edf4;
     --accent:#0b6e82; --accent-2:#0e8ea6; --on-accent:#ffffff;
     --dc:#a2600b; --focus:#0b6e82;
+    --fill-1:#0891b2; --fill-2:#c2820a;   /* vom Prüfskript bestätigt, hell */
+    --on-fill:#06121a;                    /* dunkle Schrift: 5,1–6,4:1 auf beiden Füllungen */
     --grid:rgba(15,23,32,.055);
     --glow:rgba(11,110,130,.16);
     --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px;
@@ -22,6 +24,7 @@
       --line:#1f2a37; --line-soft:#18212c;
       --accent:#22d3ee; --accent-2:#67e8f9; --on-accent:#04222a;
       --dc:#fbbf24; --focus:#22d3ee;
+      --fill-1:#0ea5b7; --fill-2:#c2820a; /* vom Prüfskript bestätigt, dunkel */
       --grid:rgba(118,164,205,.07);
       --glow:rgba(34,211,238,.17);
     }
@@ -289,6 +292,50 @@
   .schema .arrow { fill:var(--accent); stroke:none; }
   .schema .dim { stroke:var(--accent); stroke-width:1.2; fill:none; opacity:.8; }
   .caption { text-align:center; color:var(--ink-3); font-size:.78rem; margin:0 0 var(--s2); }
+
+  /* ---- Kurven. Eine Reihe je Bild, deshalb ohne Legende; Schrift traegt Textfarbe. ---- */
+  .schema .axis { stroke:var(--ink-3); stroke-width:1; opacity:.7; }
+  .schema .grid { stroke:var(--line-soft); stroke-width:1; }
+  .schema .curve { fill:none; stroke:var(--accent); stroke-width:2;
+                   stroke-linejoin:round; stroke-linecap:round; }
+  .schema .pt { fill:var(--accent); stroke:var(--panel); stroke-width:2; }
+  .schema text.tick { fill:var(--ink-3); font-size:10px; }
+  .schema text.tick.hi { fill:var(--ink-2); }
+  .schema text.axlab { fill:var(--ink-2); font-size:10.5px; font-weight:650; }
+  .schema text.ptlab { fill:var(--ink); font-size:11px; font-weight:650; }
+  .schema .mark { stroke:var(--ink-3); stroke-width:1.2; stroke-dasharray:3 3; }
+  .schema .cross { stroke:var(--ink-2); stroke-width:1; }
+  .schema text.read { fill:var(--ink); font-size:11px; font-weight:650; }
+  .schema .hit { cursor:crosshair; }
+
+  /* ---- Gestapelter Balken (Spannungsbilanz) ---- */
+  .bar { display:flex; width:100%; height:38px; border-radius:var(--r-ctl); overflow:hidden;
+         gap:2px; margin:var(--s3) 0 var(--s2); }
+  .bar > span { display:flex; align-items:center; justify-content:center; min-width:0;
+                font-family:var(--mono); font-size:.76rem; font-weight:650; color:var(--on-fill);
+                white-space:nowrap; overflow:hidden; }
+  .bar .s1 { background:var(--fill-1); }
+  .bar .s2 { background:var(--fill-2); }
+  .barkey { display:flex; flex-wrap:wrap; gap:var(--s2) var(--s4); font-size:.78rem; color:var(--ink-2); }
+  .barkey span { display:flex; align-items:center; gap:6px; }
+  .barkey i { width:11px; height:11px; border-radius:3px; flex:none; }
+
+  /* ---- Farbtafel ---- */
+  table.farben { border-collapse:collapse; width:100%; font-size:.82rem; }
+  table.farben th { text-align:left; font-size:.68rem; letter-spacing:.09em; text-transform:uppercase;
+                    color:var(--ink-3); font-weight:650; padding:6px 8px 6px 0;
+                    border-bottom:1px solid var(--line); }
+  table.farben td { padding:5px 8px 5px 0; border-bottom:1px solid var(--line-soft);
+                    font-family:var(--mono); color:var(--ink-2); }
+  table.farben td.n { font-family:inherit; color:var(--ink); display:flex; align-items:center; gap:8px; }
+
+  /* ---- Impulsdiagramm ---- */
+  .puls { display:block; width:100%; max-width:640px; margin:var(--s3) auto 0; height:auto; }
+  .puls .sig { fill:none; stroke:var(--ink-2); stroke-width:1.6; stroke-linejoin:miter; }
+  .puls .sig.y { stroke:var(--accent); stroke-width:2.2; }
+  .puls .base { stroke:var(--line-soft); stroke-width:1; }
+  .puls text { fill:var(--ink-3); font-family:var(--mono); font-size:10px; }
+  .puls text.name { fill:var(--ink); font-weight:650; font-size:11px; }
   /* Auf schmalen Schirmen lieber seitlich schieben als unlesbar schrumpfen */
   @media (max-width: 620px) {
     .dia { overflow-x:auto; scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
