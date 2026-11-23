@@ -1,5 +1,7 @@
 # KV-Diagramm
 
+**Zur Seite: https://rouvenspinnt.github.io/kv-diagramm/**
+
 Wertetabelle eintragen, KV-Diagramm mit Blöcken, minimale DNF/KNF und Logikplan ablesen.
 Läuft ohne Server und ohne Abhängigkeiten — `index.html` im Browser öffnen genügt.
 
