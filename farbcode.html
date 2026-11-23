@@ -117,7 +117,7 @@
            '<select data-ring="' + k + '">' + options(list, sel) + '</select></div></label>';
     });
     $('rings').innerHTML = h;
-    ET.buildHelp($('rings'));
+    if (ET.buildHelp) ET.buildHelp($('rings'));  // älteres et.js aus dem Browser-Cache darf die Ringe nicht lahmlegen
     Array.prototype.forEach.call($('rings').querySelectorAll('select'), function (s) { s.onchange = read; });
     read();
   }
