@@ -24,6 +24,17 @@ Läuft ohne Server und ohne Abhängigkeiten — `index.html` im Browser öffnen 
 
 Eingaben verstehen Vorsätze und Schreibweisen wie `4k7`, `2.2k`, `0,1µF`, `20m`.
 
+## Schaltbilder
+
+Ohm, LED/Teiler und Wechselstrom zeichnen die Schaltung, um die es gerade geht, und
+beschriften sie mit den eingegebenen Werten — Symbole nach IEC 60617. Die Wechselstromseite
+zeigt zusätzlich das Zeigerdiagramm: R waagerecht, X senkrecht, Z als schräger Zeiger, mit
+dem Phasenwinkel als Bogen. Bei Last erscheint im Teiler ein zweiter Zweig.
+Die SVG-Bausteine liegen gemeinsam in `draw.js`.
+
+Bewegung (einlaufende Tafeln, sich zeichnende Leitungen, hervorgehobene neue Messwerte) ist
+durchweg Zugabe: unter `prefers-reduced-motion: reduce` bleibt alles stehen und vollständig.
+
 ## Hilfe an den Feldern
 
 Neben jedem Eingabefeld steht ein `?`. Daraufzeigen oder antippen erklärt, was der Wert bedeutet, woher er kommt und wo man ihn findet — Datenblatt, Aufdruck oder Messung.

@@ -26,20 +26,77 @@
         <label class="f" data-help="Die Kapazität des Kondensators in Farad. Der Aufdruck 104 heißt 10 · 10⁴ pF = 100 nF. Leer lassen, wenn in der Schaltung kein Kondensator sitzt."><span>Kapazität C</span><div class="row"><input id="c" placeholder="leer = ohne"><span class="unit">F</span></div></label>
         <label class="f" data-help="Die anliegende Wechselspannung als Effektivwert. Nur nötig, wenn du auch den Strom wissen willst — ohne sie kommen nur die Widerstände heraus."><span>Spannung U (optional)</span><div class="row"><input id="u" placeholder="für Strom"><span class="unit">V</span></div></label>
       </div>
+      <div id="dia"></div>
       <div class="out" id="out"></div>
       <p class="note" id="note"></p>
       <p class="note formula">X_L = 2πfL   X_C = 1/(2πfC)   Z = √(R² + (X_L − X_C)²)   f₀ = 1/(2π√(LC))</p>
     </div>
   </section>
+
+  <section class="panel">
+    <h2>Zeigerdiagramm <span class="tag" id="zart"></span></h2>
+    <div class="body">
+      <p class="caption">R waagerecht, X senkrecht — die Länge des schrägen Zeigers ist Z, sein Winkel φ.</p>
+      <div id="zeiger"></div>
+    </div>
+  </section>
 </main>
 
 <script src="et.js"></script>
+<script src="draw.js"></script>
 <script>
 (function () {
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
   function v(id) { return ET.parseVal($(id).value); }
   function tile(k, val) { return '<div><div class="k">' + k + '</div><div class="v">' + val + '</div></div>'; }
+
+  function g(x, u) { return isFinite(x) ? ET.fmt(x, u) : '?'; }
+
+  // Reihenschaltung: Quelle, R, L, C — nur was eingetragen ist
+  function diaKreis(f, r, l, c, hasL, hasC) {
+    var inner =
+      D.wire('72,76 72,48 153,48') + D.wire('207,48 263,48') +
+      D.wire('317,48 395,48') + D.wire('405,48 488,48 488,138 72,138 72,110') +
+      D.source(72, 93, true) + D.res(180, 48) +
+      (hasL ? D.coil(290, 48) : D.wire('263,48 317,48')) +
+      (hasC ? D.cap(400, 48) : D.wire('395,48 405,48')) +
+      D.text(180, 26, 'R ' + g(r, 'Ω'), 'val') +
+      (hasL ? D.text(290, 26, 'L ' + g(l, 'H'), 'val') : '') +
+      (hasC ? D.text(400, 26, 'C ' + g(c, 'F'), 'val') : '') +
+      D.text(150, 97, 'f = ' + g(f, 'Hz'), 'val');
+    D.mount($('dia'), D.svg(560, 170, 'Reihenschaltung aus R, L und C an Wechselspannung', inner));
+  }
+
+  // Zeigerdiagramm: R nach rechts, X nach oben (induktiv) oder unten (kapazitiv)
+  function diaZeiger(r, x, z, phi) {
+    var gross = Math.max(r, Math.abs(x));
+    if (!(gross > 0)) { $('zeiger').innerHTML = ''; $('zeiger').dataset.drawn = ''; return; }
+    var k = 100 / gross, ox = 56, oy = 140;
+    var rx = r * k, xy = x * k, tx = ox + rx, ty = oy - xy;
+    var rad = 30, a = phi * Math.PI / 180;
+    // Lot auf die Hypotenuse, vom rechten Winkel weg: dort steht Z frei
+    var hl = Math.hypot(rx / 2, xy / 2) || 1;
+    var nx = -(rx / 2) / hl * 24, ny = -(xy / 2) / hl * 24;
+    var bogen = rx > 4 ? '<path class="dim late" d="M' + (ox + rad) + ' ' + oy + 'A' + rad + ' ' + rad +
+        ' 0 0 ' + (xy > 0 ? 0 : 1) + ' ' + (ox + rad * Math.cos(a)).toFixed(1) + ' ' +
+        (oy - rad * Math.sin(a)).toFixed(1) + '"/>' : '';
+    var inner =
+      '<path class="wire late" d="M' + (ox - 16) + ' ' + oy + 'H' + (ox + 150) + 'M' + ox + ' 34V246" ' +
+        'stroke-width="1" opacity=".3" fill="none"/>' +
+      D.wire(ox + ',' + oy + ' ' + tx + ',' + oy, 'hot') +
+      D.wire(tx + ',' + oy + ' ' + tx + ',' + ty, 'hot') +
+      '<path class="draw" d="M' + ox + ' ' + oy + 'L' + tx + ' ' + ty +
+        '" stroke="var(--accent)" stroke-width="2.6" fill="none" stroke-linecap="round"/>' +
+      bogen + D.dot(ox, oy) +
+      // Beschriftungen nach aussen kippen, damit sie nicht im Dreieck landen
+      D.text(Math.max(44, ox + rx / 2), oy + (xy > 0 ? 20 : -12), 'R ' + g(r, 'Ω'), 'val') +
+      (Math.abs(xy) > 6 ? D.text(tx + 46, oy - xy / 2 + 4, 'X ' + (x > 0 ? '+' : '') + g(x, 'Ω'), 'val') : '') +
+      D.text(ox + rx / 2 + nx, oy - xy / 2 + ny + 4, 'Z ' + g(z, 'Ω'), 'val') +
+      (bogen ? D.text(ox + (rad + 32) * Math.cos(a / 2), oy - (rad + 32) * Math.sin(a / 2) + 4,
+                      'φ ' + phi.toFixed(1) + ' °', 'val') : '');
+    D.mount($('zeiger'), D.svg(360, 260, 'Zeigerdiagramm von R, X und Z', inner));
+  }
 
   function calc() {
     var f = v('f'), r = v('r'), l = v('l'), c = v('c'), u = v('u');
@@ -51,7 +108,10 @@
     }
     if (!isFinite(r)) r = 0;
     var hasL = isFinite(l) && l > 0, hasC = isFinite(c) && c > 0;
+    diaKreis(f, r, l, c, hasL, hasC);
     if (!hasL && !hasC) {
+      diaZeiger(r, 0, r, 0);
+      $('zart').textContent = '';
       $('out').innerHTML = '';
       $('note').className = 'note bad';
       $('note').textContent = 'Mindestens L oder C eintragen.';
@@ -59,6 +119,9 @@
     }
     var XL = hasL ? ET.xl(f, l) : 0, XC = hasC ? ET.xc(f, c) : 0;
     var z = ET.impedance(r, XL - XC);
+    diaZeiger(r, XL - XC, z.Z, z.phi);
+    $('zart').textContent = Math.abs(XL - XC) < z.Z * 1e-9 ? 'rein ohmsch'
+                          : (XL - XC > 0 ? 'induktiv' : 'kapazitiv');
     var out = (hasL ? tile('X_L', ET.fmt(XL, 'Ω')) : '') +
               (hasC ? tile('X_C', ET.fmt(XC, 'Ω')) : '') +
               tile('X = X_L − X_C', ET.fmt(XL - XC, 'Ω')) +

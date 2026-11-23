@@ -26,6 +26,7 @@
         <label class="f" data-help="Wie viele LEDs hintereinander am selben Vorwiderstand hängen. Ihre Flussspannungen addieren sich, also muss n · U_F deutlich unter U_q bleiben."><span>LEDs in Reihe</span><div class="row"><input id="nled" value="1" inputmode="numeric"><span class="unit">×</span></div></label>
         <label class="f" data-help="Aus welcher Reihe der Vorschlag kommt. E24 hat 24 Werte je Dekade und trifft genauer, E6 nur 6. Nimm die Reihe, die du in der Schublade hast."><span>Normreihe</span><div class="row"><select id="serie"><option>E24</option><option>E12</option><option>E6</option></select></div></label>
       </div>
+      <div id="dia1"></div>
       <div class="out" id="out1"></div>
       <p class="note" id="note1"></p>
       <p class="note formula">R = (U<sub>q</sub> − n · U<sub>F</sub>) / I<sub>F</sub></p>
@@ -41,6 +42,7 @@
         <label class="f" data-help="Der untere Widerstand, zwischen Abgriff und Masse. Die Ausgangsspannung ist die Spannung über R2."><span>R2</span><div class="row"><input id="r2" value="4k7"><span class="unit">Ω</span></div></label>
         <label class="f" data-help="Der Widerstand, den die angeschlossene Schaltung darstellt; er liegt parallel zu R2 und zieht die Ausgangsspannung herunter. Leer lassen für den unbelasteten Teiler. Faustregel: R_L mindestens 10-mal so groß wie R2."><span>Last R<sub>L</sub> (optional)</span><div class="row"><input id="rl" placeholder="leer = unbelastet"><span class="unit">Ω</span></div></label>
       </div>
+      <div id="dia2"></div>
       <div class="out" id="out2"></div>
       <p class="note" id="note2"></p>
       <p class="note formula">U<sub>a</sub> = U<sub>e</sub> · R2 / (R1 + R2)</p>
@@ -49,6 +51,7 @@
 </main>
 
 <script src="et.js"></script>
+<script src="draw.js"></script>
 <script>
 (function () {
   'use strict';
@@ -56,10 +59,43 @@
   function v(id) { return ET.parseVal($(id).value); }
   function tile(k, val) { return '<div><div class="k">' + k + '</div><div class="v">' + val + '</div></div>'; }
 
+  function g(x, u) { return isFinite(x) ? ET.fmt(x, u) : '?'; }
+
+  // LED-Kreis: Quelle, Vorwiderstand, LED-Kette
+  function diaLed(uq, ur, uf, n, i, rn) {
+    var inner =
+      D.wire('72,76 72,48 203,48') + D.wire('257,48 349,48') +
+      D.wire('369,48 448,48 448,138 72,138 72,110') +
+      D.source(72, 93) + D.res(230, 48) + D.led(360, 48) + D.flow(150, 48) +
+      D.text(150, 34, 'I = ' + g(i, 'A'), 'val') +
+      D.text(230, 26, 'R ' + g(rn, 'Ω'), 'val') +
+      D.text(230, 80, g(ur, 'V'), 'val') +
+      D.text(362, 80, (n > 1 ? n + ' × ' : '') + g(uf, 'V'), 'val') +
+      D.text(140, 97, 'U_q = ' + g(uq, 'V'), 'val');
+    D.mount($('dia1'), D.svg(520, 170, 'LED mit Vorwiderstand an einer Quelle', inner));
+  }
+
+  // Spannungsteiler, bei Last mit zweitem Zweig
+  function diaTeiler(ue, r1, r2, rl, ua) {
+    var hasL = isFinite(rl) && rl > 0;
+    var inner =
+      D.wire('160,22 160,38') + D.wire('160,92 160,118') + D.wire('160,172 160,188') +
+      D.res(160, 65, true) + D.res(160, 145, true) + D.ground(160, 190) +
+      D.dot(160, 118) + D.wire('160,118 212,118') +
+      D.text(160, 14, 'U_e = ' + g(ue, 'V'), 'val') +
+      D.text(104, 69, 'R1 ' + g(r1, 'Ω'), 'val') +
+      D.text(104, 149, 'R2 ' + g(r2, 'Ω'), 'val') +
+      D.text(268, 108, 'U_a = ' + g(ua, 'V'), 'val') +
+      (hasL ? D.wire('212,118 330,118 330,122') + D.wire('330,168 330,190 160,190') +
+              D.res(330, 145, true) + D.text(386, 149, 'R_L ' + g(rl, 'Ω'), 'val') : '');
+    D.mount($('dia2'), D.svg(440, 212, 'Spannungsteiler aus R1 und R2', inner));
+  }
+
   function led() {
     var uq = v('uq'), uf = v('uf'), i = v('if'), n = Math.max(1, Math.round(v('nled')) || 1);
     var serie = $('serie').value;
     if (![uq, uf, i].every(isFinite) || i <= 0) {
+      diaLed(uq, NaN, uf, n, i, NaN);
       $('out1').innerHTML = '';
       $('note1').className = 'note bad';
       $('note1').textContent = 'Versorgung, Flussspannung und Strom werden gebraucht (Strom größer als 0).';
@@ -67,6 +103,7 @@
     }
     var rest = uq - n * uf;
     if (rest <= 0) {
+      diaLed(uq, rest, uf, n, i, NaN);
       $('out1').innerHTML = '';
       $('note1').className = 'note bad';
       $('note1').textContent = n + ' LED(s) brauchen ' + ET.fmt(n * uf, 'V') + ' – das ist mehr als die Versorgung von ' +
@@ -74,6 +111,7 @@
       return;
     }
     var r = rest / i, rn = ET.nearestE(r, serie), iReal = rest / rn;
+    diaLed(uq, rest, uf, n, iReal, rn);
     $('out1').innerHTML =
       tile('Rechnerisch R', ET.fmt(r, 'Ω')) +
       tile('Normwert ' + serie, ET.fmt(rn, 'Ω')) +
@@ -91,12 +129,13 @@
   function teiler() {
     var ue = v('ue'), r1 = v('r1'), r2 = v('r2'), rl = v('rl');
     if (![ue, r1, r2].every(isFinite) || r1 <= 0 || r2 <= 0) {
+      diaTeiler(ue, r1, r2, rl, NaN);
       $('out2').innerHTML = '';
       $('note2').className = 'note bad';
       $('note2').textContent = 'U_e, R1 und R2 werden gebraucht, R1 und R2 größer als 0.';
       return;
     }
-    var ua = ue * r2 / (r1 + r2), i = ue / (r1 + r2);
+    var ua = ue * r2 / (r1 + r2), i = ue / (r1 + r2), gezeigt = ua;
     var out = tile('U_a unbelastet', ET.fmt(ua, 'V')) +
               tile('Querstrom', ET.fmt(i, 'A')) +
               tile('Verlust R1', ET.fmt(i * i * r1, 'W')) +
@@ -104,11 +143,13 @@
     var note = 'Faustregel: der Querstrom sollte rund zehnmal so groß sein wie der Strom der Last.';
     if (isFinite(rl) && rl > 0) {
       var r2p = (r2 * rl) / (r2 + rl), uab = ue * r2p / (r1 + r2p);
+      gezeigt = uab;
       out += tile('U_a belastet', ET.fmt(uab, 'V')) +
              tile('R2 ∥ R_L', ET.fmt(r2p, 'Ω')) +
              tile('Einbruch', (ua ? ((uab - ua) / ua * 100).toFixed(1) : '0') + ' %');
       note = 'Die Last zieht die Ausgangsspannung von ' + ET.fmt(ua, 'V') + ' auf ' + ET.fmt(uab, 'V') + '. ' + note;
     }
+    diaTeiler(ue, r1, r2, rl, gezeigt);
     $('out2').innerHTML = out;
     $('note2').className = 'note';
     $('note2').textContent = note;

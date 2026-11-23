@@ -235,6 +235,37 @@
     });
   };
 
+  // Bewegung ist Zugabe: wer sie abgestellt hat, bekommt dieselbe Seite ohne sie.
+  function reduced() {
+    return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+  api.reduced = reduced;
+
+  // Geaenderte Messwerte kurz hervorheben. Ein Beobachter je Ergebnisblock,
+  // die Rechner selbst muessen davon nichts wissen.
+  function watchValues() {
+    if (reduced() || typeof MutationObserver === 'undefined') return;
+    Array.prototype.forEach.call(document.querySelectorAll('.out'), function (box) {
+      var last = {}, first = true;
+      function scan() {
+        Array.prototype.forEach.call(box.children, function (cell) {
+          var k = cell.querySelector('.k'), v = cell.querySelector('.v');
+          if (!k || !v) return;
+          var key = k.textContent, now = v.textContent;
+          if (!first && last[key] !== undefined && last[key] !== now) {
+            v.classList.remove('bump'); cell.classList.remove('bump');
+            void v.offsetWidth;                      // erzwingt den Neustart der Animation
+            v.classList.add('bump'); cell.classList.add('bump');
+          }
+          last[key] = now;
+        });
+        first = false;
+      }
+      scan();
+      new MutationObserver(scan).observe(box, { childList: true, subtree: true, characterData: true });
+    });
+  }
+
   function bindHelp() {
     api.buildHelp();
     document.addEventListener('mouseover', function (e) {
@@ -257,5 +288,5 @@
   }
 
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
-  else { global.ET = api; if (global.document) document.addEventListener('DOMContentLoaded', function () { api.buildNav(); bindHelp(); }); }
+  else { global.ET = api; if (global.document) document.addEventListener('DOMContentLoaded', function () { api.buildNav(); bindHelp(); watchValues(); }); }
 })(typeof window !== 'undefined' ? window : globalThis);

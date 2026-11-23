@@ -25,6 +25,7 @@
         <label class="f" data-help="Der Widerstandswert in Ohm — vom Farbcode, vom Aufdruck oder im spannungsfreien Zustand gemessen. Eingabe z. B. 4k7 für 4,7 kΩ."><span>Widerstand R</span><div class="row"><input id="r" inputmode="decimal" placeholder="z. B. 4k7"><span class="unit">Ω</span></div></label>
         <label class="f" data-help="Die im Bauteil umgesetzte Leistung in Watt, also Wärme. Sie entscheidet über die Baugröße: ein 1/4-W-Widerstand verträgt 0,25 W. Die Belastbarkeit steht im Datenblatt."><span>Leistung P</span><div class="row"><input id="p" inputmode="decimal" placeholder="z. B. 6"><span class="unit">W</span></div></label>
       </div>
+      <div id="dia"></div>
       <div class="out" id="out"></div>
       <p class="note" id="note"></p>
       <p class="note formula" id="used"></p>
@@ -34,6 +35,7 @@
 </main>
 
 <script src="et.js"></script>
+<script src="draw.js"></script>
 <script>
 (function () {
   'use strict';
@@ -50,6 +52,20 @@
     RP: 'U = √(P · R)  I = √(P / R)'
   };
 
+  function f(x, u) { return isFinite(x) ? ET.fmt(x, u) : '?'; }
+
+  // Stromkreis: Quelle links, Widerstand oben, Strom im Uhrzeigersinn
+  function dia(v) {
+    var inner =
+      D.wire('72,76 72,48 273,48') + D.wire('327,48 448,48 448,138 72,138 72,110') +
+      D.source(72, 93) + D.res(300, 48) + D.flow(170, 48) +
+      D.text(170, 34, 'I = ' + f(v.I, 'A'), 'val') +
+      D.text(300, 28, 'R = ' + f(v.R, 'Ω'), 'val') +
+      D.text(142, 97, 'U = ' + f(v.U, 'V'), 'val') +
+      D.text(320, 97, 'P = ' + f(v.P, 'W'), 'val');
+    D.mount($('dia'), D.svg(520, 170, 'Stromkreis aus Quelle und Widerstand', inner));
+  }
+
   function calc() {
     var v = { U: NaN, I: NaN, R: NaN, P: NaN };
     Object.keys(FIELDS).forEach(function (id) {
@@ -59,6 +75,7 @@
       v[FIELDS[id]] = x;
     });
     var res = ET.solveOhm(v);
+    dia(res.error ? v : res);
     if (res.error) {
       $('out').innerHTML = '';
       $('used').textContent = '';
