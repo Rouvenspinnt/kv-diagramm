@@ -1,6 +1,6 @@
-# Mechatronik-Werkzeuge
+# Mechatroniker-Werkbank
 
-**Zur Seite: https://rouvenspinnt.github.io/kv-diagramm/**
+**Zur Seite: https://rouvenspinnt.github.io/mechatroniker-werkbank/**
 
 Rechnen und nachschlagen, ohne vorher zu wissen, wo es steht.
 `index.html` ist die Startseite: ein Suchfeld über alle Werkzeuge, ein Formelfeld

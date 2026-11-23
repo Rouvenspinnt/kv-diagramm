@@ -50,6 +50,11 @@
   main { padding-top:var(--s5); }
   .panel { background:var(--panel); border:1px solid var(--line); border-radius:var(--r-panel);
            position:relative; overflow:hidden; box-shadow:var(--schatten); }
+  /* Panels stehen untereinander mit Luft dazwischen, sonst stossen zwei gerundete
+     Ecken aufeinander und der Schatten laeuft ins Leere. .stack bringt den
+     Abstand als gap schon selbst mit. */
+  .panel + .panel { margin-top:var(--s4); }
+  .stack > .panel { margin-top:0; }
   .panel::before {                                 /* feiner Lichtkantenstrich oben */
     content:''; position:absolute; inset:0 0 auto; height:1px;
     background:linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 45%, transparent), transparent);
@@ -218,6 +223,7 @@
     .cols { display:block; }
     .stack { gap:10px; }
     .panel { border:1px solid #bbb; border-radius:0; margin-bottom:10px; break-inside:avoid; }
+    .panel + .panel { margin-top:0; }      /* im Druck reicht der margin-bottom */
     .panel > h2 { padding:6px 10px; }
     .body { padding:10px; }
     #tt { max-height:none; overflow:visible; margin-top:0; border:0; }
