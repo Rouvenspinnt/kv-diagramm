@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Widerstands-Farbcode</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Widerstands-Farbcode</h1>
+    <p>Ringe ablesen oder einen Wert in Ringe umsetzen — in beide Richtungen.</p>
+    <nav class="nav" id="nav" aria-label="Werkzeuge"></nav>
+  </div>
+</header>
+
+<main class="wrap narrow">
+  <section class="panel">
+    <h2>Ringe ablesen</h2>
+    <div class="body">
+      <div class="rowline">
+        <div class="field">
+          <div class="seg" id="count" role="group" aria-label="Anzahl der Ringe">
+            <button data-n="4">4 Ringe</button><button data-n="5">5 Ringe</button><button data-n="6">6 Ringe</button>
+          </div>
+        </div>
+      </div>
+      <div class="fields" id="rings" style="margin-top:12px"></div>
+      <div id="draw1"></div>
+      <div class="out" id="out1"></div>
+      <p class="note" id="note1"></p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Wert in Ringe umsetzen</h2>
+    <div class="body">
+      <div class="fields">
+        <label class="f"><span>Widerstand</span><div class="row"><input id="val" placeholder="4k7"><span class="unit">Ω</span></div></label>
+        <label class="f"><span>Ringe</span><div class="row"><select id="count2"><option value="4">4</option><option value="5">5</option></select></div></label>
+        <label class="f"><span>Toleranz</span><div class="row"><select id="tol2"></select></div></label>
+      </div>
+      <div id="draw2"></div>
+      <div class="out" id="out2"></div>
+      <p class="note" id="note2"></p>
+    </div>
+  </section>
+</main>
+
+<script src="et.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var C = ET.COLORS;
+  var digits = [], mults = [], tols = [], tks = [];
+  C.forEach(function (c, i) {
+    if (c.d !== undefined) digits.push(i);
+    if (c.m !== undefined) mults.push(i);
+    if (c.tol !== undefined) tols.push(i);
+    if (c.tk !== undefined) tks.push(i);
+  });
+
+  function options(list, sel) {
+    return list.map(function (i) {
+      return '<option value="' + i + '"' + (i === sel ? ' selected' : '') + '>' + C[i].n + '</option>';
+    }).join('');
+  }
+
+  function drawResistor(bands) {                 // Bauteil mit Ringen zeichnen
+    var W = 300, H = 74, bx = 54, bw = 192, by = 17, bh = 40;
+    var o = ['<svg class="res-svg" viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '" role="img" aria-label="Widerstand mit Farbringen">'];
+    o.push('<line class="lead" x1="2" y1="37" x2="' + bx + '" y2="37"/>');
+    o.push('<line class="lead" x1="' + (bx + bw) + '" y1="37" x2="' + (W - 2) + '" y2="37"/>');
+    o.push('<rect class="body" x="' + bx + '" y="' + by + '" width="' + bw + '" height="' + bh + '" rx="9"/>');
+    var main = bands.length >= 5 ? bands.length - 1 : bands.length - 1;
+    bands.forEach(function (ci, k) {
+      var last = k === bands.length - 1 && bands.length >= 4;
+      var x = last ? bx + bw - 26 : bx + 16 + k * 24;
+      o.push('<rect class="band" x="' + x + '" y="' + (by - 3) + '" width="13" height="' + (bh + 6) +
+             '" rx="2" fill="' + C[ci].hex + '"/>');
+    });
+    return o.join('') + '</svg>';
+  }
+
+  var n = 4;
+  function buildRings() {
+    Array.prototype.forEach.call($('count').children, function (b) {
+      b.setAttribute('aria-pressed', String(+b.dataset.n === n));
+    });
+    var labels = n >= 5 ? ['1. Ziffer', '2. Ziffer', '3. Ziffer', 'Multiplikator', 'Toleranz']
+                        : ['1. Ziffer', '2. Ziffer', 'Multiplikator', 'Toleranz'];
+    if (n === 6) labels.push('Temperaturkoeffizient');
+    var pre = n >= 5 ? [1, 0, 0, 2, 1] : [4, 7, 2, 10];
+    if (n === 6) pre = [1, 0, 0, 2, 1, 2];
+    var h = '';
+    labels.forEach(function (lab, k) {
+      var list = /Ziffer/.test(lab) ? digits : /Multi/.test(lab) ? mults : /Toleranz/.test(lab) ? tols : tks;
+      var sel = list.indexOf(pre[k]) >= 0 ? pre[k] : list[0];
+      h += '<label class="f"><span>' + lab + '</span><div class="row swatch-row">' +
+           '<span class="chip" data-chip="' + k + '"></span>' +
+           '<select data-ring="' + k + '">' + options(list, sel) + '</select></div></label>';
+    });
+    $('rings').innerHTML = h;
+    Array.prototype.forEach.call($('rings').querySelectorAll('select'), function (s) { s.onchange = read; });
+    read();
+  }
+
+  function read() {
+    var sels = $('rings').querySelectorAll('select');
+    var bands = Array.prototype.map.call(sels, function (s) { return +s.value; });
+    bands.forEach(function (ci, k) {
+      var chip = $('rings').querySelector('[data-chip="' + k + '"]');
+      if (chip) chip.style.background = C[ci].hex;
+    });
+    $('draw1').innerHTML = drawResistor(bands);
+    var r = ET.bandsToValue(bands);
+    if (r.error) {
+      $('out1').innerHTML = '';
+      $('note1').className = 'note bad';
+      $('note1').textContent = r.error;
+      return;
+    }
+    var tol = r.tol, lo = tol ? r.value * (1 - tol / 100) : null, hi = tol ? r.value * (1 + tol / 100) : null;
+    $('out1').innerHTML =
+      '<div><div class="k">Widerstand</div><div class="v">' + ET.fmt(r.value, 'Ω') + '</div></div>' +
+      '<div><div class="k">Toleranz</div><div class="v">' + (tol !== null ? '± ' + tol + ' %' : '–') + '</div></div>' +
+      (tol !== null ? '<div><div class="k">Bereich</div><div class="v">' + ET.fmt(lo, 'Ω') + ' … ' + ET.fmt(hi, 'Ω') + '</div></div>' : '') +
+      (r.tk !== null ? '<div><div class="k">TK</div><div class="v">' + r.tk + ' ppm/K</div></div>' : '');
+    $('note1').className = 'note';
+    $('note1').textContent = 'Gelesen wird vom Ring, der am dichtesten am Rand sitzt — der Toleranzring steht abgesetzt am anderen Ende.';
+  }
+
+  function write() {
+    var v = ET.parseVal($('val').value), cnt = +$('count2').value, tol = parseFloat($('tol2').value);
+    if (!isFinite(v) || v <= 0) {
+      $('draw2').innerHTML = ''; $('out2').innerHTML = '';
+      $('note2').className = 'note';
+      $('note2').textContent = 'Wert eintragen, z. B. 4k7, 100, 1M.';
+      return;
+    }
+    var r = ET.valueToBands(v, cnt, tol);
+    if (r.error) {
+      $('draw2').innerHTML = ''; $('out2').innerHTML = '';
+      $('note2').className = 'note bad';
+      $('note2').textContent = r.error + '. Nächster Normwert: ' + ET.fmt(ET.nearestE(v, cnt >= 5 ? 'E24' : 'E24'), 'Ω') + '.';
+      return;
+    }
+    $('draw2').innerHTML = drawResistor(r.bands);
+    $('out2').innerHTML = '<div style="grid-column:1/-1"><div class="k">Ringe von links</div><div class="v">' +
+      r.bands.map(function (ci) {
+        return '<span class="swatch-row" style="display:inline-flex;margin-right:10px"><span class="chip" style="background:' +
+               C[ci].hex + '"></span>' + C[ci].n + '</span>';
+      }).join('') + '</div></div>';
+    $('note2').className = 'note';
+    var e24 = ET.nearestE(v, 'E24');
+    $('note2').textContent = Math.abs(e24 - v) < v * 1e-9
+      ? 'Das ist ein Normwert der Reihe E24.'
+      : 'Nächster E24-Normwert wäre ' + ET.fmt(e24, 'Ω') + '.';
+  }
+
+  $('tol2').innerHTML = tols.map(function (i) {
+    return '<option value="' + C[i].tol + '"' + (C[i].tol === 5 ? ' selected' : '') + '>± ' + C[i].tol + ' % (' + C[i].n + ')</option>';
+  }).join('');
+  $('count').onclick = function (e) {
+    var b = e.target.closest('button[data-n]');
+    if (b) { n = +b.dataset.n; buildRings(); }
+  };
+  $('val').oninput = write; $('count2').onchange = write; $('tol2').onchange = write;
+  $('val').value = '4k7';
+  buildRings(); write();
+})();
+</script>
+</body>
+</html>

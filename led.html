@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LED-Vorwiderstand &amp; Spannungsteiler</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>LED-Vorwiderstand &amp; Spannungsteiler</h1>
+    <p>Zwei Schaltungen, die man ständig braucht — mit Normwert und Verlustleistung.</p>
+    <nav class="nav" id="nav" aria-label="Werkzeuge"></nav>
+  </div>
+</header>
+
+<main class="wrap narrow">
+  <section class="panel">
+    <h2>Vorwiderstand für LEDs</h2>
+    <div class="body">
+      <div class="fields">
+        <label class="f"><span>Versorgung U<sub>q</sub></span><div class="row"><input id="uq" value="12"><span class="unit">V</span></div></label>
+        <label class="f"><span>Flussspannung U<sub>F</sub></span><div class="row"><input id="uf" value="2.1"><span class="unit">V</span></div></label>
+        <label class="f"><span>Strom I<sub>F</sub></span><div class="row"><input id="if" value="20m"><span class="unit">A</span></div></label>
+        <label class="f"><span>LEDs in Reihe</span><div class="row"><input id="nled" value="1" inputmode="numeric"><span class="unit">×</span></div></label>
+        <label class="f"><span>Normreihe</span><div class="row"><select id="serie"><option>E24</option><option>E12</option><option>E6</option></select></div></label>
+      </div>
+      <div class="out" id="out1"></div>
+      <p class="note" id="note1"></p>
+      <p class="note formula">R = (U<sub>q</sub> − n · U<sub>F</sub>) / I<sub>F</sub></p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Spannungsteiler</h2>
+    <div class="body">
+      <div class="fields">
+        <label class="f"><span>Eingang U<sub>e</sub></span><div class="row"><input id="ue" value="24"><span class="unit">V</span></div></label>
+        <label class="f"><span>R1</span><div class="row"><input id="r1" value="10k"><span class="unit">Ω</span></div></label>
+        <label class="f"><span>R2</span><div class="row"><input id="r2" value="4k7"><span class="unit">Ω</span></div></label>
+        <label class="f"><span>Last R<sub>L</sub> (optional)</span><div class="row"><input id="rl" placeholder="leer = unbelastet"><span class="unit">Ω</span></div></label>
+      </div>
+      <div class="out" id="out2"></div>
+      <p class="note" id="note2"></p>
+      <p class="note formula">U<sub>a</sub> = U<sub>e</sub> · R2 / (R1 + R2)</p>
+    </div>
+  </section>
+</main>
+
+<script src="et.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  function v(id) { return ET.parseVal($(id).value); }
+  function tile(k, val) { return '<div><div class="k">' + k + '</div><div class="v">' + val + '</div></div>'; }
+
+  function led() {
+    var uq = v('uq'), uf = v('uf'), i = v('if'), n = Math.max(1, Math.round(v('nled')) || 1);
+    var serie = $('serie').value;
+    if (![uq, uf, i].every(isFinite) || i <= 0) {
+      $('out1').innerHTML = '';
+      $('note1').className = 'note bad';
+      $('note1').textContent = 'Versorgung, Flussspannung und Strom werden gebraucht (Strom größer als 0).';
+      return;
+    }
+    var rest = uq - n * uf;
+    if (rest <= 0) {
+      $('out1').innerHTML = '';
+      $('note1').className = 'note bad';
+      $('note1').textContent = n + ' LED(s) brauchen ' + ET.fmt(n * uf, 'V') + ' – das ist mehr als die Versorgung von ' +
+        ET.fmt(uq, 'V') + '. Weniger LEDs in Reihe oder höhere Versorgung.';
+      return;
+    }
+    var r = rest / i, rn = ET.nearestE(r, serie), iReal = rest / rn;
+    $('out1').innerHTML =
+      tile('Rechnerisch R', ET.fmt(r, 'Ω')) +
+      tile('Normwert ' + serie, ET.fmt(rn, 'Ω')) +
+      tile('Strom damit', ET.fmt(iReal, 'A')) +
+      tile('Verlust am R', ET.fmt(iReal * iReal * rn, 'W')) +
+      tile('Spannung am R', ET.fmt(rest, 'V'));
+    var pr = iReal * iReal * rn, abw = (iReal - i) / i * 100;
+    var hints = [];
+    if (pr > 0.25) hints.push('Verlustleistung über 0,25 W – größere Bauform wählen (' + ET.fmt(pr, 'W') + ').');
+    if (Math.abs(abw) > 10) hints.push('Der Normwert verschiebt den Strom um ' + abw.toFixed(0) + ' %.');
+    $('note1').className = 'note' + (pr > 0.25 ? ' bad' : '');
+    $('note1').textContent = hints.join(' ') || 'Passt: der Normwert liegt nah am rechnerischen Wert.';
+  }
+
+  function teiler() {
+    var ue = v('ue'), r1 = v('r1'), r2 = v('r2'), rl = v('rl');
+    if (![ue, r1, r2].every(isFinite) || r1 <= 0 || r2 <= 0) {
+      $('out2').innerHTML = '';
+      $('note2').className = 'note bad';
+      $('note2').textContent = 'U_e, R1 und R2 werden gebraucht, R1 und R2 größer als 0.';
+      return;
+    }
+    var ua = ue * r2 / (r1 + r2), i = ue / (r1 + r2);
+    var out = tile('U_a unbelastet', ET.fmt(ua, 'V')) +
+              tile('Querstrom', ET.fmt(i, 'A')) +
+              tile('Verlust R1', ET.fmt(i * i * r1, 'W')) +
+              tile('Verlust R2', ET.fmt(i * i * r2, 'W'));
+    var note = 'Faustregel: der Querstrom sollte rund zehnmal so groß sein wie der Strom der Last.';
+    if (isFinite(rl) && rl > 0) {
+      var r2p = (r2 * rl) / (r2 + rl), uab = ue * r2p / (r1 + r2p);
+      out += tile('U_a belastet', ET.fmt(uab, 'V')) +
+             tile('R2 ∥ R_L', ET.fmt(r2p, 'Ω')) +
+             tile('Einbruch', (ua ? ((uab - ua) / ua * 100).toFixed(1) : '0') + ' %');
+      note = 'Die Last zieht die Ausgangsspannung von ' + ET.fmt(ua, 'V') + ' auf ' + ET.fmt(uab, 'V') + '. ' + note;
+    }
+    $('out2').innerHTML = out;
+    $('note2').className = 'note';
+    $('note2').textContent = note;
+  }
+
+  ['uq', 'uf', 'if', 'nled'].forEach(function (id) { $(id).oninput = led; });
+  $('serie').onchange = led;
+  ['ue', 'r1', 'r2', 'rl'].forEach(function (id) { $(id).oninput = teiler; });
+  led(); teiler();
+})();
+</script>
+</body>
+</html>

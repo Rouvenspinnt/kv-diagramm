@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ohm &amp; Leistung</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Ohm &amp; Leistung</h1>
+    <p>Zwei Größen eintragen — die anderen beiden stehen sofort da.</p>
+    <nav class="nav" id="nav" aria-label="Werkzeuge"></nav>
+  </div>
+</header>
+
+<main class="wrap narrow">
+  <section class="panel">
+    <h2>Ohmsches Gesetz <span class="tag">U · I · R · P</span></h2>
+    <div class="body">
+      <div class="fields">
+        <label class="f"><span>Spannung U</span><div class="row"><input id="u" inputmode="decimal" placeholder="z. B. 12"><span class="unit">V</span></div></label>
+        <label class="f"><span>Strom I</span><div class="row"><input id="i" inputmode="decimal" placeholder="z. B. 500m"><span class="unit">A</span></div></label>
+        <label class="f"><span>Widerstand R</span><div class="row"><input id="r" inputmode="decimal" placeholder="z. B. 4k7"><span class="unit">Ω</span></div></label>
+        <label class="f"><span>Leistung P</span><div class="row"><input id="p" inputmode="decimal" placeholder="z. B. 6"><span class="unit">W</span></div></label>
+      </div>
+      <div class="out" id="out"></div>
+      <p class="note" id="note"></p>
+      <p class="note formula" id="used"></p>
+      <p class="rowline" style="margin-top:12px"><button class="btn" id="clear">Felder leeren</button></p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Reihe und Parallel</h2>
+    <div class="body">
+      <div class="rowline">
+        <label class="f" style="flex:1 1 260px"><span>Werte, mit Komma getrennt</span>
+          <div class="row"><input id="list" placeholder="100, 220, 330"></div></label>
+        <div class="field">
+          <div class="seg" id="kind" role="group" aria-label="Bauteilart">
+            <button data-kind="R">Widerstände</button><button data-kind="C">Kondensatoren</button><button data-kind="L">Spulen</button>
+          </div>
+        </div>
+      </div>
+      <div class="out" id="out2"></div>
+      <p class="note" id="note2"></p>
+    </div>
+  </section>
+</main>
+
+<script src="et.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var FIELDS = { u: 'U', i: 'I', r: 'R', p: 'P' };
+  var UNIT = { U: 'V', I: 'A', R: 'Ω', P: 'W' };
+  var NAME = { U: 'Spannung', I: 'Strom', R: 'Widerstand', P: 'Leistung' };
+  var FORMULA = {
+    UI: 'R = U / I     P = U · I',
+    UR: 'I = U / R     P = U² / R',
+    UP: 'I = P / U     R = U² / P',
+    IR: 'U = R · I     P = R · I²',
+    IP: 'U = P / I     R = P / I²',
+    RP: 'U = √(P · R)  I = √(P / R)'
+  };
+
+  function calc() {
+    var v = { U: NaN, I: NaN, R: NaN, P: NaN };
+    Object.keys(FIELDS).forEach(function (id) {
+      var el = $(id), x = ET.parseVal(el.value);
+      el.classList.toggle('filled', isFinite(x));
+      el.classList.toggle('bad', el.value.trim() !== '' && !isFinite(x));
+      v[FIELDS[id]] = x;
+    });
+    var res = ET.solveOhm(v);
+    if (res.error) {
+      $('out').innerHTML = '';
+      $('used').textContent = '';
+      $('note').className = 'note';
+      $('note').textContent = res.given.length < 2
+        ? 'Noch ' + (2 - res.given.length) + ' Wert(e) eintragen.'
+        : 'Es sind ' + res.given.length + ' Werte eingetragen – genau zwei werden gebraucht.';
+      return;
+    }
+    var neg = ['U', 'I', 'R', 'P'].some(function (k) { return res[k] < 0; });
+    $('out').innerHTML = ['U', 'I', 'R', 'P'].map(function (k) {
+      var g = res.given.indexOf(k) >= 0;
+      return '<div><div class="k">' + NAME[k] + ' ' + k + '</div><div class="v">' + ET.fmt(res[k], UNIT[k]) +
+             (g ? ' <small>gegeben</small>' : '') + '</div></div>';
+    }).join('');
+    $('used').textContent = FORMULA[res.given.join('')] || '';
+    $('note').className = 'note' + (neg ? ' bad' : '');
+    $('note').textContent = neg ? 'Negative Werte ergeben hier keinen Sinn – Eingabe prüfen.' : '';
+  }
+
+  var kind = 'R', KUNIT = { R: 'Ω', C: 'F', L: 'H' };
+  function calc2() {
+    Array.prototype.forEach.call($('kind').children, function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.kind === kind));
+    });
+    var raw = $('list').value.split(/[,;\n]+/).filter(function (s) { return s.trim(); });
+    var nums = raw.map(ET.parseVal);
+    var bad = nums.some(function (x) { return !isFinite(x) || x <= 0; });
+    var c = ET.combine(nums, kind);
+    if (!c.n) {
+      $('out2').innerHTML = '';
+      $('note2').className = 'note';
+      $('note2').textContent = 'Mindestens zwei Werte eintragen, z. B. 100, 220, 330.';
+      return;
+    }
+    $('out2').innerHTML =
+      '<div><div class="k">In Reihe</div><div class="v">' + ET.fmt(c.series, KUNIT[kind]) + '</div></div>' +
+      '<div><div class="k">Parallel</div><div class="v">' + ET.fmt(c.parallel, KUNIT[kind]) + '</div></div>' +
+      '<div><div class="k">Bauteile</div><div class="v">' + c.n + '</div></div>';
+    $('note2').className = 'note' + (bad ? ' bad' : '');
+    $('note2').textContent = bad ? 'Ein Eintrag ist keine gültige positive Zahl und wurde übersprungen.'
+      : (kind === 'C' ? 'Bei Kondensatoren ist es umgekehrt: parallel addieren sich die Kapazitäten.' : '');
+  }
+
+  Object.keys(FIELDS).forEach(function (id) { $(id).oninput = calc; });
+  $('clear').onclick = function () {
+    Object.keys(FIELDS).forEach(function (id) { $(id).value = ''; });
+    calc();
+  };
+  $('list').oninput = calc2;
+  $('kind').onclick = function (e) {
+    var b = e.target.closest('button[data-kind]');
+    if (b) { kind = b.dataset.kind; calc2(); }
+  };
+  calc(); calc2();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wechselstrom &amp; Resonanz</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Wechselstrom &amp; Resonanz</h1>
+    <p>Blindwiderstände, Scheinwiderstand und Phasenwinkel einer Reihenschaltung aus R, L und C.</p>
+    <nav class="nav" id="nav" aria-label="Werkzeuge"></nav>
+  </div>
+</header>
+
+<main class="wrap narrow">
+  <section class="panel">
+    <h2>Reihenschaltung R – L – C</h2>
+    <div class="body">
+      <div class="fields">
+        <label class="f"><span>Frequenz f</span><div class="row"><input id="f" value="50"><span class="unit">Hz</span></div></label>
+        <label class="f"><span>Widerstand R</span><div class="row"><input id="r" value="100"><span class="unit">Ω</span></div></label>
+        <label class="f"><span>Induktivität L</span><div class="row"><input id="l" value="100m"><span class="unit">H</span></div></label>
+        <label class="f"><span>Kapazität C</span><div class="row"><input id="c" placeholder="leer = ohne"><span class="unit">F</span></div></label>
+        <label class="f"><span>Spannung U (optional)</span><div class="row"><input id="u" placeholder="für Strom"><span class="unit">V</span></div></label>
+      </div>
+      <div class="out" id="out"></div>
+      <p class="note" id="note"></p>
+      <p class="note formula">X_L = 2πfL   X_C = 1/(2πfC)   Z = √(R² + (X_L − X_C)²)   f₀ = 1/(2π√(LC))</p>
+    </div>
+  </section>
+</main>
+
+<script src="et.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  function v(id) { return ET.parseVal($(id).value); }
+  function tile(k, val) { return '<div><div class="k">' + k + '</div><div class="v">' + val + '</div></div>'; }
+
+  function calc() {
+    var f = v('f'), r = v('r'), l = v('l'), c = v('c'), u = v('u');
+    if (!isFinite(f) || f <= 0) {
+      $('out').innerHTML = '';
+      $('note').className = 'note bad';
+      $('note').textContent = 'Frequenz eintragen, z. B. 50 oder 1k.';
+      return;
+    }
+    if (!isFinite(r)) r = 0;
+    var hasL = isFinite(l) && l > 0, hasC = isFinite(c) && c > 0;
+    if (!hasL && !hasC) {
+      $('out').innerHTML = '';
+      $('note').className = 'note bad';
+      $('note').textContent = 'Mindestens L oder C eintragen.';
+      return;
+    }
+    var XL = hasL ? ET.xl(f, l) : 0, XC = hasC ? ET.xc(f, c) : 0;
+    var z = ET.impedance(r, XL - XC);
+    var out = (hasL ? tile('X_L', ET.fmt(XL, 'Ω')) : '') +
+              (hasC ? tile('X_C', ET.fmt(XC, 'Ω')) : '') +
+              tile('X = X_L − X_C', ET.fmt(XL - XC, 'Ω')) +
+              tile('Scheinwiderstand Z', ET.fmt(z.Z, 'Ω')) +
+              tile('Phasenwinkel φ', z.phi.toFixed(1) + ' °') +
+              tile('cos φ', Math.cos(z.phi * Math.PI / 180).toFixed(3));
+    if (hasL && hasC) out += tile('Resonanz f₀', ET.fmt(ET.resonance(l, c), 'Hz'));
+    if (isFinite(u) && z.Z > 0) {
+      var i = u / z.Z;
+      out += tile('Strom I', ET.fmt(i, 'A')) +
+             tile('Wirkleistung P', ET.fmt(u * i * Math.cos(z.phi * Math.PI / 180), 'W')) +
+             tile('Scheinleistung S', ET.fmt(u * i, 'VA'));
+    }
+    $('out').innerHTML = out;
+    var x = XL - XC, art = Math.abs(x) < z.Z * 1e-9 ? 'rein ohmsch — Strom und Spannung sind in Phase'
+      : x > 0 ? 'induktiv — der Strom eilt der Spannung nach'
+              : 'kapazitiv — der Strom eilt der Spannung voraus';
+    $('note').className = 'note';
+    $('note').textContent = 'Verhalten bei dieser Frequenz: ' + art + '.' +
+      (hasL && hasC ? ' Bei f₀ heben sich X_L und X_C auf, Z wird dann zu R.' : '');
+  }
+
+  ['f', 'r', 'l', 'c', 'u'].forEach(function (id) { $(id).oninput = calc; });
+  calc();
+})();
+</script>
+</body>
+</html>
