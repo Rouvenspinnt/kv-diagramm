@@ -405,4 +405,13 @@
          background:var(--panel); border:1px solid var(--line); border-radius:var(--r-panel);
          box-shadow:0 6px 20px rgba(16,21,28,.12); }
   .tip[hidden] { display:none; }
+  /* Finger statt Maus: 44 px Zielgroesse (WCAG 2.5.5). Nur hier, damit die
+     Knoepfe am Schreibtisch ihre schlanke Hoehe behalten. */
+  @media (pointer: coarse) {
+    .btn, .seg button, .panel select,
+    label.f input, label.f select { min-height:44px; }
+    td.val button { min-height:44px; }
+    .help::after { inset:-14px; }
+  }
+
   @media print { .help, .tip { display:none !important; } }
