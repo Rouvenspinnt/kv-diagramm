@@ -34,6 +34,29 @@ Läuft ohne Server und ohne Build-Schritt — `index.html` im Browser öffnen ge
 
 Eingaben verstehen Vorsätze und Schreibweisen wie `4k7`, `2.2k`, `0,1µF`, `20m`.
 
+## Fertigung & Zerspanung
+
+- **Drehzahl, Vorschub, Hauptzeit** (`zerspanung.html`) — v_c, Durchmesser und Drehzahl
+  ineinander, dazu Zahnvorschub und Schnittzeit mit Anschnitt beim Bohren. Richtwerte für
+  v_c je Werkstoff zum Anklicken, und eine Kurve, die zeigt wie steil die Drehzahl
+  bei kleinen Werkzeugen steigt.
+- **Gewinde & Kernloch** (`gewinde.html`) — Kernlochbohrer, Steigung, Kern- und
+  Flankendurchmesser und Durchgangsloch von M1 bis M64, mit Feingewinden und der
+  Rückwärtssuche vom gemessenen Loch zum Gewinde.
+- **ISO-Passungen** (`passungen.html`) — Spiel und Übermaß einer Paarung wie H7/g6 in
+  Mikrometern, mit den Grenzmaßen und einem Bild der beiden Toleranzfelder.
+
+Die Zahlen stehen in `calc-fertigung.js` (Steigungen nach DIN 13-1, Durchgangslöcher nach
+DIN EN 20273) und `calc-passung.js` (ISO 286). Der Kernlochbohrer ist für Regelgewinde
+hinterlegt statt gerechnet (DIN 336): `d − P` würde an fünf Größen danebenliegen, weil
+die kleinen Maße anders runden und M12 10,3 statt 10,2 ergäbe. Beim Feingewinde stimmt
+`d − P`. Steigungen und Kernlochbohrer sind gegen zwei unabhängige Quellen geprüft;
+bei den Durchgangslöchern gilt das für 27 der 30 Zeilen — M12, M14, M16 widersprechen
+sich zwischen den Quellen, und M56 bis M64 steht in keiner frei zugänglichen Tabelle.
+Die Passungen decken das System Einheitsbohrung ab —
+die schweren Pressverbände ab `r` fehlen bewusst, weil ihre Grundabmaße über 50 mm in
+Teilbereiche zerfallen.
+
 ## Schaltbilder
 
 Ohm, LED/Teiler und Wechselstrom zeichnen die Schaltung, um die es gerade geht, und
@@ -69,8 +92,11 @@ Die Texte stehen als `data-help` am Feld, die Mechanik einmal in `et.js`.
 ```
 node test.js
 node test-et.js
+node test-fertigung.js
 ```
 
 `test.js` prüft alle 256 Funktionen mit 3 Variablen sowie Zufallsfunktionen mit 4 bis 6 Variablen
 (mit don't cares, DNF und KNF) gegen die Wertetabelle und auf überflüssige Terme.
-`test-et.js` prüft Einheitenparser, E-Reihen, Ohm/Leistung, Farbcode in beide Richtungen und die Wechselstromformeln.
+`test-et.js` prüft Einheitenparser, E-Reihen, Ohm/Leistung, Farbcode in beide Richtungen,
+die Wechselstromformeln und das Werkzeugverzeichnis samt Suche.
+`test-fertigung.js` prüft Schnittdaten, Gewindetafel und Passungen gegen von Hand nachgerechnete Werte.

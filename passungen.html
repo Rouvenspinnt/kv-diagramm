@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ISO-Passungen</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>ISO-Passungen</h1>
+    <p>Was H7/g6 auf dem Durchmesser wirklich bedeutet — in Mikrometern.</p>
+    <nav class="nav" id="nav" aria-label="Werkzeuge"></nav>
+  </div>
+</header>
+
+<main class="wrap narrow">
+  <section class="panel" id="passung">
+    <h2>Paarung <span class="tag" id="tag"></span></h2>
+    <div class="body">
+      <div class="fields">
+        <label class="f" data-help="Der gemeinsame Nenndurchmesser von Bohrung und Welle in Millimetern — die Zahl, die auf der Zeichnung vor der Passungsangabe steht. Die Toleranzen hängen davon ab: dieselbe Angabe bedeutet bei 10 mm etwas anderes als bei 200 mm. Gültig von 1 bis 500 mm."><span>Nennmaß</span><div class="row"><input id="d" inputmode="decimal" value="30"><span class="unit">mm</span></div></label>
+        <label class="f" data-help="Der Buchstabe der Bohrung, groß geschrieben. H ist der Normalfall: die Bohrung beginnt genau am Nennmaß und wird nur größer. Das nennt sich Einheitsbohrung — man lässt die Bohrung wie sie ist und wählt das Spiel über die Welle."><span>Bohrung</span><div class="row"><select id="bb"></select><select id="bg"></select></div></label>
+        <label class="f" data-help="Der Buchstabe der Welle, klein geschrieben, und ihr Toleranzgrad. Von d bis h liegt die Welle unter dem Nennmaß, das gibt Spiel. Ab k liegt sie darüber, das gibt Übermaß und damit Presssitz."><span>Welle</span><div class="row"><select id="wb"></select><select id="wg"></select></div></label>
+      </div>
+
+      <div class="field" data-help="Die Paarungen, die in Zeichnungen fast immer stehen. Ein Klick stellt Bohrung und Welle danach ein; das Nennmaß bleibt, wie es ist.">
+        <span class="lbl">Üblich</span>
+        <div class="seg" id="ueblich" role="group" aria-label="Übliche Paarungen">
+          <button data-p="H7/h6">H7/h6</button><button data-p="H7/g6">H7/g6</button><button data-p="H7/k6">H7/k6</button><button data-p="H7/n6">H7/n6</button><button data-p="H7/p6">H7/p6</button><button data-p="H8/f7">H8/f7</button><button data-p="H11/h11">H11/h11</button>
+        </div>
+      </div>
+
+      <div class="dia" id="dia"></div>
+      <div class="out" id="out"></div>
+      <p class="note" id="note"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="masse">
+    <h2>Grenzmaße <span class="tag">was das Messgerät zeigen darf</span></h2>
+    <div class="body">
+      <div class="out" id="outm"></div>
+      <p class="caption" id="hinweis"></p>
+    </div>
+  </section>
+</main>
+
+<script src="tools.js"></script>
+<script src="et.js"></script>
+<script src="draw.js"></script>
+<script src="calc-passung.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var GRADE = [5, 6, 7, 8, 9, 10, 11, 12, 13];
+
+  function um(x) {                               // Mikrometer mit Vorzeichen
+    var v = Math.round(x * 10) / 10;
+    return v === 0 ? '0' : (v > 0 ? '+' : '−') + String(Math.abs(v)).replace('.', ',');
+  }
+  function mm(x) { return (Math.round(x * 1000) / 1000).toFixed(3).replace('.', ','); }
+  function kachel(k, v, klein) {
+    return '<div><div class="k">' + k + '</div><div class="v">' + v +
+           (klein ? ' <small>' + klein + '</small>' : '') + '</div></div>';
+  }
+
+  function fuelle() {
+    $('bb').innerHTML = PASS.BOHRUNGEN.map(function (b) {
+      return '<option value="' + b + '">' + b + '</option>'; }).join('');
+    $('wb').innerHTML = PASS.WELLEN.map(function (w) {
+      return '<option value="' + w + '">' + w + '</option>'; }).join('');
+    var g = GRADE.map(function (x) { return '<option value="' + x + '">IT' + x + '</option>'; }).join('');
+    $('bg').innerHTML = g; $('wg').innerHTML = g;
+    $('bb').value = 'H'; $('bg').value = '7'; $('wb').value = 'g'; $('wg').value = '6';
+  }
+
+  /* Toleranzfelder ueber der Nulllinie. Masstab richtet sich nach dem groessten
+     Ausschlag, damit auch H7/h6 noch etwas zu sehen ist. */
+  function dia(p) {
+    var w = 460, h = 212, null_y = 108, x0 = 96, bw = 130, lueck = 40;
+    var werte = [p.bohrung.oben, p.bohrung.unten, p.welle.oben, p.welle.unten, 0];
+    var max = Math.max.apply(null, werte.map(Math.abs)) || 1;
+    var k = 52 / max;                                   // um -> Pixel
+    function y(v) { return null_y - v * k; }
+
+    // Name ueber das Feld, Masszahlen immer auf eine feste Zeile darunter —
+    // sonst wandert die Zahl je nach Lage in die Achsenbeschriftung
+    function feld(x, teil, klasse, name) {
+      var oben = y(teil.oben), unten = y(teil.unten);
+      return '<rect class="part late ' + klasse + '" x="' + x + '" y="' + Math.min(oben, unten).toFixed(1) +
+             '" width="' + bw + '" height="' + Math.max(2, Math.abs(unten - oben)).toFixed(1) + '" rx="2"/>' +
+             D.text(x + bw / 2, Math.min(oben, unten) - 9, name, 'val') +
+             D.text(x + bw / 2, h - 32, um(teil.unten) + ' … ' + um(teil.oben), '');
+    }
+    var inner =
+      '<path class="wire late" d="M40 ' + null_y + 'H' + (w - 16) + '" opacity=".45" fill="none"/>' +
+      D.text(26, null_y + 4, '0', '') +
+      feld(x0, p.bohrung, 'fillA', 'Bohrung ' + $('bb').value + $('bg').value) +
+      feld(x0 + bw + lueck, p.welle, 'fillB', 'Welle ' + $('wb').value + $('wg').value) +
+      D.text(w / 2, h - 8, 'Abweichung vom Nennmaß in µm', '');
+    D.mount($('dia'), D.svg(w, h, 'Toleranzfelder von Bohrung und Welle', inner));
+  }
+
+  function rechne() {
+    var d = ET.parseVal($('d').value);
+    $('d').classList.toggle('filled', isFinite(d) && d > 0);
+    var bez = $('bb').value + $('bg').value, wez = $('wb').value + $('wg').value;
+    $('tag').textContent = (isFinite(d) ? ET.fmt(d, 'mm') + ' ' : '') + bez + '/' + wez;
+
+    if (!(d > 0) || d > 500) {
+      $('out').innerHTML = ''; $('outm').innerHTML = '';
+      $('dia').innerHTML = ''; $('dia').dataset.drawn = '';
+      $('note').className = 'note bad';
+      $('note').textContent = d > 500
+        ? 'Über 500 mm rechnet diese Tafel nicht — dort gelten eigene Bereiche.'
+        : 'Nennmaß in Millimetern eintragen, 1 bis 500.';
+      return;
+    }
+    var p = PASS.passung(d, bez, wez);
+    if (!p) {
+      $('out').innerHTML = ''; $('outm').innerHTML = '';
+      $('note').className = 'note bad';
+      $('note').textContent = 'Diese Paarung steht nicht in der Tafel.';
+      return;
+    }
+    dia(p);
+    var presst = p.art === 'Übermaßpassung', uebergang = p.art === 'Übergangspassung';
+    var kurz = { 'Spielpassung': 'Spiel', 'Übergangspassung': 'Übergang',
+                 'Übermaßpassung': 'Übermaß' };
+    $('out').innerHTML =
+      kachel('Art', kurz[p.art], p.art) +
+      kachel(presst ? 'Kleinstes Übermaß' : 'Größtes Spiel',
+             um(presst ? -p.hoechstspiel : p.hoechstspiel) + ' µm', '') +
+      kachel(p.mindestspiel < 0 ? 'Größtes Übermaß' : 'Kleinstes Spiel',
+             um(p.mindestspiel < 0 ? -p.mindestspiel : p.mindestspiel) + ' µm', '') +
+      kachel('Passtoleranz', Math.round(p.passtoleranz) + ' µm', 'Summe beider');
+
+    $('note').className = 'note';
+    $('note').textContent = presst
+      ? 'Presssitz: die Welle ist immer größer als die Bohrung. Fügen nur mit Presse oder über Temperatur.'
+      : uebergang
+      ? 'Übergang: je nach Istmaß entsteht Spiel oder Übermaß. Für genaue Lage ohne Dauerlast gedacht.'
+      : 'Spielpassung: es bleibt immer Luft. Je größer das Spiel, desto leichtgängiger und desto ungenauer.';
+
+    $('outm').innerHTML =
+      kachel('Bohrung ' + bez, mm(d + p.bohrung.unten / 1000) + ' … ' + mm(d + p.bohrung.oben / 1000),
+             um(p.bohrung.unten) + ' / ' + um(p.bohrung.oben) + ' µm') +
+      kachel('Welle ' + wez, mm(d + p.welle.unten / 1000) + ' … ' + mm(d + p.welle.oben / 1000),
+             um(p.welle.unten) + ' / ' + um(p.welle.oben) + ' µm') +
+      kachel('IT Bohrung', Math.round(p.bohrung.it) + ' µm', 'IT' + $('bg').value) +
+      kachel('IT Welle', Math.round(p.welle.it) + ' µm', 'IT' + $('wg').value);
+    $('hinweis').textContent = 'Die Werte in Klammern sind die Abweichungen vom Nennmaß, ' +
+      'wie sie auf der Zeichnung stehen. 1 µm ist ein tausendstel Millimeter — ' +
+      'ein Messschieber mit 0,05 mm Ablesung sieht davon nichts.';
+  }
+
+  fuelle();
+  ['d', 'bb', 'bg', 'wb', 'wg'].forEach(function (id) {
+    $(id).oninput = rechne; $(id).onchange = rechne;
+  });
+  $('ueblich').onclick = function (e) {
+    var b = e.target.closest('button[data-p]');
+    if (!b) return;
+    var t = b.dataset.p.split('/');
+    $('bb').value = t[0][0]; $('bg').value = t[0].slice(1);
+    $('wb').value = t[1][0]; $('wg').value = t[1].slice(1);
+    Array.prototype.forEach.call($('ueblich').children, function (x) {
+      x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
+    });
+    rechne();
+  };
+  rechne();
+})();
+</script>
+</body>
+</html>

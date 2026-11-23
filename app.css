@@ -68,9 +68,9 @@
   .controls { display:flex; flex-wrap:wrap; align-items:center; gap:var(--s3) var(--s5);
               padding:var(--s3) var(--s4); margin-bottom:var(--s4); }
   .field { display:flex; align-items:center; gap:var(--s2); }
-  .field > .lbl { font-size:.78rem; color:var(--ink-3); letter-spacing:.06em; text-transform:uppercase;
+  .field > .lbl { flex:none; font-size:.78rem; color:var(--ink-3); letter-spacing:.06em; text-transform:uppercase;
                   font-weight:600; }
-  .seg { display:flex; border:1px solid var(--line-strong); border-radius:var(--r-ctl); overflow:hidden;
+  .seg { display:flex; flex-wrap:wrap; border:1px solid var(--line-strong); border-radius:var(--r-ctl); overflow:hidden;
          background:var(--panel); }
   .seg button {
     font:inherit; font-size:.88rem; line-height:1; padding:8px 12px; border:0; cursor:pointer;
@@ -82,6 +82,7 @@
   .seg button[aria-pressed="true"] { background:var(--accent); color:var(--on-accent); font-weight:600; }
   .btn { font:inherit; font-size:.88rem; line-height:1; padding:8px 12px; cursor:pointer;
          background:var(--panel); color:var(--ink); border:1px solid var(--line-strong); border-radius:var(--r-ctl); }
+  .btn.mini { padding:4px 8px; font-size:.78rem; }
   .btn:hover { border-color:var(--accent); color:var(--accent); }
   .btn:active { transform:translateY(1px); }
   :focus-visible { outline:2px solid var(--focus); outline-offset:2px; border-radius:3px; }
@@ -285,6 +286,9 @@
                  paint-order:stroke; stroke:var(--panel); stroke-width:3px; stroke-linejoin:round; }
   .schema text.val { fill:var(--accent); font-weight:650; font-size:11.5px; }
   .schema text.name { fill:var(--ink); font-weight:650; }
+  /* Zwei Felder nebeneinander, etwa Bohrung und Welle beim Passungsbild */
+  .schema .part.fillA { fill:color-mix(in srgb, var(--fill-1) 32%, var(--panel)); stroke:var(--fill-1); }
+  .schema .part.fillB { fill:color-mix(in srgb, var(--fill-2) 32%, var(--panel)); stroke:var(--fill-2); }
   .schema .arrow { fill:var(--accent); stroke:none; }
   .schema .dim { stroke:var(--accent); stroke-width:1.2; fill:none; opacity:.8; }
   .caption { text-align:center; color:var(--ink-3); font-size:.78rem; margin:0 0 var(--s2); }
@@ -319,7 +323,7 @@
   .barkey i { width:11px; height:11px; border-radius:3px; flex:none; }
 
   /* ---- Farbtafel ---- */
-  #tafel { overflow-x:auto; scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
+  #tafel, #vctab { overflow-x:auto; scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
   table.farben { border-collapse:collapse; width:100%; min-width:360px; font-size:.82rem; }
   table.farben th { text-align:left; font-size:.68rem; letter-spacing:.09em; text-transform:uppercase;
                     color:var(--ink-3); font-weight:650; padding:6px 8px 6px 0;
@@ -383,14 +387,15 @@
   label.f { display:flex; flex-direction:column; gap:4px; font-size:.8rem; color:var(--ink-2); }
   label.f .row { display:flex; align-items:center; gap:6px; }
   label.f input, label.f select, .panel select { font:inherit; font-family:var(--mono); font-size:.95rem;
-    width:100%; padding:8px 10px; border:1px solid var(--line-strong); border-radius:var(--r-ctl);
+    width:100%; min-width:0; padding:8px 10px; border:1px solid var(--line-strong); border-radius:var(--r-ctl);
     background:var(--sunk); color:var(--ink); }
   label.f input:hover, label.f select:hover { border-color:var(--ink-3); }
   label.f input:focus, label.f select:focus { outline:2px solid var(--focus); outline-offset:1px;
     border-color:var(--accent);
     box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
   label.f input.filled { border-color:color-mix(in srgb, var(--accent) 55%, var(--line)); }
-  label.f .unit { font-family:var(--mono); color:var(--ink-3); font-size:.92rem; min-width:1.5em; }
+  label.f .unit { flex:none; white-space:nowrap; font-family:var(--mono); color:var(--ink-3);
+                  font-size:.92rem; min-width:1.5em; }
   .out { margin-top:var(--s4); padding-top:var(--s4); border-top:1px solid var(--line-soft);
          display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:var(--s3); }
   .out > div { position:relative; padding:10px 12px 10px 14px; border-radius:var(--r-ctl);

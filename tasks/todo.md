@@ -1,21 +1,21 @@
 # Aufgabenliste
 
 ## Phase 0 — Fundament
-- [ ] 0.1 Registry `tools.js` mit den fuenf vorhandenen Werkzeugen
-- [ ] 0.2 KV nach `kv-diagramm.html`, neue `index.html` als Startseite mit Kacheln
-- [ ] 0.3 `ET.buildNav` auf die Registry umstellen
-- [ ] 0.4 Suche auf der Startseite, mit Tastatur bedienbar
-- [ ] 0.5 Formelfeld mit Math.js vom CDN, ausfallsicher
-- [ ] Pruefpunkt A: Tests gruen, drei Breiten geprueft, live
+- [x] 0.1 Registry `tools.js` mit den fuenf vorhandenen Werkzeugen
+- [x] 0.2 KV nach `kv-diagramm.html`, neue `index.html` als Startseite mit Kacheln
+- [x] 0.3 `ET.buildNav` auf die Registry umstellen
+- [x] 0.4 Suche auf der Startseite, mit Tastatur bedienbar
+- [x] 0.5 Formelfeld mit Math.js vom CDN, ausfallsicher
+- [x] Pruefpunkt A: Tests gruen, drei Breiten geprueft, live
 
 ## Phase 1 — Fertigung und Zerspanung
-- [ ] 1.1 Schnittgeschwindigkeit <-> Drehzahl
-- [ ] 1.2 Vorschub und Zahnvorschub
-- [ ] 1.3 Hauptzeit
-- [ ] 1.4 Kernloch- und Gewindetabelle
-- [ ] 1.5 Passungen H7/g6
-- [ ] 1.6 Werkstoff-Richtwerte vc
-- [ ] Pruefpunkt B: Tabellen gegen zweite Quelle stichprobenartig geprueft
+- [x] 1.1 Schnittgeschwindigkeit <-> Drehzahl
+- [x] 1.2 Vorschub und Zahnvorschub
+- [x] 1.3 Hauptzeit
+- [x] 1.4 Kernloch- und Gewindetabelle
+- [x] 1.5 Passungen H7/g6
+- [x] 1.6 Werkstoff-Richtwerte vc
+- [x] Pruefpunkt B: Tabellen gegen zweite Quelle stichprobenartig geprueft
 
 ## Phase 2 — Mess- und Regeltechnik
 - [ ] 2.1 Normsignal 4–20 mA / 0–10 V skalieren

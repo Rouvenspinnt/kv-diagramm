@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gewinde &amp; Kernloch</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Gewinde &amp; Kernloch</h1>
+    <p>Welcher Bohrer vor dem Gewindeschneider — und welches Loch für die Schraube.</p>
+    <nav class="nav" id="nav" aria-label="Werkzeuge"></nav>
+  </div>
+</header>
+
+<main class="wrap narrow">
+  <section class="panel" id="kernloch">
+    <h2>Metrisches ISO-Gewinde <span class="tag" id="tag"></span></h2>
+    <div class="body">
+      <div class="fields">
+        <label class="f" data-help="Der Nenndurchmesser der Schraube in Millimetern — die Zahl hinter dem M. Gemessen wird außen über die Gewindespitzen; M8 misst knapp 8 mm."><span>Größe</span><div class="row"><select id="groesse"></select></div></label>
+        <label class="f" data-help="Der Abstand von Gewindegang zu Gewindegang. Jede Größe hat ein Regelgewinde — das ist die Vorgabe. Feingewinde hält besser gegen Lösen und dichtet besser, verträgt aber weniger Dreck und ist empfindlicher beim Ansetzen."><span>Steigung P</span><div class="row"><select id="steigung"></select></div></label>
+      </div>
+      <div class="dia" id="dia"></div>
+      <div class="out" id="out"></div>
+      <p class="note" id="note"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="durchgang">
+    <h2>Loch für die Schraube <span class="tag">DIN EN 20273</span></h2>
+    <div class="body">
+      <p class="caption">Das Durchgangsloch im Bauteil, durch das die Schraube gesteckt wird —
+        nicht zu verwechseln mit dem Kernloch für das Gewinde. Mittel ist der Normalfall;
+        fein, wenn es genau sitzen muss, grob, wenn Platz zum Ausrichten gebraucht wird.</p>
+      <div class="out" id="outdg"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="rueck">
+    <h2>Umgekehrt: Loch gemessen <span class="tag">welches Gewinde passt?</span></h2>
+    <div class="body">
+      <p class="caption">Ein vorhandenes Loch gemessen und willst wissen, was hineingehört?
+        Trag den Durchmesser ein.</p>
+      <div class="fields">
+        <label class="f" data-help="Der gemessene Durchmesser des vorhandenen Lochs in Millimetern. Gesucht wird das Regelgewinde, dessen Kernlochbohrer am besten passt; mehr als 0,25 mm Abweichung gilt als kein Treffer."><span>Gemessenes Loch</span><div class="row"><input id="loch" inputmode="decimal" placeholder="z. B. 6.8"><span class="unit">mm</span></div></label>
+      </div>
+      <div class="out" id="outr"></div>
+      <p class="note" id="noter"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="tabelle">
+    <h2>Ganze Tafel <span class="tag">zum Nachschlagen</span></h2>
+    <div class="body">
+      <p class="caption">Regelgewinde M1 bis M64. Kernloch ist der Bohrer vor dem Gewindeschneider,
+        d<sub>1</sub> der rechnerische Kerndurchmesser des Gewindeprofils.</p>
+      <div id="tafel"></div>
+    </div>
+  </section>
+</main>
+
+<script src="tools.js"></script>
+<script src="et.js"></script>
+<script src="draw.js"></script>
+<script src="calc-fertigung.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  function n2(x, s) { return String(FERT.rund(x, s === undefined ? 2 : s)).replace('.', ','); }
+  function kachel(k, v, klein) {
+    return '<div><div class="k">' + k + '</div><div class="v">' + v +
+           (klein ? ' <small>' + klein + '</small>' : '') + '</div></div>';
+  }
+
+  function fuelleGroessen() {
+    $('groesse').innerHTML = FERT.GEWINDE.map(function (g) {
+      return '<option value="' + g.d + '">M' + g.d + '</option>';
+    }).join('');
+    $('groesse').value = '8';
+  }
+
+  function fuelleSteigungen() {
+    var d = parseFloat($('groesse').value), e = null;
+    FERT.GEWINDE.forEach(function (g) { if (Math.abs(g.d - d) < 1e-9) e = g; });
+    if (!e) return;
+    var alle = [e.P].concat(e.fein);
+    $('steigung').innerHTML = alle.map(function (p, i) {
+      return '<option value="' + p + '">' + n2(p) + ' mm' + (i === 0 ? ' · Regel' : ' · fein') + '</option>';
+    }).join('');
+  }
+
+  /* Gewinde im Anriss, obere Haelfte: Mittellinie, Spitzen auf d/2, Grund auf d1/2.
+     Die Teilung richtet sich nach P/d, damit ein Feingewinde auch feiner aussieht. */
+  function dia(g) {
+    var w = 470, h = 180, mitte = 132, x0 = 86, x1 = 432;
+    var rA = 72, rK = rA * (g.d1 / g.d);          // nur das Verhaeltnis zaehlt
+    var px = Math.max(10, Math.min(60, (g.P / g.d) * 2 * rA));
+    var yA = mitte - rA, yK = mitte - rK;
+
+    var zahn = '', x = x0;
+    while (x + px <= x1) {
+      zahn += 'M' + x.toFixed(1) + ' ' + yK.toFixed(1) +
+              'L' + (x + px / 2).toFixed(1) + ' ' + yA.toFixed(1) +
+              'L' + (x + px).toFixed(1) + ' ' + yK.toFixed(1);
+      x += px;
+    }
+    var ende = x.toFixed(1);
+
+    var inner =
+      // Grundzylinder und Spitzenlinie als Hilfslinien
+      '<path class="wire late" d="M' + x0 + ' ' + yK.toFixed(1) + 'H' + ende +
+        'M' + x0 + ' ' + yA.toFixed(1) + 'H' + ende + '" opacity=".3" fill="none"/>' +
+      '<path class="part late" d="' + zahn + '" fill="none"/>' +
+      // Mittellinie
+      '<path class="dim late" d="M' + (x0 - 40) + ' ' + mitte + 'H' + (x1 + 16) +
+        '" stroke-dasharray="7 3 2 3" fill="none"/>' +
+      // Masspfeile fuer d und d1 am linken Rand
+      '<path class="dim late" d="M' + (x0 - 24) + ' ' + yA.toFixed(1) + 'V' + mitte +
+        'M' + (x0 - 24) + ' ' + yA.toFixed(1) + 'h' + 24 +
+        'M' + (x0 - 10) + ' ' + yK.toFixed(1) + 'V' + mitte +
+        'M' + (x0 - 10) + ' ' + yK.toFixed(1) + 'h' + 10 + '" fill="none"/>' +
+      D.text(x0 - 40, (mitte + yA) / 2 + 4, 'd', 'val') +
+      D.text(x0 + 16, yK + 15, 'd₁', '') +
+      // Teilung zwischen zwei Spitzen
+      '<path class="dim late" d="M' + (x0 + px / 2).toFixed(1) + ' 26H' + (x0 + px * 1.5).toFixed(1) +
+        'M' + (x0 + px / 2).toFixed(1) + ' 21v10M' + (x0 + px * 1.5).toFixed(1) + ' 21v10" fill="none"/>' +
+      D.text(x0 + px, 16, 'P = ' + n2(g.P) + ' mm', 'val') +
+      D.text((x0 + parseFloat(ende)) / 2, mitte + 24, 'M' + g.d +
+             (g.regel ? '' : ' × ' + n2(g.P)) + '  ·  Kernloch ' + n2(g.kernloch, 2) + ' mm', 'val');
+    D.mount($('dia'), D.svg(w, h, 'Gewindeprofil mit Nenndurchmesser, Kerndurchmesser und Steigung', inner));
+  }
+
+  function rechne() {
+    var d = parseFloat($('groesse').value), P = parseFloat($('steigung').value);
+    var g = FERT.gewinde(d, P);
+    if (!g) { $('out').innerHTML = ''; return; }
+    $('tag').textContent = 'M' + g.d + (g.regel ? '' : ' × ' + n2(g.P));
+    $('out').innerHTML =
+      kachel('Kernlochbohrer', n2(g.kernloch, 2) + ' mm', g.regel ? 'Regelgewinde' : 'gerechnet d − P') +
+      kachel('Steigung P', n2(g.P) + ' mm', g.regel ? 'Regel' : 'fein') +
+      kachel('Kerndurchmesser d<sub>1</sub>', n2(g.d1, 2) + ' mm', 'Gewindeprofil') +
+      kachel('Flankendurchmesser d<sub>2</sub>', n2(g.d2, 2) + ' mm', '') +
+      kachel('Steigungswinkel', n2(g.steigungswinkel) + ' °', '');
+    $('note').className = 'note';
+    $('note').textContent = g.regel
+      ? 'Regelgewinde — das ist die Vorgabe, wenn auf der Zeichnung nur M' + g.d + ' steht.'
+      : 'Feingewinde. Auf der Zeichnung steht dann M' + g.d + ' × ' + n2(g.P) + '.';
+    $('outdg').innerHTML = g.dg
+      ? kachel('fein', n2(g.dg[0], 1) + ' mm', 'genaue Lage') +
+        kachel('mittel', n2(g.dg[1], 1) + ' mm', 'Normalfall') +
+        kachel('grob', n2(g.dg[2], 1) + ' mm', 'zum Ausrichten')
+      : '<div><div class="k">Durchgangsloch</div><div class="v">—<small>für diese Größe nicht genormt</small></div></div>';
+    dia(g);
+  }
+
+  function rueck() {
+    var x = ET.parseVal($('loch').value);
+    $('loch').classList.toggle('filled', isFinite(x) && x > 0);
+    if (!(x > 0)) { $('outr').innerHTML = ''; $('noter').textContent = ''; return; }
+    var g = FERT.gewindeZuBohrer(x);
+    if (!g) {
+      $('outr').innerHTML = '';
+      $('noter').className = 'note bad';
+      $('noter').textContent = 'Kein Regelgewinde mit passendem Kernloch. Vielleicht ein ' +
+        'Durchgangsloch oder ein Feingewinde — dann oben die Größe wählen.';
+      return;
+    }
+    $('noter').className = 'note';
+    $('noter').textContent = 'Abweichung zum Normbohrer: ' + n2(Math.abs(g.kernloch - x), 2) + ' mm.';
+    $('outr').innerHTML =
+      kachel('Gewinde', 'M' + g.d, 'Regelgewinde') +
+      kachel('Kernloch dazu', n2(g.kernloch, 2) + ' mm', '') +
+      kachel('Steigung P', n2(g.P) + ' mm', '');
+  }
+
+  function tafel() {
+    var h = '<table class="farben"><thead><tr><th>Gewinde</th><th>P</th><th>Kernloch</th>' +
+            '<th>d₁</th><th>Durchgang mittel</th></tr></thead><tbody>';
+    FERT.GEWINDE.forEach(function (e) {
+      var g = FERT.gewinde(e.d);
+      h += '<tr><td class="n">M' + e.d + '</td><td>' + n2(g.P) + '</td><td>' + n2(g.kernloch, 2) +
+           '</td><td>' + n2(g.d1, 2) + '</td><td>' + (g.dg ? n2(g.dg[1], 1) : '—') + '</td></tr>';
+    });
+    $('tafel').innerHTML = h + '</tbody></table>';
+  }
+
+  fuelleGroessen();
+  fuelleSteigungen();
+  $('groesse').onchange = function () { fuelleSteigungen(); rechne(); };
+  $('steigung').onchange = rechne;
+  $('loch').oninput = rueck;
+  tafel();
+  rechne();
+})();
+</script>
+</body>
+</html>

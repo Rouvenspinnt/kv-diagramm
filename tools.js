@@ -43,7 +43,32 @@
       kurz: 'Blindwiderstand, Scheinwiderstand, Phasenwinkel und Resonanzfrequenz',
       w: ['blindwiderstand', 'scheinwiderstand', 'impedanz', 'phasenwinkel',
           'resonanz', 'schwingkreis', 'kondensator', 'spule', 'xl', 'xc',
-          'cos phi', 'frequenz', 'zeigerdiagramm'] }
+          'cos phi', 'frequenz', 'zeigerdiagramm'] },
+
+    { id: 'drehzahl', titel: 'Drehzahl & Schnittgeschwindigkeit', gebiet: 'fertigung',
+      datei: 'zerspanung.html#drehzahl',
+      kurz: 'vc, Durchmesser und Drehzahl ineinander, mit Richtwerten je Werkstoff',
+      w: ['schnittgeschwindigkeit', 'vc', 'drehzahl', 'spindel', 'umdrehungen',
+          'bohren', 'fraesen', 'drehen', 'richtwerte', 'hss', 'hartmetall', 'u/min'] },
+
+    { id: 'vorschub', titel: 'Vorschub', gebiet: 'fertigung', datei: 'zerspanung.html#vorschub',
+      kurz: 'Zahnvorschub, Umdrehungsvorschub und Vorschubgeschwindigkeit',
+      w: ['vorschub', 'zahnvorschub', 'fz', 'vf', 'zaehne', 'schneiden', 'fraeser'] },
+
+    { id: 'hauptzeit', titel: 'Hauptzeit', gebiet: 'fertigung', datei: 'zerspanung.html#hauptzeit',
+      kurz: 'Wie lange der Schnitt dauert, mit Anschnitt beim Bohren',
+      w: ['hauptzeit', 'schnittzeit', 'dauer', 'anschnitt', 'ueberlauf', 'bohrtiefe', 'th'] },
+
+    { id: 'gewinde', titel: 'Gewinde & Kernloch', gebiet: 'fertigung', datei: 'gewinde.html',
+      kurz: 'Kernlochbohrer, Steigung und Durchgangsloch von M1 bis M64',
+      w: ['gewinde', 'kernloch', 'kernlochbohrer', 'vorbohren', 'gewindebohrer', 'steigung',
+          'metrisch', 'feingewinde', 'durchgangsloch', 'schraube', 'm8', 'm10', 'm12',
+          'din 13', 'din en 20273'] },
+
+    { id: 'passung', titel: 'ISO-Passungen', gebiet: 'fertigung', datei: 'passungen.html',
+      kurz: 'Spiel und Übermaß einer Paarung wie H7/g6, in Mikrometern',
+      w: ['passung', 'toleranz', 'h7', 'g6', 'k6', 'n6', 'p6', 'spiel', 'uebermass',
+          'presssitz', 'uebergangspassung', 'iso 286', 'grenzmass', 'it7', 'welle', 'bohrung'] }
   ];
 
   /* Suche: jedes eingetippte Wort muss irgendwo vorkommen. Treffer im Titel

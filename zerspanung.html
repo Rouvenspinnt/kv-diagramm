@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Drehzahl &amp; Vorschub</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Drehzahl &amp; Vorschub</h1>
+    <p>Was an der Maschine eingestellt wird — und wie lange der Schnitt dauert.</p>
+    <nav class="nav" id="nav" aria-label="Werkzeuge"></nav>
+  </div>
+</header>
+
+<main class="wrap narrow">
+  <section class="panel" id="drehzahl">
+    <h2>Schnittgeschwindigkeit &amp; Drehzahl <span class="tag">v<sub>c</sub> · d · n</span></h2>
+    <div class="body">
+      <p class="caption">Zwei Werte eintragen, der dritte kommt heraus. Bei Bohrer und Fräser ist
+        d der Werkzeugdurchmesser, beim Drehen der Durchmesser am Werkstück.</p>
+      <div class="fields">
+        <label class="f" data-help="Wie schnell die Schneide über das Material läuft, in Metern je Minute. Steht im Werkzeugkatalog oder im Tabellenbuch, abhängig von Werkstoff und Schneidstoff. Weiter unten stehen Richtwerte zum Anklicken."><span>Schnittgeschwindigkeit v<sub>c</sub></span><div class="row"><input id="vc" inputmode="decimal" placeholder="z. B. 120"><span class="unit">m/min</span></div></label>
+        <label class="f" data-help="Der Durchmesser, auf den es ankommt: beim Bohren und Fräsen der des Werkzeugs, beim Drehen der des Werkstücks an der Schnittstelle. In Millimetern."><span>Durchmesser d</span><div class="row"><input id="d" inputmode="decimal" placeholder="z. B. 8"><span class="unit">mm</span></div></label>
+        <label class="f" data-help="Die Spindeldrehzahl in Umdrehungen je Minute — das, was du an der Maschine einstellst. Hat die Maschine feste Stufen, nimm die nächstkleinere."><span>Drehzahl n</span><div class="row"><input id="n" inputmode="decimal" placeholder="z. B. 4800"><span class="unit">1/min</span></div></label>
+      </div>
+      <div class="out" id="out1"></div>
+      <p class="note" id="note1"></p>
+      <p class="note formula">n = v<sub>c</sub> · 1000 / (π · d)      v<sub>c</sub> = π · d · n / 1000</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Drehzahl über dem Durchmesser <span class="tag" id="ktag"></span></h2>
+    <div class="body">
+      <p class="caption">Bei fester Schnittgeschwindigkeit muss die Drehzahl steigen, je kleiner
+        das Werkzeug wird — und zwar steil. Fahre über die Kurve, um abzulesen.</p>
+      <div class="dia" id="kurve"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="vorschub">
+    <h2>Vorschub <span class="tag">f<sub>z</sub> · z · n</span></h2>
+    <div class="body">
+      <p class="caption">Der Vorschub je Zahn ist die eigentliche Größe — daraus folgt alles andere.
+        Lass v<sub>f</sub> leer, um es zu rechnen, oder trag es ein, um f<sub>z</sub> zu prüfen.</p>
+      <div class="fields">
+        <label class="f" data-help="Wie weit das Werkzeug vorrückt, während ein einzelner Zahn einmal schneidet, in Millimetern. Steht im Werkzeugkatalog. Zu klein heißt reiben statt schneiden, zu groß heißt Zahn abbrechen."><span>Zahnvorschub f<sub>z</sub></span><div class="row"><input id="fz" inputmode="decimal" placeholder="z. B. 0.05"><span class="unit">mm</span></div></label>
+        <label class="f" data-help="Wie viele Schneiden das Werkzeug hat. Ein Spiralbohrer hat 2, ein Schaftfräser je nach Bauart 2, 3 oder 4. Beim Drehen ist z = 1."><span>Zähne z</span><div class="row"><input id="z" inputmode="numeric" value="2"><span class="unit">×</span></div></label>
+        <label class="f" data-help="Die Drehzahl aus dem Rechner oben — sie wird von dort übernommen, lässt sich hier aber überschreiben."><span>Drehzahl n</span><div class="row"><input id="n2" inputmode="decimal" placeholder="aus oben"><span class="unit">1/min</span></div></label>
+        <label class="f" data-help="Die Vorschubgeschwindigkeit in Millimetern je Minute — das, was an der Maschine als Vorschub eingestellt wird. Leer lassen, dann wird sie gerechnet."><span>Vorschub v<sub>f</sub></span><div class="row"><input id="vf" inputmode="decimal" placeholder="wird gerechnet"><span class="unit">mm/min</span></div></label>
+      </div>
+      <div class="out" id="out2"></div>
+      <p class="note" id="note2"></p>
+      <p class="note formula">v<sub>f</sub> = n · z · f<sub>z</sub>      f = z · f<sub>z</sub></p>
+    </div>
+  </section>
+
+  <section class="panel" id="hauptzeit">
+    <h2>Hauptzeit <span class="tag">wie lange der Schnitt dauert</span></h2>
+    <div class="body">
+      <p class="caption">Reine Schnittzeit, ohne Spannen und Werkzeugwechsel. Beim Bohren kommt
+        der Anschnitt der Spitze dazu — bei 118° sind das rund 0,3 · d.</p>
+      <div class="fields">
+        <label class="f" data-help="Die Länge, die geschnitten wird: beim Bohren die Tiefe, beim Fräsen und Drehen der Weg entlang der Bearbeitung. In Millimetern."><span>Weg l</span><div class="row"><input id="l" inputmode="decimal" placeholder="z. B. 25"><span class="unit">mm</span></div></label>
+        <label class="f" data-help="Wie oft derselbe Weg gefahren wird. Beim Schruppen in mehreren Zustellungen trägst du hier die Anzahl der Schnitte ein."><span>Schnitte i</span><div class="row"><input id="iz" inputmode="numeric" value="1"><span class="unit">×</span></div></label>
+      </div>
+      <div class="field" data-help="Beim Bohren läuft die Bohrerspitze vor der vollen Schnitttiefe mit — rund 0,3 · d bei 118° Spitzenwinkel. Beim Durchbohren kommen noch 2 mm Überlauf dazu, damit das Loch sauber durchkommt.">
+        <span class="lbl">Art</span>
+        <div class="seg" id="art" role="group" aria-label="Art der Bearbeitung">
+          <button data-a="frei" aria-pressed="true">Fräsen / Drehen</button><button data-a="sack">Sackloch bohren</button><button data-a="durch">Durchgangsloch bohren</button>
+        </div>
+      </div>
+      <div class="out" id="out3"></div>
+      <p class="note" id="note3"></p>
+      <p class="note formula">t<sub>h</sub> = L · i / v<sub>f</sub></p>
+    </div>
+  </section>
+
+  <section class="panel" id="richtwerte">
+    <h2>Richtwerte v<sub>c</sub> <span class="tag">zum Anklicken</span></h2>
+    <div class="body">
+      <p class="caption">Spannen, keine festen Werte — in der Mitte fängt man an und hört auf das
+        Geräusch. Das Datenblatt des Werkzeugs schlägt jede Tabelle. Ein Klick trägt den
+        mittleren Wert oben ein. Die Werte gelten für Drehen und Fräsen; beim Bohren nimm
+        rund die Hälfte bis zwei Drittel davon.</p>
+      <div id="vctab"></div>
+    </div>
+  </section>
+</main>
+
+<script src="tools.js"></script>
+<script src="et.js"></script>
+<script src="draw.js"></script>
+<script src="calc-fertigung.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  function num(id) {
+    var el = $(id), x = ET.parseVal(el.value);
+    el.classList.toggle('filled', isFinite(x) && x > 0);
+    el.classList.toggle('bad', el.value.trim() !== '' && !(isFinite(x) && x > 0));
+    return isFinite(x) && x > 0 ? x : NaN;
+  }
+  function kachel(k, v, klein) {
+    return '<div><div class="k">' + k + '</div><div class="v">' + v +
+           (klein ? ' <small>' + klein + '</small>' : '') + '</div></div>';
+  }
+  // Ohne Tausenderpunkt: "4.775" liest sich neben "0,05" wie viereinhalb,
+  // und auf Maschinendisplays steht die Drehzahl auch ohne Trenner.
+  function z1(x) {
+    return String(FERT.rund(x, x < 10 ? 2 : x < 100 ? 1 : 0)).replace('.', ',');
+  }
+
+  var letzte = { n: NaN, vf: NaN };
+
+  /* ---- Schnittgeschwindigkeit, Durchmesser, Drehzahl ---- */
+  function teil1() {
+    var vc = num('vc'), d = num('d'), n = num('n');
+    var da = [isFinite(vc), isFinite(d), isFinite(n)].filter(Boolean).length;
+    var erg = { vc: vc, d: d, n: n }, gerechnet = null;
+
+    if (isFinite(vc) && isFinite(d))      { erg.n = FERT.drehzahl(vc, d); gerechnet = 'n'; }
+    else if (isFinite(d) && isFinite(n))  { erg.vc = FERT.schnittgeschwindigkeit(n, d); gerechnet = 'vc'; }
+    else if (isFinite(vc) && isFinite(n)) { erg.d = vc * 1000 / (Math.PI * n); gerechnet = 'd'; }
+
+    if (!gerechnet) {
+      $('out1').innerHTML = '';
+      $('note1').className = 'note';
+      $('note1').textContent = 'Noch ' + (2 - da) + ' Wert(e) eintragen.';
+      $('kurve').innerHTML = ''; $('kurve').dataset.drawn = ''; $('ktag').textContent = '';
+      letzte.n = NaN; teil2(); return;
+    }
+    if (da === 3) {
+      $('note1').className = 'note';
+      $('note1').textContent = 'Alle drei stehen — gerechnet wird ' + gerechnet + ' aus den beiden anderen.';
+    } else {
+      $('note1').className = 'note';
+      $('note1').textContent = '';
+    }
+    $('out1').innerHTML =
+      kachel('Schnittgeschw. v<sub>c</sub>', z1(erg.vc) + ' m/min', gerechnet === 'vc' ? '' : 'gegeben') +
+      kachel('Durchmesser d', z1(erg.d) + ' mm', gerechnet === 'd' ? '' : 'gegeben') +
+      kachel('Drehzahl n', z1(erg.n) + ' 1/min', gerechnet === 'n' ? '' : 'gegeben');
+
+    letzte.n = erg.n;
+    kurve(erg.vc, erg.d, erg.n);
+    teil2();
+  }
+
+  // n über d bei festem vc — zeigt, wie steil die Drehzahl bei kleinen Werkzeugen steigt
+  function kurve(vc, d, n) {
+    if (!(vc > 0) || !(d > 0)) { $('kurve').innerHTML = ''; $('kurve').dataset.drawn = ''; return; }
+    var dmax = Math.max(d * 2.5, 20), xs = [], ys = [], i, x;
+    for (i = 0; i <= 80; i++) {
+      x = 0.5 + (dmax - 0.5) * i / 80;
+      xs.push(x); ys.push(FERT.drehzahl(vc, x));
+    }
+    $('ktag').textContent = 'v_c = ' + z1(vc) + ' m/min';
+    D.mountChart($('kurve'), {
+      xs: xs, ys: ys, x0: 0.5, x1: dmax, y1: FERT.drehzahl(vc, Math.max(1, d / 3)),
+      xlab: 'd in mm', ylab: 'n in 1/min', title: 'Drehzahl über dem Durchmesser',
+      fx: function (v) { return z1(v); }, fy: function (v) { return z1(v); },
+      point: { x: d, y: n, label: z1(n) + ' 1/min' },
+      readout: function (x, y) { return z1(x) + ' mm → ' + z1(y) + ' 1/min'; }
+    });
+  }
+
+  /* ---- Vorschub ---- */
+  function teil2() {
+    if (!$('n2').value.trim() && isFinite(letzte.n)) $('n2').placeholder = z1(letzte.n) + ' aus oben';
+    var n = isFinite(num('n2')) ? num('n2') : letzte.n;
+    var z = num('z'), fz = num('fz'), vf = num('vf');
+
+    if (!(n > 0) || !(z > 0)) {
+      $('out2').innerHTML = ''; $('note2').className = 'note';
+      $('note2').textContent = 'Drehzahl und Zähnezahl werden gebraucht.';
+      letzte.vf = NaN; teil3(); return;
+    }
+    var erg;
+    if (isFinite(fz))      erg = { fz: fz, vf: FERT.vorschub(n, z, fz), quelle: 'fz' };
+    else if (isFinite(vf)) erg = { vf: vf, fz: FERT.zahnvorschub(vf, n, z), quelle: 'vf' };
+    else {
+      $('out2').innerHTML = ''; $('note2').className = 'note';
+      $('note2').textContent = 'Zahnvorschub oder Vorschubgeschwindigkeit eintragen.';
+      letzte.vf = NaN; teil3(); return;
+    }
+    $('note2').className = 'note'; $('note2').textContent = '';
+    $('out2').innerHTML =
+      kachel('Zahnvorschub f<sub>z</sub>', z1(erg.fz) + ' mm', erg.quelle === 'fz' ? 'gegeben' : '') +
+      kachel('Vorschub je Umdr. f', z1(erg.fz * z) + ' mm', '') +
+      kachel('Vorschub v<sub>f</sub>', z1(erg.vf) + ' mm/min', erg.quelle === 'vf' ? 'gegeben' : '');
+    letzte.vf = erg.vf;
+    teil3();
+  }
+
+  /* ---- Hauptzeit ---- */
+  var art = 'frei';
+  function teil3() {
+    var l = num('l'), i = num('iz'), d = num('d'), vf = letzte.vf;
+    if (!(l > 0) || !(vf > 0)) {
+      $('out3').innerHTML = ''; $('note3').className = 'note';
+      $('note3').textContent = !(vf > 0) ? 'Es fehlt noch der Vorschub von oben.' : 'Weg eintragen.';
+      return;
+    }
+    var L = l, zusatz = 0;
+    if (art !== 'frei') {
+      if (!(d > 0)) {
+        $('out3').innerHTML = ''; $('note3').className = 'note bad';
+        $('note3').textContent = 'Zum Bohren wird der Durchmesser aus dem ersten Rechner gebraucht.';
+        return;
+      }
+      zusatz = FERT.bohrWeg(l, d, art === 'durch') - l;
+      L = l + zusatz;
+    }
+    var th = FERT.hauptzeit(L, vf, i > 0 ? i : 1);
+    $('note3').className = 'note';
+    $('note3').textContent = zusatz
+      ? 'Darin ' + z1(zusatz) + ' mm Anschnitt' + (art === 'durch' ? ' und Überlauf' : '') + '.'
+      : '';
+    $('out3').innerHTML =
+      kachel('Gesamter Weg L', z1(L) + ' mm', '') +
+      kachel('Hauptzeit t<sub>h</sub>', z1(th) + ' min', z1(th * 60) + ' s') +
+      kachel('Vorschub v<sub>f</sub>', z1(vf) + ' mm/min', 'von oben');
+  }
+
+  /* ---- Richtwerte ---- */
+  function richtwerte() {
+    var h = '<table class="farben"><thead><tr><th>Werkstoff</th><th>HSS</th><th>Hartmetall</th>' +
+            '<th></th></tr></thead><tbody>';
+    FERT.VC.forEach(function (r, idx) {
+      h += '<tr><td class="n">' + r.werkstoff + '</td>' +
+           '<td>' + r.hss[0] + '–' + r.hss[1] + '</td>' +
+           '<td>' + r.hm[0] + '–' + r.hm[1] + '</td>' +
+           '<td><button class="btn mini" data-r="' + idx + '" data-s="hss">HSS</button> ' +
+           '<button class="btn mini" data-r="' + idx + '" data-s="hm">HM</button></td></tr>';
+    });
+    $('vctab').innerHTML = h + '</tbody></table>';
+    $('vctab').onclick = function (e) {
+      var b = e.target.closest('button[data-r]');
+      if (!b) return;
+      var r = FERT.VC[+b.dataset.r], s = r[b.dataset.s];
+      $('vc').value = Math.round((s[0] + s[1]) / 2);
+      teil1();
+      $('vc').scrollIntoView({ block: 'center', behavior: ET.reduced() ? 'auto' : 'smooth' });
+    };
+  }
+
+  ['vc', 'd', 'n'].forEach(function (id) { $(id).oninput = teil1; });
+  ['fz', 'z', 'n2', 'vf'].forEach(function (id) { $(id).oninput = teil2; });
+  ['l', 'iz'].forEach(function (id) { $(id).oninput = teil3; });
+  $('art').onclick = function (e) {
+    var b = e.target.closest('button[data-a]');
+    if (!b) return;
+    art = b.dataset.a;
+    Array.prototype.forEach.call($('art').children, function (x) {
+      x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
+    });
+    teil3();
+  };
+
+  richtwerte();
+  $('vc').value = '120'; $('d').value = '8'; $('fz').value = '0.05'; $('l').value = '25';
+  teil1();
+})();
+</script>
+</body>
+</html>
