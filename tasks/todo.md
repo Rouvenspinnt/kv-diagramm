@@ -18,11 +18,11 @@
 - [x] Pruefpunkt B: Tabellen gegen zweite Quelle stichprobenartig geprueft
 
 ## Phase 2 — Mess- und Regeltechnik
-- [ ] 2.1 Normsignal 4–20 mA / 0–10 V skalieren
-- [ ] 2.2 SPS-Rohwert 0–27648
-- [ ] 2.3 Pt100 / Pt1000
-- [ ] 2.4 Thermoelemente K, J, T
-- [ ] 2.5 Messabweichung und Toleranz
+- [x] 2.1 Normsignal 4–20 mA / 0–10 V skalieren
+- [x] 2.2 SPS-Rohwert 0–27648
+- [x] 2.3 Pt100 / Pt1000
+- [x] 2.4 Thermoelemente K, J, T
+- [x] 2.5 Messabweichung und Toleranz
 
 ## Phase 3 — Antrieb und Mechanik
 - [ ] 3.1 Drehmoment, Drehzahl, Leistung

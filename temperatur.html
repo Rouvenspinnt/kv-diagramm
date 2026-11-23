@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pt100 &amp; Thermoelement</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Pt100 &amp; Thermoelement</h1>
+    <p>Vom gemessenen Widerstand oder von den Millivolt zur Temperatur — und zurück.</p>
+    <nav class="nav" id="nav" aria-label="Werkzeuge"></nav>
+  </div>
+</header>
+
+<main class="wrap narrow">
+  <section class="panel" id="pt">
+    <h2>Widerstandsthermometer <span class="tag" id="ptag"></span></h2>
+    <div class="body">
+      <p class="caption">Temperatur oder Widerstand eintragen, der andere Wert kommt heraus.
+        Gerechnet wird mit der Kennlinie nach DIN EN 60751, nicht mit der geraden Näherung —
+        der Unterschied beträgt bei 400 °C schon mehrere Grad.</p>
+      <div class="fields">
+        <label class="f" data-help="Pt100 hat bei 0 °C genau 100 Ω, Pt1000 genau 1000 Ω. Pt1000 ist im Schaltschrank die bessere Wahl: der Leitungswiderstand fällt zehnmal weniger ins Gewicht."><span>Fühler</span><div class="row"><select id="r0"><option value="100">Pt100</option><option value="1000">Pt1000</option></select></div></label>
+        <label class="f" data-help="Die Temperatur am Fühler in Grad Celsius. Gültig von −200 bis 850 °C; darüber gilt die Kennlinie nicht mehr."><span>Temperatur</span><div class="row"><input id="t" inputmode="decimal" value="100"><span class="unit">°C</span></div></label>
+        <label class="f" data-help="Der gemessene Widerstand des Fühlers in Ohm. Leer lassen, wenn du von der Temperatur aus rechnest."><span>Widerstand</span><div class="row"><input id="r" inputmode="decimal" placeholder="wird gerechnet"><span class="unit">Ω</span></div></label>
+        <label class="f" data-help="Der Widerstand der Zuleitung, hin und zurück. Bei Zweileiteranschluss misst das Gerät ihn mit und zeigt deshalb zu viel an. Bei Drei- und Vierleiteranschluss trag 0 ein — dort wird er herausgerechnet."><span>Leitung (2-Leiter)</span><div class="row"><input id="rl" inputmode="decimal" value="0"><span class="unit">Ω</span></div></label>
+      </div>
+      <div class="dia" id="kurve"></div>
+      <div class="out" id="out1"></div>
+      <p class="note" id="note1"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="thermo">
+    <h2>Thermoelement <span class="tag" id="ttag"></span></h2>
+    <div class="body">
+      <p class="caption">Ein Thermoelement misst keine Temperatur, sondern den Unterschied
+        zwischen Messstelle und Vergleichsstelle. Die Vergleichsstelle ist die Klemme am
+        Messgerät — ihre Temperatur muss dazugerechnet werden, sonst fehlt genau dieser Teil.</p>
+      <div class="fields">
+        <label class="f" data-help="Der Typ steht auf dem Fühler und auf der Leitung. K (NiCr-Ni) ist der Normalfall bis rund 1300 °C, J (Fe-CuNi) wird an älteren Anlagen und Kunststoffmaschinen benutzt, T (Cu-CuNi) für tiefe Temperaturen."><span>Typ</span><div class="row"><select id="typ"></select></div></label>
+        <label class="f" data-help="Die Temperatur an der Messstelle, also dort wo der Fühler sitzt. Leer lassen, wenn du von der gemessenen Spannung aus rechnest."><span>Messstelle</span><div class="row"><input id="tm" inputmode="decimal" value="300"><span class="unit">°C</span></div></label>
+        <label class="f" data-help="Die Temperatur an den Anschlussklemmen des Messgeräts. Moderne Geräte messen sie selbst und rechnen sie dazu; bei einer Messung mit dem Multimeter ist es die Raumtemperatur. 0 °C bedeutet Eisbad — so stehen die Werte in den Tafeln."><span>Vergleichsstelle</span><div class="row"><input id="tv" inputmode="decimal" value="20"><span class="unit">°C</span></div></label>
+        <label class="f" data-help="Die Spannung, die das Messgerät an den Klemmen sieht, in Millivolt. Leer lassen, wenn du von der Temperatur aus rechnest."><span>Spannung</span><div class="row"><input id="mv" inputmode="decimal" placeholder="wird gerechnet"><span class="unit">mV</span></div></label>
+      </div>
+      <div class="out" id="out2"></div>
+      <p class="note" id="note2"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="vergleich">
+    <h2>Wofür welcher Fühler <span class="tag">zum Entscheiden</span></h2>
+    <div class="body">
+      <div id="tafel"></div>
+      <p class="caption">Grob: solange die Temperatur unter 500 °C bleibt, ist der Pt100 der
+        genauere und bequemere Fühler. Darüber bleibt nur das Thermoelement.</p>
+    </div>
+  </section>
+</main>
+
+<script src="tools.js"></script>
+<script src="et.js"></script>
+<script src="draw.js"></script>
+<script src="calc-messen.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  function zr(x, stellen) {
+    if (!isFinite(x)) return '—';
+    var f = Math.pow(10, stellen);
+    return String(Math.round(x * f) / f).replace('.', ',');
+  }
+  function kachel(k, v, klein) {
+    return '<div><div class="k">' + k + '</div><div class="v">' + v +
+           (klein ? ' <small>' + klein + '</small>' : '') + '</div></div>';
+  }
+  function num(id) {
+    var el = $(id), x = ET.parseVal(el.value);
+    var gut = isFinite(x);
+    el.classList.toggle('filled', gut && el.value.trim() !== '');
+    el.classList.toggle('bad', el.value.trim() !== '' && !gut);
+    return gut ? x : NaN;
+  }
+
+  /* ---- Pt100 / Pt1000 ---- */
+  function teil1() {
+    var r0 = parseFloat($('r0').value);
+    var t = num('t'), r = num('r'), rl = num('rl'), quelle;
+    $('ptag').textContent = r0 === 100 ? 'Pt100 · DIN EN 60751' : 'Pt1000 · DIN EN 60751';
+
+    if (isFinite(t))      { r = MESS.widerstand(t, r0); quelle = 't'; }
+    else if (isFinite(r)) { t = MESS.temperatur(r, r0); quelle = 'r'; }
+    else {
+      $('out1').innerHTML = ''; $('note1').className = 'note';
+      $('note1').textContent = 'Temperatur oder Widerstand eintragen.';
+      $('kurve').innerHTML = ''; $('kurve').dataset.drawn = '';
+      return;
+    }
+    if (!isFinite(t) || !isFinite(r)) {
+      $('out1').innerHTML = ''; $('note1').className = 'note bad';
+      $('note1').textContent = 'Außerhalb der Kennlinie — sie gilt von −200 bis 850 °C, ' +
+        'bei Pt100 also von 18,5 bis 390,5 Ω.';
+      $('kurve').innerHTML = ''; $('kurve').dataset.drawn = '';
+      return;
+    }
+
+    // Steigung an dieser Stelle: wie viel Ohm je Grad das Messgerät auflösen muss
+    var steig = (MESS.widerstand(Math.min(849, t + 0.5), r0) -
+                 MESS.widerstand(Math.max(-200, t - 0.5), r0));
+    var fehler = rl > 0 ? MESS.temperatur(r + rl, r0) - t : 0;
+
+    $('out1').innerHTML =
+      kachel('Widerstand', zr(r, 2) + ' Ω', quelle === 'r' ? 'gemessen' : '') +
+      kachel('Temperatur', zr(t, 2) + ' °C', quelle === 't' ? 'gegeben' : '') +
+      kachel('Steigung', zr(steig, 3) + ' Ω/K', 'an dieser Stelle') +
+      (rl > 0
+        ? kachel('Leitungsfehler', '+ ' + zr(fehler, 2) + ' K', zr(rl, 2) + ' Ω Leitung')
+        : kachel('Gerade genommen', zr((r / r0 - 1) / 0.00385, 1) + ' °C', 'lineare Näherung'));
+
+    $('note1').className = 'note';
+    $('note1').textContent = rl > 0
+      ? 'Im Zweileiter zeigt das Gerät ' + zr(fehler, 2) + ' K zu viel. Beim Pt1000 wäre derselbe ' +
+        'Leitungswiderstand rund ein Zehntel davon wert — oder du legst drei Adern.'
+      : 'Die Kennlinie ist leicht gekrümmt. Die lineare Näherung mit 0,385 Ω/K stimmt nur ' +
+        'nahe null; weiter oben läuft sie sichtbar auseinander.';
+    kurve(t, r, r0);
+  }
+
+  // R über t, damit die Krümmung und der Arbeitspunkt zusammen sichtbar werden
+  function kurve(t, r, r0) {
+    var xs = [], ys = [], i, x;
+    for (i = 0; i <= 100; i++) {
+      x = -200 + 1050 * i / 100;
+      xs.push(x); ys.push(MESS.widerstand(x, r0));
+    }
+    D.mountChart($('kurve'), {
+      xs: xs, ys: ys, x0: -200, x1: 850, y1: MESS.widerstand(850, r0) * 1.1,
+      xlab: 't in °C', ylab: 'R in Ω', title: 'Kennlinie des Widerstandsthermometers',
+      fx: function (v) { return zr(v, 0); }, fy: function (v) { return zr(v, 0); },
+      point: { x: t, y: r, label: zr(r, 1) + ' Ω' },
+      readout: function (x, y) { return zr(x, 0) + ' °C → ' + zr(y, 1) + ' Ω'; }
+    });
+  }
+
+  /* ---- Thermoelement ---- */
+  function fuelleTypen() {
+    $('typ').innerHTML = Object.keys(MESS.THERMO).map(function (k) {
+      var e = MESS.THERMO[k];
+      return '<option value="' + k + '">' + e.name + ' · ' + e.paar + '</option>';
+    }).join('');
+    $('typ').value = 'K';
+  }
+
+  function teil2() {
+    var typ = $('typ').value, e = MESS.THERMO[typ];
+    var tm = num('tm'), tv = num('tv'), mv = num('mv'), quelle;
+    if (!isFinite(tv)) tv = 0;
+    $('ttag').textContent = e.name + ' · ' + e.von + ' bis ' + e.bis + ' °C';
+
+    if (isFinite(tm))      { mv = MESS.thermoSpannung(typ, tm, tv); quelle = 't'; }
+    else if (isFinite(mv)) { tm = MESS.thermoTemperatur(typ, mv, tv); quelle = 'mv'; }
+    else {
+      $('out2').innerHTML = ''; $('note2').className = 'note';
+      $('note2').textContent = 'Temperatur der Messstelle oder gemessene Spannung eintragen.';
+      return;
+    }
+    if (!isFinite(tm) || !isFinite(mv)) {
+      $('out2').innerHTML = ''; $('note2').className = 'note bad';
+      $('note2').textContent = 'Außerhalb des Bereichs — ' + e.name + ' geht von ' + e.von +
+        ' bis ' + e.bis + ' °C.';
+      return;
+    }
+    var kalt = MESS.thermoSpannung(typ, tv, 0);
+    var empf = (MESS.thermoSpannung(typ, Math.min(e.bis, tm + 0.5), 0) -
+                MESS.thermoSpannung(typ, Math.max(e.von, tm - 0.5), 0)) * 1000;
+
+    $('out2').innerHTML =
+      kachel('Spannung', zr(mv, 3) + ' mV', quelle === 'mv' ? 'gemessen' : 'an den Klemmen') +
+      kachel('Messstelle', zr(tm, 1) + ' °C', quelle === 't' ? 'gegeben' : '') +
+      kachel('Anteil Vergleichsstelle', zr(kalt, 3) + ' mV', 'bei ' + zr(tv, 1) + ' °C') +
+      kachel('Empfindlichkeit', zr(empf, 1) + ' µV/K', 'hier');
+
+    $('note2').className = 'note';
+    $('note2').textContent = 'Ohne Vergleichsstellenkorrektur läse das Gerät ' +
+      zr(MESS.thermoTemperatur(typ, mv, 0), 1) + ' °C statt ' + zr(tm, 1) + ' °C — ' +
+      'das sind ' + zr(tm - MESS.thermoTemperatur(typ, mv, 0), 1) + ' K Unterschied. ' +
+      'Genau dafür ist die Klemmentemperatur da.';
+  }
+
+  /* ---- Übersicht ---- */
+  function tafel() {
+    var h = '<table class="farben"><thead><tr><th>Fühler</th><th>Bereich</th>' +
+            '<th>Signal</th><th>Gut für</th></tr></thead><tbody>' +
+      zeile('Pt100', '−200 … 850 °C', '0,385 Ω/K', 'genau, träge, überall unter 500 °C') +
+      zeile('Pt1000', '−200 … 850 °C', '3,85 Ω/K', 'wie Pt100, aber lange Leitungen') +
+      zeile('Typ K', '−270 … 1372 °C', '41 µV/K', 'heiß, Ofen, Abgas, schnell') +
+      zeile('Typ J', '−210 … 760 °C', '55 µV/K', 'ältere Anlagen, Kunststoffmaschinen') +
+      zeile('Typ T', '−270 … 400 °C', '43 µV/K', 'kalt, Kältetechnik, Labor');
+    $('tafel').innerHTML = h + '</tbody></table>';
+  }
+  function zeile(a, b, c, d) {
+    return '<tr><td class="n">' + a + '</td><td>' + b + '</td><td>' + c + '</td><td>' + d + '</td></tr>';
+  }
+
+  fuelleTypen();
+  ['r0', 't', 'r', 'rl'].forEach(function (id) { $(id).oninput = teil1; $(id).onchange = teil1; });
+  ['typ', 'tm', 'tv', 'mv'].forEach(function (id) { $(id).oninput = teil2; $(id).onchange = teil2; });
+  tafel();
+  teil1();
+  teil2();
+})();
+</script>
+</body>
+</html>

@@ -57,6 +57,26 @@ Die Passungen decken das System Einheitsbohrung ab —
 die schweren Pressverbände ab `r` fehlen bewusst, weil ihre Grundabmaße über 50 mm in
 Teilbereiche zerfallen.
 
+## Mess- & Regeltechnik
+
+- **Normsignal, SPS-Rohwert, Abweichung** (`normsignal.html`) — 4–20 mA oder 0–10 V auf
+  den Messbereich und zurück, dazu der Rohwert 0–27648 einer Siemens-Analogbaugruppe mit
+  Über- und Untersteuerung als Band, und zuletzt Abweichung und Toleranzband aus
+  Prozent vom Messwert und Prozent vom Endwert.
+- **Pt100 & Thermoelement** (`temperatur.html`) — Widerstand und Temperatur ineinander
+  nach der gekrümmten Kennlinie, mit dem Leitungsfehler im Zweileiteranschluss, und
+  Thermoelemente K, J und T mit der Vergleichsstelle.
+
+Die Zahlen stehen in `calc-messen.js`: Callendar-van-Dusen nach DIN EN 60751, die
+Thermospannungen als Polynome nach NIST ITS-90. Die Umkehrung (Spannung → Temperatur)
+wird numerisch gesucht statt mit einem zweiten Koeffizientensatz — beide Kennlinien
+steigen streng monoton, und der Test prüft das über den ganzen Bereich Grad für Grad.
+Typ J ist bewusst auf −210…760 °C begrenzt, weil darüber ein anderer Satz gilt.
+Koeffizienten und Kennlinie sind gegengeprüft und stimmen Ziffer für Ziffer. Die
+Siemens-Rohwertgrenzen gelten für Analogeingaben; 2–10 V steht in keiner Siemens-Tabelle
+und ist nur nach demselben Schema fortgeschrieben, und für 0–10 V führt Siemens keinen
+Untersteuerungsbereich auf — beides steht als Hinweis auf der Seite.
+
 ## Schaltbilder
 
 Ohm, LED/Teiler und Wechselstrom zeichnen die Schaltung, um die es gerade geht, und
@@ -93,6 +113,7 @@ Die Texte stehen als `data-help` am Feld, die Mechanik einmal in `et.js`.
 node test.js
 node test-et.js
 node test-fertigung.js
+node test-messen.js
 ```
 
 `test.js` prüft alle 256 Funktionen mit 3 Variablen sowie Zufallsfunktionen mit 4 bis 6 Variablen
@@ -100,3 +121,5 @@ node test-fertigung.js
 `test-et.js` prüft Einheitenparser, E-Reihen, Ohm/Leistung, Farbcode in beide Richtungen,
 die Wechselstromformeln und das Werkzeugverzeichnis samt Suche.
 `test-fertigung.js` prüft Schnittdaten, Gewindetafel und Passungen gegen von Hand nachgerechnete Werte.
+`test-messen.js` prüft Normsignale und Rohwertgrenzen, die Pt100-Kennlinie gegen die
+Grundwertreihe und die Thermospannungen gegen die NIST-Tafeln, dazu Abweichung und Toleranz.

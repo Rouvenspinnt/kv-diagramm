@@ -68,7 +68,34 @@
     { id: 'passung', titel: 'ISO-Passungen', gebiet: 'fertigung', datei: 'passungen.html',
       kurz: 'Spiel und Übermaß einer Paarung wie H7/g6, in Mikrometern',
       w: ['passung', 'toleranz', 'h7', 'g6', 'k6', 'n6', 'p6', 'spiel', 'uebermass',
-          'presssitz', 'uebergangspassung', 'iso 286', 'grenzmass', 'it7', 'welle', 'bohrung'] }
+          'presssitz', 'uebergangspassung', 'iso 286', 'grenzmass', 'it7', 'welle', 'bohrung'] },
+
+    { id: 'normsignal', titel: 'Normsignal skalieren', gebiet: 'messen',
+      datei: 'normsignal.html#norm',
+      kurz: '4–20 mA oder 0–10 V auf den Messbereich, in beide Richtungen',
+      w: ['normsignal', 'einheitssignal', '4-20ma', '4 20 ma', '0-10v', '0 10 v', 'skalieren',
+          'messbereich', 'sensor', 'transmitter', 'lebende null', 'drahtbruch', 'strommessung'] },
+
+    { id: 'sps', titel: 'SPS-Rohwert', gebiet: 'messen', datei: 'normsignal.html#sps',
+      kurz: 'Rohwert 0–27648 in den Messwert und zurück, mit Über- und Untersteuerung',
+      w: ['rohwert', 'analogwert', '27648', '32767', 'peripheriewort', 'norm_x', 'scale',
+          'siemens', 's7', 'tia', 'analogeingang', 'ueberlauf', 'ue', 'drahtbruch'] },
+
+    { id: 'abweichung', titel: 'Abweichung & Toleranz', gebiet: 'messen',
+      datei: 'normsignal.html#abweichung',
+      kurz: 'Absolute und relative Abweichung, Toleranzband aus v. M. und v. E.',
+      w: ['messabweichung', 'fehler', 'genauigkeit', 'toleranz', 'kalibrieren', 'pruefen',
+          'vom messwert', 'vom endwert', 'v.m.', 'v.e.', 'messunsicherheit'] },
+
+    { id: 'pt100', titel: 'Pt100 & Pt1000', gebiet: 'messen', datei: 'temperatur.html#pt',
+      kurz: 'Widerstand und Temperatur ineinander, mit Leitungsfehler im Zweileiter',
+      w: ['pt100', 'pt1000', 'widerstandsthermometer', 'temperaturfuehler', 'ohm',
+          'kennlinie', 'din en 60751', 'callendar', 'zweileiter', 'vierleiter', 'klixon'] },
+
+    { id: 'thermo', titel: 'Thermoelement', gebiet: 'messen', datei: 'temperatur.html#thermo',
+      kurz: 'Typ K, J und T: Millivolt und Temperatur, mit Vergleichsstelle',
+      w: ['thermoelement', 'thermoelemente', 'typ k', 'typ j', 'typ t', 'nicr', 'nicrni',
+          'millivolt', 'mv', 'vergleichsstelle', 'kaltstelle', 'klemmentemperatur', 'ofen'] }
   ];
 
   /* Suche: jedes eingetippte Wort muss irgendwo vorkommen. Treffer im Titel

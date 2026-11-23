@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Normsignal &amp; SPS-Rohwert</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Normsignal &amp; SPS-Rohwert</h1>
+    <p>Was 12 mA am Sensor in Grad bedeuten — und was die Steuerung daraus macht.</p>
+    <nav class="nav" id="nav" aria-label="Werkzeuge"></nav>
+  </div>
+</header>
+
+<main class="wrap narrow">
+  <section class="panel" id="norm">
+    <h2>Signal und Messbereich <span class="tag" id="tag"></span></h2>
+    <div class="body">
+      <p class="caption">Messbereich eintragen, dann entweder das Signal oder den Messwert —
+        die andere Seite wird gerechnet. Der Messwert steht in der Einheit des Sensors —
+        Grad, bar, Millimeter, was auch immer auf dem Typenschild steht.</p>
+      <div class="fields">
+        <label class="f" data-help="Welches Normsignal der Sensor liefert. 4–20 mA ist der Normalfall in der Anlage: der Strom ist unempfindlich gegen Leitungswiderstand, und weil er bei 4 mA anfängt, lässt sich ein Drahtbruch von einem echten Nullwert unterscheiden."><span>Signalart</span><div class="row"><select id="art"></select></div></label>
+        <label class="f" data-help="Der Messwert, den der Sensor beim kleinsten Signal ausgibt — also bei 4 mA oder 0 V. Steht auf dem Typenschild oder im Parametersatz des Sensors."><span>Bereich von</span><div class="row"><input id="m0" inputmode="decimal" value="0"></div></label>
+        <label class="f" data-help="Der Messwert beim größten Signal, also bei 20 mA oder 10 V. Zusammen mit dem unteren Wert ist das die Spanne, über die der Sensor auflöst."><span>Bereich bis</span><div class="row"><input id="m1" inputmode="decimal" value="100"></div></label>
+      </div>
+      <div class="fields">
+        <label class="f" data-help="Was das Messgerät an der Klemme anzeigt. Leer lassen, wenn du stattdessen vom Messwert aus rechnen willst."><span>Signal</span><div class="row"><input id="sig" inputmode="decimal" value="12"><span class="unit" id="es">mA</span></div></label>
+        <label class="f" data-help="Der physikalische Wert, den der Sensor gerade sieht. Leer lassen, wenn du vom Signal aus rechnest."><span>Messwert</span><div class="row"><input id="mw" inputmode="decimal" placeholder="wird gerechnet"></div></label>
+      </div>
+      <div class="out" id="out1"></div>
+      <p class="note" id="note1"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="sps">
+    <h2>SPS-Rohwert <span class="tag">Siemens S7</span></h2>
+    <div class="body">
+      <p class="caption">Die Analogbaugruppe gibt den Nennbereich als 0 bis 27648 aus, nicht in
+        mA. Darüber und darunter bleibt Luft, damit die Steuerung einen Fühlerfehler von
+        einem Messwert am Rand unterscheiden kann. Signalart und Messbereich kommen von oben.
+        Die Grenzen gelten für Analogeingaben — ein Analogausgang hat andere, und er geht bei
+        Über- und Unterlauf auf null.</p>
+      <div class="fields">
+        <label class="f" data-help="Der Wert, der im Merkerwort oder im Peripheriewort steht — das, was die Online-Ansicht der Steuerung zeigt. Leer lassen, dann wird er aus dem Signal oben gerechnet."><span>Rohwert</span><div class="row"><input id="roh" inputmode="numeric" placeholder="aus oben"><span class="unit">—</span></div></label>
+      </div>
+      <div class="dia" id="band"></div>
+      <div class="out" id="out2"></div>
+      <p class="note" id="note2"></p>
+      <p class="caption" id="hinweis2"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="abweichung">
+    <h2>Abweichung &amp; Toleranz <span class="tag">wie genau ist das noch</span></h2>
+    <div class="body">
+      <p class="caption">Oben: was die Prüfung ergibt. Unten: was das Datenblatt zulässt.
+        Der Endwert ist der obere Wert des Messbereichs von ganz oben.</p>
+      <div class="fields">
+        <label class="f" data-help="Der Wert, den das zu prüfende Gerät anzeigt."><span>Istwert</span><div class="row"><input id="ist" inputmode="decimal" placeholder="z. B. 102"></div></label>
+        <label class="f" data-help="Der richtige Wert — vom Normal, vom Kalibrator oder vom Referenzgerät."><span>Sollwert</span><div class="row"><input id="soll" inputmode="decimal" placeholder="z. B. 100"></div></label>
+        <label class="f" data-help="Prozent vom Messwert (v. M.). Dieser Anteil wächst mit dem Messwert mit, er ist also über den ganzen Bereich gleich schwer."><span>% v. M.</span><div class="row"><input id="pvm" inputmode="decimal" value="0.5"><span class="unit">%</span></div></label>
+        <label class="f" data-help="Prozent vom Endwert (v. E.), auch „vom Messbereichsendwert“. Dieser Anteil ist eine feste Zahl — am unteren Ende des Bereichs wiegt er darum am schwersten."><span>% v. E.</span><div class="row"><input id="pve" inputmode="decimal" value="0.2"><span class="unit">%</span></div></label>
+      </div>
+      <div class="out" id="out3"></div>
+      <p class="note" id="note3"></p>
+    </div>
+  </section>
+</main>
+
+<script src="tools.js"></script>
+<script src="et.js"></script>
+<script src="draw.js"></script>
+<script src="calc-messen.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+
+  function zr(x, stellen) {                      // feste Nachkommastellen, deutsch
+    var f = Math.pow(10, stellen);
+    return String(Math.round(x * f) / f).replace('.', ',');
+  }
+  function kachel(k, v, klein) {
+    return '<div><div class="k">' + k + '</div><div class="v">' + v +
+           (klein ? ' <small>' + klein + '</small>' : '') + '</div></div>';
+  }
+  function num(id) {
+    var el = $(id), x = ET.parseVal(el.value);
+    var gut = isFinite(x);
+    el.classList.toggle('filled', gut && el.value.trim() !== '');
+    el.classList.toggle('bad', el.value.trim() !== '' && !gut);
+    return gut ? x : NaN;
+  }
+
+  var letzte = { art: '4-20mA', m0: 0, m1: 100, sig: NaN, mw: NaN };
+
+  function fuelle() {
+    $('art').innerHTML = Object.keys(MESS.SIGNALE).map(function (id) {
+      return '<option value="' + id + '">' + MESS.SIGNALE[id].name + '</option>';
+    }).join('');
+    $('art').value = '4-20mA';
+  }
+
+  /* ---- Signal und Messbereich ---- */
+  function teil1() {
+    var art = $('art').value, g = MESS.signal(art);
+    var m0 = num('m0'), m1 = num('m1');
+    $('es').textContent = g.einheit;
+    $('tag').textContent = g.name;
+
+    if (!isFinite(m0) || !isFinite(m1) || m0 === m1) {
+      $('out1').innerHTML = ''; $('note1').className = 'note bad';
+      $('note1').textContent = 'Messbereich eintragen — zwei verschiedene Werte.';
+      letzte.sig = letzte.mw = NaN; teil2(); return;
+    }
+    var sig = num('sig'), mw = num('mw'), quelle;
+    if (isFinite(sig))     { mw = MESS.ausSignal(sig, art, m0, m1); quelle = 'sig'; }
+    else if (isFinite(mw)) { sig = MESS.zuSignal(mw, art, m0, m1); quelle = 'mw'; }
+    else {
+      $('out1').innerHTML = ''; $('note1').className = 'note';
+      $('note1').textContent = 'Signal oder Messwert eintragen.';
+      letzte.sig = letzte.mw = NaN; teil2(); return;
+    }
+    var anteil = (sig - g.s0) / (g.s1 - g.s0);
+    var proEinheit = (g.s1 - g.s0) / (m1 - m0);
+
+    $('out1').innerHTML =
+      kachel('Messwert', zr(mw, 3), quelle === 'mw' ? 'gegeben' : '') +
+      kachel('Signal', zr(sig, 4) + ' ' + g.einheit, quelle === 'sig' ? 'gegeben' : '') +
+      kachel('Vom Bereich', zr(anteil * 100, 1) + ' %', '') +
+      kachel('Je Einheit', zr(proEinheit, 4) + ' ' + g.einheit, 'Steigung');
+
+    $('note1').className = 'note';
+    $('note1').textContent = anteil < 0 || anteil > 1
+      ? 'Außerhalb des Messbereichs — der Sensor ist hier nicht mehr spezifiziert.'
+      : g.live
+      ? 'Lebende Null: unter ' + zr(g.s0, 2) + ' ' + g.einheit +
+        ' liegt kein Messwert mehr, sondern ein Fehler — Drahtbruch oder Sensor aus.'
+      : 'Ohne lebende Null ist 0 ' + g.einheit + ' ein gültiger Messwert. Ein Drahtbruch ' +
+        'sieht genauso aus wie der untere Bereichsanfang.';
+
+    letzte = { art: art, m0: m0, m1: m1, sig: sig, mw: mw };
+    teil2();
+  }
+
+  /* ---- SPS-Rohwert ---- */
+  function teil2() {
+    var art = letzte.art, g = MESS.signal(art);
+    var roh = num('roh'), sig = letzte.sig, aus;
+
+    if (isFinite(roh)) {
+      sig = MESS.ausRohwert(roh, art);
+      aus = MESS.rohwert(sig, art);
+    } else if (isFinite(sig)) {
+      aus = MESS.rohwert(sig, art);
+      roh = aus.roh;
+      $('roh').placeholder = String(roh) + ' aus oben';
+    } else {
+      $('out2').innerHTML = ''; $('note2').textContent = ''; $('hinweis2').textContent = '';
+      $('band').innerHTML = ''; $('band').dataset.drawn = '';
+      teil3(); return;
+    }
+    var mw = MESS.ausRohMesswert(roh, art, letzte.m0, letzte.m1);
+    var text = { nenn: 'Nennbereich', ueber: 'Übersteuerung', unter: 'Untersteuerung',
+                 overflow: 'Überlauf', underflow: 'Unterlauf' }[aus.lage];
+    var kurz = { nenn: 'im Nennbereich', ueber: 'über', unter: 'unter',
+                 overflow: 'Überlauf', underflow: 'Unterlauf' }[aus.lage];
+
+    $('out2').innerHTML =
+      kachel('Rohwert', String(Math.round(roh)), aus.lage === 'nenn' ? '' : text) +
+      kachel('Signal', zr(sig, 4) + ' ' + g.einheit, '') +
+      kachel('Messwert', isFinite(mw) ? zr(mw, 3) : '—', '') +
+      kachel('Lage', kurz, '');
+
+    $('note2').className = aus.lage === 'nenn' ? 'note' : 'note bad';
+    $('note2').textContent =
+      aus.lage === 'nenn' ? 'Im Nennbereich — die Baugruppe liefert einen gültigen Wert.' :
+      aus.lage === 'ueber' ? 'Über dem Nennbereich. Die Baugruppe rechnet noch weiter, der Sensor ' +
+        'ist hier aber schon über seinem Messbereich.' :
+      aus.lage === 'unter' ? 'Unter dem Nennbereich. Bei 4–20 mA heißt das: entweder der Sensor ' +
+        'misst unter dem Bereichsanfang, oder er schwächelt.' :
+      aus.lage === 'overflow' ? 'Überlauf: die Baugruppe meldet 32767. In der Steuerung muss das ' +
+        'abgefangen werden, sonst rechnet sie mit einem Fantasiewert weiter.' :
+      'Unterlauf: die Baugruppe meldet −32768. Bei 4–20 mA ist das der klassische Drahtbruch.';
+
+    $('hinweis2').textContent = g.hinweis || '';
+    band(roh, art);
+    teil3();
+  }
+
+  /* Der Rohwertbereich als Band. Die drei Zonen sind in Zahlen schwer zu behalten,
+     als Streifen mit einem Zeiger darin nicht. */
+  function band(roh, art) {
+    var g = MESS.signal(art), bip = !!g.bipolar;
+    var R = MESS.ROH, gr = MESS.grenzen(art);
+    var lo = bip ? -R.ueber : R.unter, hi = R.ueber;
+    var w = 460, h = 104, x0 = 20, x1 = 440, y = 34, bh = 26;
+    function px(v) { return x0 + (Math.max(lo, Math.min(hi, v)) - lo) / (hi - lo) * (x1 - x0); }
+    function zone(a, b, klasse) {
+      return '<rect class="part late ' + klasse + '" x="' + px(a).toFixed(1) + '" y="' + y +
+             '" width="' + Math.max(1, px(b) - px(a)).toFixed(1) + '" height="' + bh + '" rx="2"/>';
+    }
+    var zeiger = px(roh);
+    var inner =
+      zone(lo, gr.nenn0, 'fillB') +
+      zone(gr.nenn0, gr.nenn1, 'fillA') +
+      zone(gr.nenn1, hi, 'fillB') +
+      D.text(px((lo + gr.nenn0) / 2), y - 8, 'unter', '') +
+      D.text(px((gr.nenn0 + gr.nenn1) / 2), y - 8, 'Nennbereich', 'name') +
+      D.text(px((gr.nenn1 + hi) / 2), y - 8, 'über', '') +
+      D.text(px(gr.nenn0), y + bh + 14, String(gr.nenn0), '') +
+      D.text(px(gr.nenn1), y + bh + 14, String(gr.nenn1), '') +
+      '<path class="dim late" d="M' + zeiger.toFixed(1) + ' ' + (y - 22) + 'V' + (y + bh + 4) +
+        '" fill="none"/>' +
+      '<path class="arrow late" d="M' + (zeiger - 5).toFixed(1) + ' ' + (y - 4) + 'l5 8 5-8z"/>' +
+      D.text(Math.max(44, Math.min(x1 - 24, zeiger)), h - 6, String(Math.round(roh)), 'val');
+    D.mount($('band'), D.svg(w, h, 'Rohwertbereich mit Nenn-, Über- und Untersteuerung', inner));
+  }
+
+  /* ---- Abweichung und Toleranz ---- */
+  function teil3() {
+    var ist = num('ist'), soll = num('soll');
+    var pvm = num('pvm'), pve = num('pve');
+    var endwert = Math.max(Math.abs(letzte.m0), Math.abs(letzte.m1));
+    var bezug = isFinite(ist) ? ist : letzte.mw;
+    var teile = '';
+
+    var a = MESS.abweichung(ist, soll);
+    if (a) {
+      teile += kachel('Abweichung', (a.absolut > 0 ? '+' : '') + zr(a.absolut, 3), 'absolut') +
+               kachel('Relativ', isFinite(a.relativ) ? (a.relativ > 0 ? '+' : '') +
+                      zr(a.relativ * 100, 3) + ' %' : '—', 'vom Sollwert');
+    }
+    var t = isFinite(bezug) && isFinite(endwert) ? MESS.toleranz(bezug, endwert, pvm, pve) : null;
+    if (t) {
+      teile += kachel('Toleranzband', '± ' + zr(t.band, 3), zr(pvm, 3) + ' % v. M. + ' +
+                      zr(pve, 3) + ' % v. E.') +
+               kachel('Grenzen', zr(t.min, 3) + ' … ' + zr(t.max, 3), '') +
+               kachel('Bezogen auf ' + zr(bezug, 3), '± ' + zr(t.relativ * 100, 2) + ' %', '');
+    }
+    $('out3').innerHTML = teile;
+
+    $('note3').className = 'note';
+    if (a && t) {
+      $('note3').textContent = Math.abs(a.absolut) <= t.band
+        ? 'Die Abweichung liegt innerhalb der Toleranz — das Gerät hält, was das Datenblatt verspricht.'
+        : 'Die Abweichung ist größer als die Toleranz. Entweder justieren oder aussondern.';
+    } else if (t) {
+      $('note3').textContent = 'Toleranz für den Messwert von oben. Trag Ist und Soll ein, ' +
+        'um eine Prüfung dagegen zu halten.';
+    } else {
+      $('note3').textContent = 'Ist und Soll eintragen.';
+    }
+  }
+
+  fuelle();
+  ['art', 'm0', 'm1', 'sig', 'mw'].forEach(function (id) {
+    $(id).oninput = teil1; $(id).onchange = teil1;
+  });
+  $('roh').oninput = teil2;
+  ['ist', 'soll', 'pvm', 'pve'].forEach(function (id) { $(id).oninput = teil3; });
+  teil1();
+})();
+</script>
+</body>
+</html>
