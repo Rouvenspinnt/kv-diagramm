@@ -20,10 +20,10 @@
     <h2>Ohmsches Gesetz <span class="tag">U · I · R · P</span></h2>
     <div class="body">
       <div class="fields">
-        <label class="f"><span>Spannung U</span><div class="row"><input id="u" inputmode="decimal" placeholder="z. B. 12"><span class="unit">V</span></div></label>
-        <label class="f"><span>Strom I</span><div class="row"><input id="i" inputmode="decimal" placeholder="z. B. 500m"><span class="unit">A</span></div></label>
-        <label class="f"><span>Widerstand R</span><div class="row"><input id="r" inputmode="decimal" placeholder="z. B. 4k7"><span class="unit">Ω</span></div></label>
-        <label class="f"><span>Leistung P</span><div class="row"><input id="p" inputmode="decimal" placeholder="z. B. 6"><span class="unit">W</span></div></label>
+        <label class="f" data-help="Die Spannung über dem Bauteil, in Volt. Am Netzteil abgelesen oder mit dem Multimeter parallel zum Bauteil gemessen. Eingabe z. B. 12, 230 oder 3m für 3 mV."><span>Spannung U</span><div class="row"><input id="u" inputmode="decimal" placeholder="z. B. 12"><span class="unit">V</span></div></label>
+        <label class="f" data-help="Der Strom durch das Bauteil, in Ampere. Zum Messen muss das Multimeter in Reihe liegen, nicht parallel. 500m bedeutet 500 mA."><span>Strom I</span><div class="row"><input id="i" inputmode="decimal" placeholder="z. B. 500m"><span class="unit">A</span></div></label>
+        <label class="f" data-help="Der Widerstandswert in Ohm — vom Farbcode, vom Aufdruck oder im spannungsfreien Zustand gemessen. Eingabe z. B. 4k7 für 4,7 kΩ."><span>Widerstand R</span><div class="row"><input id="r" inputmode="decimal" placeholder="z. B. 4k7"><span class="unit">Ω</span></div></label>
+        <label class="f" data-help="Die im Bauteil umgesetzte Leistung in Watt, also Wärme. Sie entscheidet über die Baugröße: ein 1/4-W-Widerstand verträgt 0,25 W. Die Belastbarkeit steht im Datenblatt."><span>Leistung P</span><div class="row"><input id="p" inputmode="decimal" placeholder="z. B. 6"><span class="unit">W</span></div></label>
       </div>
       <div class="out" id="out"></div>
       <p class="note" id="note"></p>
@@ -36,10 +36,10 @@
     <h2>Reihe und Parallel</h2>
     <div class="body">
       <div class="rowline">
-        <label class="f" style="flex:1 1 260px"><span>Werte, mit Komma getrennt</span>
+        <label class="f" style="flex:1 1 260px" data-help="Die Einzelwerte der Schaltung, durch Komma getrennt — z. B. 100, 220, 330. Vorsätze wie k, m oder µ sind erlaubt, die Einheit kannst du weglassen."><span>Werte, mit Komma getrennt</span>
           <div class="row"><input id="list" placeholder="100, 220, 330"></div></label>
         <div class="field">
-          <div class="seg" id="kind" role="group" aria-label="Bauteilart">
+          <div class="seg" id="kind" role="group" aria-label="Bauteilart" data-help="Welche Bauteile du zusammenschaltest. Widerstände und Spulen addieren sich in Reihe, Kondensatoren genau umgekehrt: dort addieren sie sich parallel.">
             <button data-kind="R">Widerstände</button><button data-kind="C">Kondensatoren</button><button data-kind="L">Spulen</button>
           </div>
         </div>

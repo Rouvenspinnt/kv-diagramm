@@ -20,11 +20,11 @@
     <h2>Reihenschaltung R – L – C</h2>
     <div class="body">
       <div class="fields">
-        <label class="f"><span>Frequenz f</span><div class="row"><input id="f" value="50"><span class="unit">Hz</span></div></label>
-        <label class="f"><span>Widerstand R</span><div class="row"><input id="r" value="100"><span class="unit">Ω</span></div></label>
-        <label class="f"><span>Induktivität L</span><div class="row"><input id="l" value="100m"><span class="unit">H</span></div></label>
-        <label class="f"><span>Kapazität C</span><div class="row"><input id="c" placeholder="leer = ohne"><span class="unit">F</span></div></label>
-        <label class="f"><span>Spannung U (optional)</span><div class="row"><input id="u" placeholder="für Strom"><span class="unit">V</span></div></label>
+        <label class="f" data-help="Die Frequenz des Wechselsignals in Hertz. Netz = 50 Hz, beim Funktionsgenerator das, was du dort einstellst. Sie bestimmt, wie groß X_L und X_C ausfallen."><span>Frequenz f</span><div class="row"><input id="f" value="50"><span class="unit">Hz</span></div></label>
+        <label class="f" data-help="Der ohmsche Anteil der Schaltung: Vorwiderstand, Lastwiderstand oder der Wicklungswiderstand der Spule. Er ist als einziger frequenzunabhängig."><span>Widerstand R</span><div class="row"><input id="r" value="100"><span class="unit">Ω</span></div></label>
+        <label class="f" data-help="Die Induktivität der Spule in Henry. Steht auf dem Bauteil oder im Datenblatt; 100m sind 100 mH."><span>Induktivität L</span><div class="row"><input id="l" value="100m"><span class="unit">H</span></div></label>
+        <label class="f" data-help="Die Kapazität des Kondensators in Farad. Der Aufdruck 104 heißt 10 · 10⁴ pF = 100 nF. Leer lassen, wenn in der Schaltung kein Kondensator sitzt."><span>Kapazität C</span><div class="row"><input id="c" placeholder="leer = ohne"><span class="unit">F</span></div></label>
+        <label class="f" data-help="Die anliegende Wechselspannung als Effektivwert. Nur nötig, wenn du auch den Strom wissen willst — ohne sie kommen nur die Widerstände heraus."><span>Spannung U (optional)</span><div class="row"><input id="u" placeholder="für Strom"><span class="unit">V</span></div></label>
       </div>
       <div class="out" id="out"></div>
       <p class="note" id="note"></p>

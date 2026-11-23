@@ -50,7 +50,7 @@
           3.3, 3.6, 3.9, 4.3, 4.7, 5.1, 5.6, 6.2, 6.8, 7.5, 8.2, 9.1]
   };
 
-  function nearestE(value, series) {              // naechster Normwert (logarithmisch gemessen)
+  function nearestE(value, series) {              // nächster Normwert (logarithmisch gemessen)
     var tab = SERIES[series || 'E24'];
     if (!tab || !(value > 0)) return NaN;
     var dec = Math.floor(Math.log(value) / Math.LN10);
@@ -179,6 +179,93 @@
     }).join('');
   };
 
+  // Fragezeichen neben jedem Feld mit data-help. Eine einzige Sprechblase für alle Knöpfe.
+  var tip = null, open = null, pinned = false;
+
+  function tipEl() {
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.className = 'tip'; tip.id = 'helptip';
+      tip.setAttribute('role', 'tooltip');
+      tip.hidden = true;
+      document.body.appendChild(tip);
+    }
+    return tip;
+  }
+
+  function hideTip() {
+    if (!open) return;
+    open.setAttribute('aria-expanded', 'false');
+    open.removeAttribute('aria-describedby');
+    tipEl().hidden = true;
+    open = null; pinned = false;
+  }
+
+  function showTip(btn) {
+    var t = tipEl();
+    t.textContent = btn.dataset.text;
+    t.hidden = false;
+    var r = btn.getBoundingClientRect();
+    var max = document.documentElement.clientWidth - t.offsetWidth - 8;
+    t.style.left = Math.max(8, Math.min(r.left - 8, max)) + window.scrollX + 'px';
+    t.style.top = r.bottom + window.scrollY + 6 + 'px';
+    if (open && open !== btn) {
+      open.setAttribute('aria-expanded', 'false');
+      open.removeAttribute('aria-describedby');
+    }
+    open = btn;
+    btn.setAttribute('aria-expanded', 'true');
+    btn.setAttribute('aria-describedby', 'helptip');
+  }
+
+  function helpBtn(e) { return e.target && e.target.closest ? e.target.closest('.help') : null; }
+  function inTip(e) { return tip && tip.contains(e.target); }
+
+  api.buildHelp = function (root) {
+    var list = (root || document).querySelectorAll('[data-help]');
+    Array.prototype.forEach.call(list, function (el) {
+      if (el.dataset.helpReady) return;
+      el.dataset.helpReady = '1';
+      var cap = el.querySelector('.lbl') || el.querySelector('span');
+      var name = (cap ? cap.textContent : el.getAttribute('aria-label') || el.textContent).trim();
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'help';
+      b.textContent = '?';
+      b.dataset.text = el.dataset.help;
+      b.setAttribute('aria-expanded', 'false');
+      b.setAttribute('aria-label', 'Erklärung zu: ' + (name || 'diesem Feld'));
+      if (!cap && el.classList.contains('seg') && el.parentNode) {
+        el.parentNode.insertBefore(b, el.nextSibling);   // neben den Schaltkasten, nicht hinein
+      } else {
+        var h = cap || el;
+        h.appendChild(document.createTextNode('\u00a0'));  // bindet das ? ans letzte Wort, sonst rutscht es allein in die nächste Zeile
+        h.appendChild(b);
+      }
+    });
+  };
+
+  function bindHelp() {
+    api.buildHelp();
+    document.addEventListener('mouseover', function (e) {
+      var b = helpBtn(e);
+      if (b) showTip(b);
+      else if (!pinned && open && !inTip(e)) hideTip();
+    });
+    document.addEventListener('click', function (e) {
+      var b = helpBtn(e);
+      if (b) { e.preventDefault(); showTip(b); pinned = true; return; }  // Knopf steckt im <label>
+      if (open && !inTip(e)) hideTip();
+    });
+    document.addEventListener('focusin', function (e) {
+      var b = helpBtn(e);
+      if (b) { showTip(b); pinned = true; }
+      else if (open && !inTip(e)) hideTip();
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hideTip(); });
+    window.addEventListener('resize', hideTip);
+  }
+
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
-  else { global.ET = api; if (global.document) document.addEventListener('DOMContentLoaded', api.buildNav); }
+  else { global.ET = api; if (global.document) document.addEventListener('DOMContentLoaded', function () { api.buildNav(); bindHelp(); }); }
 })(typeof window !== 'undefined' ? window : globalThis);

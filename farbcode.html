@@ -21,7 +21,7 @@
     <div class="body">
       <div class="rowline">
         <div class="field">
-          <div class="seg" id="count" role="group" aria-label="Anzahl der Ringe">
+          <div class="seg" id="count" role="group" aria-label="Anzahl der Ringe" data-help="Wie viele Farbringe dein Widerstand hat. Standard sind 4; Präzisionswiderstände haben 5, mit zusätzlichem Temperaturring 6. Einfach nachzählen.">
             <button data-n="4">4 Ringe</button><button data-n="5">5 Ringe</button><button data-n="6">6 Ringe</button>
           </div>
         </div>
@@ -37,9 +37,9 @@
     <h2>Wert in Ringe umsetzen</h2>
     <div class="body">
       <div class="fields">
-        <label class="f"><span>Widerstand</span><div class="row"><input id="val" placeholder="4k7"><span class="unit">Ω</span></div></label>
-        <label class="f"><span>Ringe</span><div class="row"><select id="count2"><option value="4">4</option><option value="5">5</option></select></div></label>
-        <label class="f"><span>Toleranz</span><div class="row"><select id="tol2"></select></div></label>
+        <label class="f" data-help="Der Wert, den du in Ringe umsetzen willst — z. B. 4k7, 220 oder 1M. Liegt er zwischen zwei Normwerten, sagt die Seite es dir unten."><span>Widerstand</span><div class="row"><input id="val" placeholder="4k7"><span class="unit">Ω</span></div></label>
+        <label class="f" data-help="4 Ringe: zwei Ziffern, Multiplikator, Toleranz. 5 Ringe: drei Ziffern und damit feiner, üblich bei Präzisionswiderständen."><span>Ringe</span><div class="row"><select id="count2"><option value="4">4</option><option value="5">5</option></select></div></label>
+        <label class="f" data-help="Wie weit der echte Wert abweichen darf. Gold = ±5 %, Braun = ±1 %. Im Zweifel ±5 %, das ist bei Standardwiderständen der Normalfall."><span>Toleranz</span><div class="row"><select id="tol2"></select></div></label>
       </div>
       <div id="draw2"></div>
       <div class="out" id="out2"></div>
@@ -89,6 +89,20 @@
     Array.prototype.forEach.call($('count').children, function (b) {
       b.setAttribute('aria-pressed', String(+b.dataset.n === n));
     });
+    var HELP = {
+      '1. Ziffer': 'Der erste Ring, gezählt von dem Ende, an dem die Ringe dichter sitzen. '
+        + 'Er gibt die erste Ziffer des Werts: braun 1, rot 2, orange 3 und so weiter.',
+      '2. Ziffer': 'Der zweite Ring, die zweite Ziffer. Zusammen mit dem ersten ergibt er die '
+        + 'Grundzahl, z. B. gelb-violett = 47.',
+      '3. Ziffer': 'Nur bei 5 und 6 Ringen: die dritte Ziffer. Damit sind feine Werte wie '
+        + '4,75 kΩ darstellbar.',
+      'Multiplikator': 'Mit wie vielen Zehnerpotenzen die Ziffern malgenommen werden: '
+        + 'rot = ×100, gold = ×0,1. Dieser Ring verschiebt nur das Komma.',
+      'Toleranz': 'Wie weit der echte Wert abweichen darf. Der Toleranzring sitzt abgesetzt am '
+        + 'anderen Ende — daran erkennst du, von welcher Seite du liest.',
+      'Temperaturkoeffizient': 'Nur bei 6 Ringen: wie stark sich der Wert mit der Temperatur '
+        + 'ändert, in ppm je Kelvin. Für normale Schaltungen ohne Bedeutung.'
+    };
     var labels = n >= 5 ? ['1. Ziffer', '2. Ziffer', '3. Ziffer', 'Multiplikator', 'Toleranz']
                         : ['1. Ziffer', '2. Ziffer', 'Multiplikator', 'Toleranz'];
     if (n === 6) labels.push('Temperaturkoeffizient');
@@ -98,11 +112,12 @@
     labels.forEach(function (lab, k) {
       var list = /Ziffer/.test(lab) ? digits : /Multi/.test(lab) ? mults : /Toleranz/.test(lab) ? tols : tks;
       var sel = list.indexOf(pre[k]) >= 0 ? pre[k] : list[0];
-      h += '<label class="f"><span>' + lab + '</span><div class="row swatch-row">' +
+      h += '<label class="f" data-help="' + HELP[lab] + '"><span>' + lab + '</span><div class="row swatch-row">' +
            '<span class="chip" data-chip="' + k + '"></span>' +
            '<select data-ring="' + k + '">' + options(list, sel) + '</select></div></label>';
     });
     $('rings').innerHTML = h;
+    ET.buildHelp($('rings'));
     Array.prototype.forEach.call($('rings').querySelectorAll('select'), function (s) { s.onchange = read; });
     read();
   }

@@ -20,11 +20,11 @@
     <h2>Vorwiderstand für LEDs</h2>
     <div class="body">
       <div class="fields">
-        <label class="f"><span>Versorgung U<sub>q</sub></span><div class="row"><input id="uq" value="12"><span class="unit">V</span></div></label>
-        <label class="f"><span>Flussspannung U<sub>F</sub></span><div class="row"><input id="uf" value="2.1"><span class="unit">V</span></div></label>
-        <label class="f"><span>Strom I<sub>F</sub></span><div class="row"><input id="if" value="20m"><span class="unit">A</span></div></label>
-        <label class="f"><span>LEDs in Reihe</span><div class="row"><input id="nled" value="1" inputmode="numeric"><span class="unit">×</span></div></label>
-        <label class="f"><span>Normreihe</span><div class="row"><select id="serie"><option>E24</option><option>E12</option><option>E6</option></select></div></label>
+        <label class="f" data-help="Die Betriebsspannung deiner Schaltung: was aus Netzteil, Batterie oder der 5-V-Schiene des Mikrocontrollers kommt."><span>Versorgung U<sub>q</sub></span><div class="row"><input id="uq" value="12"><span class="unit">V</span></div></label>
+        <label class="f" data-help="Die Spannung, die an der LED selbst abfällt. Steht im Datenblatt als U_F oder V_F. Faustwerte: rot ≈ 2,0 V, gelb/grün ≈ 2,2 V, blau/weiß ≈ 3,2 V."><span>Flussspannung U<sub>F</sub></span><div class="row"><input id="uf" value="2.1"><span class="unit">V</span></div></label>
+        <label class="f" data-help="Der gewünschte Strom durch die LED, im Datenblatt als I_F. Üblich sind 2 bis 20 mA. Mehr Strom heißt heller, aber auch wärmer und kürzere Lebensdauer."><span>Strom I<sub>F</sub></span><div class="row"><input id="if" value="20m"><span class="unit">A</span></div></label>
+        <label class="f" data-help="Wie viele LEDs hintereinander am selben Vorwiderstand hängen. Ihre Flussspannungen addieren sich, also muss n · U_F deutlich unter U_q bleiben."><span>LEDs in Reihe</span><div class="row"><input id="nled" value="1" inputmode="numeric"><span class="unit">×</span></div></label>
+        <label class="f" data-help="Aus welcher Reihe der Vorschlag kommt. E24 hat 24 Werte je Dekade und trifft genauer, E6 nur 6. Nimm die Reihe, die du in der Schublade hast."><span>Normreihe</span><div class="row"><select id="serie"><option>E24</option><option>E12</option><option>E6</option></select></div></label>
       </div>
       <div class="out" id="out1"></div>
       <p class="note" id="note1"></p>
@@ -36,10 +36,10 @@
     <h2>Spannungsteiler</h2>
     <div class="body">
       <div class="fields">
-        <label class="f"><span>Eingang U<sub>e</sub></span><div class="row"><input id="ue" value="24"><span class="unit">V</span></div></label>
-        <label class="f"><span>R1</span><div class="row"><input id="r1" value="10k"><span class="unit">Ω</span></div></label>
-        <label class="f"><span>R2</span><div class="row"><input id="r2" value="4k7"><span class="unit">Ω</span></div></label>
-        <label class="f"><span>Last R<sub>L</sub> (optional)</span><div class="row"><input id="rl" placeholder="leer = unbelastet"><span class="unit">Ω</span></div></label>
+        <label class="f" data-help="Die Spannung am oberen Ende des Teilers, also über R1 und R2 zusammen."><span>Eingang U<sub>e</sub></span><div class="row"><input id="ue" value="24"><span class="unit">V</span></div></label>
+        <label class="f" data-help="Der obere Widerstand, zwischen Eingang und Abgriff. Je größer R1, desto kleiner die Ausgangsspannung und desto geringer der Querstrom."><span>R1</span><div class="row"><input id="r1" value="10k"><span class="unit">Ω</span></div></label>
+        <label class="f" data-help="Der untere Widerstand, zwischen Abgriff und Masse. Die Ausgangsspannung ist die Spannung über R2."><span>R2</span><div class="row"><input id="r2" value="4k7"><span class="unit">Ω</span></div></label>
+        <label class="f" data-help="Der Widerstand, den die angeschlossene Schaltung darstellt; er liegt parallel zu R2 und zieht die Ausgangsspannung herunter. Leer lassen für den unbelasteten Teiler. Faustregel: R_L mindestens 10-mal so groß wie R2."><span>Last R<sub>L</sub> (optional)</span><div class="row"><input id="rl" placeholder="leer = unbelastet"><span class="unit">Ω</span></div></label>
       </div>
       <div class="out" id="out2"></div>
       <p class="note" id="note2"></p>

@@ -17,14 +17,14 @@
 
 <main class="wrap">
   <div class="panel controls">
-    <div class="field">
+    <div class="field" data-help="Wie viele Eingänge deine Funktion hat, benannt A bis F. Die Wertetabelle bekommt dadurch 2^n Zeilen: 4 Variablen ergeben 16 Zeilen, 6 Variablen schon 64.">
       <span class="lbl">Variablen</span>
       <div class="seg" id="nvars" role="group" aria-label="Anzahl der Variablen">
         <button data-n="2">2</button><button data-n="3">3</button><button data-n="4">4</button><button data-n="5">5</button><button data-n="6">6</button>
       </div>
       <span class="hint" id="varnames"></span>
     </div>
-    <div class="field">
+    <div class="field" data-help="DNF fasst die Einsen zu UND-Termen zusammen, die mit ODER verbunden werden. KNF fasst die Nullen zu ODER-Termen zusammen, verbunden mit UND. Nimm das, wovon es weniger gibt — das ergibt meist die kürzere Gleichung.">
       <span class="lbl">Blöcke</span>
       <div class="seg" id="mode" role="group" aria-label="Welche Blöcke das Diagramm zeigt">
         <button data-mode="1">DNF · Einsen</button><button data-mode="0">KNF · Nullen</button>
@@ -41,7 +41,7 @@
     <section class="panel">
       <h2>Wertetabelle <span class="tag" id="rowcount"></span></h2>
       <div class="body">
-        <label class="hint" for="col">Y-Spalte von oben nach unten</label>
+        <label class="hint" for="col" data-help="Die Ausgangsspalte am Stück, von der obersten Zeile abwärts — z. B. 0110 1001. Leerzeichen darfst du setzen, wie du magst. X steht für don't care: Eingangskombinationen, die nie vorkommen und deshalb frei belegt werden dürfen.">Y-Spalte von oben nach unten</label>
         <input id="col" spellcheck="false" autocomplete="off" aria-describedby="colmsg">
         <p class="hint" id="colmsg" style="margin:6px 0 0"></p>
         <div id="tt"></div>

@@ -235,3 +235,18 @@
   .res-svg .band { stroke:rgba(0,0,0,.35); stroke-width:.75; }
   .swatch-row { display:flex; align-items:center; gap:6px; }
   .chip { width:14px; height:14px; border-radius:3px; border:1px solid var(--line); flex:none; }
+
+  /* Hilfe-Fragezeichen an den Feldern */
+  .help { position:relative; display:inline-flex; align-items:center; justify-content:center;
+          width:16px; height:16px; margin-left:1px; padding:0; vertical-align:middle; flex:none;
+          font:600 10px/1 inherit; cursor:help; -webkit-appearance:none; appearance:none;
+          color:var(--ink-3); background:var(--panel);
+          border:1px solid var(--line); border-radius:50%; }
+  .help::after { content:''; position:absolute; inset:-8px; }   /* größere Trefferfläche fürs Tippen */
+  .help:hover, .help:focus-visible { color:var(--ink); border-color:var(--ink-2); }
+  .tip { position:absolute; z-index:60; max-width:290px; padding:10px 12px;
+         font-size:.8rem; line-height:1.55; color:var(--ink-2);
+         background:var(--panel); border:1px solid var(--line); border-radius:var(--r-panel);
+         box-shadow:0 8px 24px rgba(0,0,0,.16); }
+  .tip[hidden] { display:none; }
+  @media print { .help, .tip { display:none !important; } }

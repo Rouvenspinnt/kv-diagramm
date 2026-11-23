@@ -24,6 +24,11 @@ Läuft ohne Server und ohne Abhängigkeiten — `index.html` im Browser öffnen 
 
 Eingaben verstehen Vorsätze und Schreibweisen wie `4k7`, `2.2k`, `0,1µF`, `20m`.
 
+## Hilfe an den Feldern
+
+Neben jedem Eingabefeld steht ein `?`. Daraufzeigen oder antippen erklärt, was der Wert bedeutet, woher er kommt und wo man ihn findet — Datenblatt, Aufdruck oder Messung.
+Die Texte stehen als `data-help` am Feld, die Mechanik einmal in `et.js`.
+
 ## Test
 
 ```
